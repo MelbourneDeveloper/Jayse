@@ -65,9 +65,9 @@ namespace Jayse.UnitTests
             Assert.AreEqual((decimal)145.070165949298001,
                 coordinatesArray.First().NumberValue);
 
-            var json = jsonObject.ToJson();
-
-            Assert.IsNotNull(json);
+            Console.WriteLine(jsonObject.ToJson(false));
+            Console.WriteLine();
+            Console.WriteLine(jsonObject.ToJson(true));
         }
     }
 }

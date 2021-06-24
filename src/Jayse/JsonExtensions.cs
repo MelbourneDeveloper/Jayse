@@ -14,8 +14,8 @@ namespace Jayse
 {
     public static class JsonExtensions
     {
-        public static string ToJson(this IDictionary<string, JsonValue> jsonObject) =>
-            "{" + string.Join(",\r\n", jsonObject.Select(kvp => $"\"{kvp.Key}\" : {kvp.Value.ToJson()}")) + "}";
+        public static string ToJson(this IDictionary<string, JsonValue> jsonObject, bool format = false) =>
+            "{" + string.Join($",{(format?"\r\n":"")}", jsonObject.Select(kvp => $"\"{kvp.Key}\" : {kvp.Value.ToJson()}")) + "}";
 
         public static Guid AsGuid(this JsonValue jsonValue) 
         => jsonValue==null?throw new InvalidOperationException(): new(jsonValue.StringValue);

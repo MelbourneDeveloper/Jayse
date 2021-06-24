@@ -35,13 +35,13 @@ namespace Jayse
         public JsonValue(ImmutableDictionary<string, JsonValue> value) { objectValue = value; ValueType = JsonValueType.OfObject; }
         public JsonValue(ImmutableList<JsonValue> value) { arrayValue = value; ValueType = JsonValueType.OfArray; }
 
-        public string ToJson()
+        public string ToJson(bool format = false)
         =>
             ValueType switch
             {
-                JsonValueType.OfObject => ObjectValue.ToJson(),
+                JsonValueType.OfObject => ObjectValue.ToJson(format),
                 JsonValueType.OfString => "\"" + StringValue + "\"",
-                JsonValueType.OfArray => "[" + string.Join(",\r\n", arrayValue.Select(v => v.ToJson())) + "]",
+                JsonValueType.OfArray => "[" + string.Join($",{(format ? "\r\n" : "")}", ArrayValue.Select(v => v.ToJson(format))) + "]",
                 JsonValueType.OfBoolean => BooleanValue.ToString().ToLower(),
                 JsonValueType.OfNull => "null",
                 JsonValueType.OfNumber => NumberValue.ToString(),
