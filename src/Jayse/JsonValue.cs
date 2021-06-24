@@ -3,7 +3,6 @@ using System.Collections.Immutable;
 using System.Linq;
 
 #pragma warning disable IDE1006 // Naming Styles
-#pragma warning disable CS8604 // Possible null reference argument.
 #pragma warning disable CA1304 // Specify CultureInfo
 #pragma warning disable CA1305 // Specify IFormatProvider
 
@@ -48,16 +47,5 @@ namespace Jayse
                 JsonValueType.OfNumber => NumberValue.ToString(),
                 _ => throw new NotImplementedException(),
             };
-    }
-
-
-    public enum JsonValueType
-    {
-        OfString,
-        OfNumber,
-        OfObject,
-        OfArray,
-        OfBoolean,
-        OfNull
     }
 }
