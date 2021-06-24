@@ -1,0 +1,26 @@
+<Project>
+    <PropertyGroup>
+		<Deterministic>true</Deterministic>
+        <LangVersion>Latest</LangVersion>
+        <DebugSymbols>true</DebugSymbols>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <EnableNETAnalyzers>true</EnableNETAnalyzers>
+		<AnalysisLevel>latest</AnalysisLevel>
+		<AnalysisMode>AllEnabledByDefault</AnalysisMode>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
+		<RunAnalyzersDuringLiveAnalysis>true</RunAnalyzersDuringLiveAnalysis>
+		<RunAnalyzers>true</RunAnalyzers>
+		<Nullable>enable</Nullable>
+		<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+		<CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
+	    <Authors>Christian Findlay</Authors>
+	    <Company>Christian Findlay</Company>
+	    <Copyright>© $([System.DateTime]::UtcNow.ToString(yyyy)) Christian Findlay</Copyright>
+	    <RepositoryType>git</RepositoryType>
+	    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+	    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    </PropertyGroup>
+</Project>
