@@ -105,11 +105,18 @@ namespace Jayse
             }
         }
     }
+
+
 }
 
 
                      
-  
+namespace System.Runtime.CompilerServices
+{
+    public class IsExternalInit
+    { 
 
+    }
+}
 
 
