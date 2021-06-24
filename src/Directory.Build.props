@@ -23,6 +23,7 @@
 	    <PackageLicenseExpression>MIT</PackageLicenseExpression>
 	    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 		<PackageIcon>Icon.png</PackageIcon>
+	    <RepositoryUrl>https://github.com/MelbourneDeveloper/Jayse</RepositoryUrl>
 	</PropertyGroup>
 	<ItemGroup>
 		<None Include="..\..\Images\Icon.png">
