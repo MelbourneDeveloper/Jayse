@@ -6,13 +6,12 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{22CB3E35-F574-448C-A8F0-2375C83FBCD0}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
-		DataTypes.md = DataTypes.md
 		Directory.Build.props = Directory.Build.props
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Jayse", "Jayse\Jayse.csproj", "{FC95C42A-8E10-4DC0-AE2F-E5128E77DEEA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jayse.UnitTests", "Jayse.UnitTests\Jayse.UnitTests.csproj", "{1AA65B1A-A2FD-404A-AD0B-344681CF199F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Jayse.UnitTests", "Jayse.UnitTests\Jayse.UnitTests.csproj", "{1AA65B1A-A2FD-404A-AD0B-344681CF199F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
