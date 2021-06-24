@@ -1,5 +1,9 @@
 # Jayse
 
-![diagram](https://github.com/MelbourneDeveloper/Jayse/blob/main/Images/Icon.png) 
+Traverse and modify JSON documents
 
-It does JSON in a .NET kinda way
+![diagram](https://github.com/MelbourneDeveloper/Jayse/blob/main/Images/IconSmall.png) 
+
+## What Is It And Why?
+Sometimes you need to traverse or modify a JSON document without serialization or deserialization. Jayse represents JSON as a simple object model with one record and one enum. The existing libraries like JSON.Net don't do this very well and can be clunky to traverse. 
+
