@@ -11,6 +11,15 @@ namespace Jayse.UnitTests
     public class UnitTest1
     {
         [TestMethod]
+        public void TestCreateJsonObject()
+        {
+            const string key = "key";
+            var jsonValue = new JsonValue("value");
+            var dictionary = jsonValue.CreateJsonObject(key);
+            Assert.AreEqual(jsonValue, dictionary[key]);
+        }
+
+        [TestMethod]
         public void TestNonDestructiveMutability()
         {
             var expectedJson = File.ReadAllText("TestDataMutated.json");

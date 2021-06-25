@@ -133,6 +133,12 @@ namespace Jayse
                     throw new NotImplementedException();
             }
         }
+
+        public static OrderedImmutableDictionary<string, JsonValue> CreateJsonObject(this JsonValue jsonValue, string key)
+        => new(new List<KeyValuePair<string, JsonValue>>
+        {
+            new(key, jsonValue )
+        });
     }
 
 
