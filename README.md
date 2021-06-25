@@ -80,3 +80,12 @@ var properties = firstFeature.ObjectValue["properties"].ObjectValue;
 var properties2 = properties.With("ID", new JsonValue("newid"));
 ```
 
+### ToJson()
+
+`ToJson()` converts the JSON tree model back to JSON text. This code converts the model back to JSON exactly as per the example above:
+
+```cs
+var jsonObject = File.ReadAllText("TestData.json").ToJsonObject();
+//Choose formatted or non-formatted JSON
+var formattedJson = jsonObject.ToJson(true);
+```
