@@ -51,7 +51,7 @@ Sometimes you need to traverse or modify a JSON document without serialization o
 
 Let's say that we want to get the value of `ID` as a `Guid`. We can do that by accessing the value like so:
 
-```
+```cs
 var jsonObject = File.ReadAllText("TestData.json").ToJsonObject();
 Console.WriteLine(jsonObject["features"][0]["properties"]["ID"].AsGuid().ToString());
 ```
