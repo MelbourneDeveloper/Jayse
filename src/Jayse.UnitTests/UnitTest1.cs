@@ -17,12 +17,9 @@ namespace Jayse.UnitTests
             const string newValue = "newvalue";
             const string key = "key";
 
-            var dictionary = new OrderedImmutableDictionary<string, JsonValue>(new List<KeyValuePair<string, JsonValue>>
-            {
-                new KeyValuePair<string, JsonValue>(key, new JsonValue("value") )
-            });
-
-            var newDictionary = dictionary.SetValue((d) => d[key], new JsonValue(newValue));
+            var newDictionary = new JsonValue("value")
+                .CreateJsonObject(key)
+                .SetValue((d) => d[key], new JsonValue(newValue));
 
             Assert.AreEqual(newValue, newDictionary[key].StringValue);
         }
