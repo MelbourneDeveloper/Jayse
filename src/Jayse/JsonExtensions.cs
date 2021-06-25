@@ -16,7 +16,10 @@ namespace Jayse
 
     public static class JsonExtensions
     {
-        public static string Repeat(this string text, int times)
+        internal const string TabText="\t";
+        internal static string RepeatTab(int depth) => TabText.Repeat(depth);
+
+        private static string Repeat(this string text, int times)
         {
             var sb = new StringBuilder();
             for (var i = 0; i < times; i++)
@@ -27,8 +30,7 @@ namespace Jayse
         }
 
         public static string ToJson(this IDictionary<string, JsonValue> jsonObject, bool format = false, int depth = 1) =>
-            "\t".Repeat(depth-1) + "{" + (format ? "\r\n" : "") + string.Join($",{(format?"\r\n":"")}", jsonObject.Select(kvp => $"{"\t".Repeat(depth)}\"{kvp.Key}\" : {kvp.Value.ToJson(format, depth)}")) + (format ? "\r\n" : "") + "\t".Repeat(depth-1) + "}";
-
+            RepeatTab(depth-1) + "{" + (format ? "\r\n" : "") + string.Join($",{(format ? "\r\n":"")}", jsonObject.Select(kvp => $"{RepeatTab(depth)}\"{kvp.Key}\" : {kvp.Value.ToJson(format, depth)}")) + (format ? "\r\n" : "") + RepeatTab(depth-1) + "}";
         public static Guid AsGuid(this JsonValue jsonValue) 
         => jsonValue==null?throw new InvalidOperationException(): new(jsonValue.StringValue);
 

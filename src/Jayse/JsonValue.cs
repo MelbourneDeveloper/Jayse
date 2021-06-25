@@ -46,7 +46,7 @@ namespace Jayse
             {
                 JsonValueType.OfObject => (format ? "\r\n" : "") + ObjectValue.ToJson(format, depth + 1),
                 JsonValueType.OfString => "\"" + StringValue + "\"",
-                JsonValueType.OfArray => (format ? "\r\n" : "") + "\t".Repeat(depth) + "[" + string.Join($",", ArrayValue.Select(v => (format ? $"\r\n" : "") + "\t".Repeat(depth + 1) + v.ToJson(format, depth + 1))) + $"{(format ? "\r\n" : "")}{"\t".Repeat(depth)}]",
+                JsonValueType.OfArray => (format ? "\r\n" : "") + JsonExtensions.RepeatTab(depth) + "[" + string.Join($",", ArrayValue.Select(v => (format ? $"\r\n" : "") + JsonExtensions.RepeatTab(depth + 1) + v.ToJson(format, depth + 1))) + $"{(format ? "\r\n" : "")}{JsonExtensions.RepeatTab(depth)}]",
                 JsonValueType.OfBoolean => BooleanValue.ToString().ToLower(),
                 JsonValueType.OfNull => "null",
                 JsonValueType.OfNumber => NumberValue.ToString(),
