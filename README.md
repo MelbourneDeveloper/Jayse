@@ -52,11 +52,18 @@ Sometimes you need to traverse or modify a JSON document without serialization o
 Let's say that we want to get the value of `ID` as a `Guid`. We can do that by accessing the value like so:
 
 ```cs
+//Convert JSON to the object model
 var jsonObject = File.ReadAllText("TestData.json").ToJsonObject();
+
+//Access the value in the ID property
 Console.WriteLine(jsonObject["features"][0]["properties"]["ID"].AsGuid().ToString());
 ```
 
 Output:
 
 > 72cdd9ee-b48d-41af-b6b4-63df02eb7e18
+
+## Design
+
+The object model is easy to inspect. Each node contains a value of string, bool, array, object, number or null exactly like  the [JSON spec](https://www.json.org/json-en.html).
 
