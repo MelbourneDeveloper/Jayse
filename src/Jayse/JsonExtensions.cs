@@ -142,6 +142,15 @@ namespace Jayse
 
         public static OrderedImmutableDictionary<string, JsonValue> CreateJsonObject(this IEnumerable<KeyValuePair<string, JsonValue>> jsonValues)
         => new(jsonValues);
+
+        public static JsonValue ToJsonValue(this string stringValue)
+        => new(stringValue);
+
+        public static JsonValue ToJsonValue(this bool booleanValue)
+        => new(booleanValue);
+
+        public static JsonValue ToJsonValue(this ImmutableList<JsonValue> arrayValue)
+        => new(arrayValue);
     }
 
 

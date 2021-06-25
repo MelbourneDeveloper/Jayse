@@ -11,6 +11,21 @@ namespace Jayse.UnitTests
     public class UnitTest1
     {
         [TestMethod]
+        public void TestToJsonValue()
+        {
+            const string stringValue = "stringValue";
+            var jsonValue = stringValue.ToJsonValue();
+            Assert.AreEqual(stringValue, jsonValue.StringValue);
+        }
+
+        [TestMethod]
+        public void TestToJsonValue2()
+        {
+            var jsonValue = true.ToJsonValue();
+            Assert.AreEqual(true, jsonValue.BooleanValue);
+        }
+
+        [TestMethod]
         public void TestCreateJsonObject()
         {
             const string key = "key";
