@@ -26,7 +26,7 @@ namespace Jayse
             return sb.ToString();
         }
 
-        public static string ToJson(this IDictionary<string, JsonValue> jsonObject, bool format = false, int depth = 0) =>
+        public static string ToJson(this IDictionary<string, JsonValue> jsonObject, bool format = false, int depth = 1) =>
             "\t".Repeat(depth-1) + "{" + (format ? "\r\n" : "") + string.Join($",{(format?"\r\n":"")}", jsonObject.Select(kvp => $"{"\t".Repeat(depth)}\"{kvp.Key}\" : {kvp.Value.ToJson(format, depth)}")) + (format ? "\r\n" : "") + "\t".Repeat(depth-1) + "}";
 
         public static Guid AsGuid(this JsonValue jsonValue) 
