@@ -46,6 +46,9 @@ namespace Jayse
         #endregion
 
         #region Methods
+
+        public override string ToString() => ToJson(true);
+
         public string ToJson(bool format = false, int depth = 0)
         =>
             ValueType switch
