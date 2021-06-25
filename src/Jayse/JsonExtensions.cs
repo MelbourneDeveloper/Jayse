@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -32,7 +32,7 @@ namespace Jayse
             return sb.ToString();
         }
 
-        public static string ToJson(this OrderedImmutableDictionary<string, JsonValue> jsonObject, bool format = false, int depth = 1) =>
+        public static string ToJson(this IReadOnlyDictionary<string, JsonValue> jsonObject, bool format = false, int depth = 1) =>
             RepeatTab(format,depth - 1) + "{" + CrLf(format) + 
             string.Join($",{CrLf(format)}", jsonObject.Select(kvp => $"{RepeatTab(format,depth)}\"{kvp.Key}\" : {kvp.Value.ToJson(format, depth)}")) + CrLf(format) + 
             RepeatTab(format,depth - 1) + "}";
