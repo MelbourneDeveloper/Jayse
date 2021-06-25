@@ -15,7 +15,7 @@ namespace Jayse
         private string? stringValue { get; init; }
         private bool? booleanValue { get; init; }
         private decimal? numberValue { get; init; }
-        private ImmutableDictionary<string, JsonValue>? objectValue { get; init; }
+        private OrderedImmutableDictionary<string, JsonValue>? objectValue { get; init; }
         private ImmutableList<JsonValue>? arrayValue { get; init; }
         #endregion
 
@@ -23,7 +23,7 @@ namespace Jayse
         public string StringValue { get => stringValue ?? throw new InvalidOperationException(); init { stringValue = value; } }
         public bool BooleanValue { get => booleanValue ?? throw new InvalidOperationException(); init { booleanValue = value; } }
         public decimal NumberValue { get => numberValue ?? throw new InvalidOperationException(); init { numberValue = value; } }
-        public ImmutableDictionary<string, JsonValue> ObjectValue { get => objectValue ?? throw new InvalidOperationException(); init { objectValue = value; } }
+        public OrderedImmutableDictionary<string, JsonValue> ObjectValue { get => objectValue ?? throw new InvalidOperationException(); init { objectValue = value; } }
         public ImmutableList<JsonValue> ArrayValue { get => arrayValue ?? throw new InvalidOperationException(); init { arrayValue = value; } }
         public JsonValue this[string key] => ObjectValue[key];
         public JsonValue this[int index] => ArrayValue[index];
@@ -35,7 +35,7 @@ namespace Jayse
         public JsonValue(string value) { stringValue = value; ValueType = JsonValueType.OfString; }
         public JsonValue(bool value) { booleanValue = value; ValueType = JsonValueType.OfBoolean; }
         public JsonValue(decimal value) { numberValue = value; ValueType = JsonValueType.OfNumber; }
-        public JsonValue(ImmutableDictionary<string, JsonValue> value) { objectValue = value; ValueType = JsonValueType.OfObject; }
+        public JsonValue(OrderedImmutableDictionary<string, JsonValue> value) { objectValue = value; ValueType = JsonValueType.OfObject; }
         public JsonValue(ImmutableList<JsonValue> value) { arrayValue = value; ValueType = JsonValueType.OfArray; }
         #endregion
 
