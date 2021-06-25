@@ -65,5 +65,18 @@ Output:
 
 ## Design
 
-The object model is easy to inspect. Each node contains a value of string, bool, array, object, number or null exactly like  the [JSON spec](https://www.json.org/json-en.html).
+The object model is easy to inspect. Each node contains a value of string, bool, array, object, number or null exactly like  the [JSON spec](https://www.json.org/json-en.html). All nodes are immutable records. You can use [non-destructive mutation](https://docs.microsoft.com/en-us/dotnet/csharp/whats-new/tutorials/records#non-destructive-mutation) to modify values. For example, if you wanted to modify the ID property, you can create a new properties node like so:
+
+```cs
+//Convert JSON to the object model
+var jsonObject = File.ReadAllText("TestData.json").ToJsonObject();
+
+var features = jsonObject["features"];
+var firstFeature = features.ArrayValue.First();
+//Get the properties node
+var properties = firstFeature.ObjectValue["properties"].ObjectValue;
+
+//Create a new properties node with the value of "newid" as the ID property
+var properties2 = properties.With("ID", new JsonValue("newid"));
+```cs
 
