@@ -46,7 +46,12 @@ namespace Jayse
             {
                 JsonValueType.OfObject => JsonExtensions.CrLf(format) + ObjectValue.ToJson(format, depth + 1),
                 JsonValueType.OfString => "\"" + StringValue + "\"",
-                JsonValueType.OfArray => JsonExtensions.CrLf(format) + JsonExtensions.RepeatTab(format, depth) + "[" + string.Join($",", ArrayValue.Select(v => JsonExtensions.CrLf(format) + JsonExtensions.RepeatTab(format, depth + 1) + v.ToJson(format, depth + 1))) + $"{JsonExtensions.CrLf(format)}{JsonExtensions.RepeatTab(format, depth)}]",
+
+                JsonValueType.OfArray => JsonExtensions.CrLf(format) +
+                    JsonExtensions.RepeatTab(format, depth) + "[" + string.Join($",", ArrayValue.Select(v => JsonExtensions.CrLf(format) +
+                    JsonExtensions.RepeatTab(format, depth + 1) + v.ToJson(format, depth + 1))) +
+                    $"{JsonExtensions.CrLf(format)}{JsonExtensions.RepeatTab(format, depth)}]",
+
                 JsonValueType.OfBoolean => BooleanValue.ToString().ToLower(),
                 JsonValueType.OfNull => "null",
                 JsonValueType.OfNumber => NumberValue.ToString(),

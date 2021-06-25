@@ -32,7 +32,9 @@ namespace Jayse
         }
 
         public static string ToJson(this IDictionary<string, JsonValue> jsonObject, bool format = false, int depth = 1) =>
-            RepeatTab(format,depth - 1) + "{" + CrLf(format) + string.Join($",{CrLf(format)}", jsonObject.Select(kvp => $"{RepeatTab(format,depth)}\"{kvp.Key}\" : {kvp.Value.ToJson(format, depth)}")) + CrLf(format) + RepeatTab(format,depth - 1) + "}";
+            RepeatTab(format,depth - 1) + "{" + CrLf(format) + 
+            string.Join($",{CrLf(format)}", jsonObject.Select(kvp => $"{RepeatTab(format,depth)}\"{kvp.Key}\" : {kvp.Value.ToJson(format, depth)}")) + CrLf(format) + 
+            RepeatTab(format,depth - 1) + "}";
 
         public static Guid AsGuid(this JsonValue jsonValue) 
         => jsonValue==null?throw new InvalidOperationException(): new(jsonValue.StringValue);
