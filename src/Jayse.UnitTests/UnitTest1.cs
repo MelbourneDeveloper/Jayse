@@ -70,7 +70,7 @@ namespace Jayse.UnitTests
 
             var formattedJson = jsonObject.ToJson(true);
 
-            //Assert.AreEqual(originalJson, formattedJson);
+            Assert.AreEqual(originalJson, formattedJson);
 
             Console.WriteLine(formattedJson);
         }
