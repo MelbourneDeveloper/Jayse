@@ -1,10 +1,11 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
+
 #pragma warning disable format
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
 #pragma warning disable CS8604 // Possible null reference argument.
@@ -31,7 +32,7 @@ namespace Jayse
             return sb.ToString();
         }
 
-        public static string ToJson(this IDictionary<string, JsonValue> jsonObject, bool format = false, int depth = 1) =>
+        public static string ToJson(this IReadOnlyDictionary<string, JsonValue> jsonObject, bool format = false, int depth = 1) =>
             RepeatTab(format,depth - 1) + "{" + CrLf(format) + 
             string.Join($",{CrLf(format)}", jsonObject.Select(kvp => $"{RepeatTab(format,depth)}\"{kvp.Key}\" : {kvp.Value.ToJson(format, depth)}")) + CrLf(format) + 
             RepeatTab(format,depth - 1) + "}";
@@ -39,16 +40,16 @@ namespace Jayse
         public static Guid AsGuid(this JsonValue jsonValue) 
         => jsonValue==null?throw new InvalidOperationException(): new(jsonValue.StringValue);
 
-        public static ImmutableDictionary<string, JsonValue> ToJsonObject(this string json)
+        public static OrderedImmutableDictionary<string, JsonValue> ToJsonObject(this string json)
         {
 
             var deserializedObject = (JObject)JsonConvert.DeserializeObject(json);
 
-            return ProcessObject(deserializedObject).ToImmutableDictionary();
+            return ProcessObject(deserializedObject);
 
         }
 
-        private static Dictionary<string, JsonValue> ProcessObject(JObject deserializedObject)
+        private static OrderedImmutableDictionary<string, JsonValue> ProcessObject(JObject deserializedObject)
         {
             var jsonObject = new Dictionary<string, JsonValue>();
 
@@ -57,7 +58,7 @@ namespace Jayse
                 ProcessProperty(jsonObject, property);
             }
 
-            return jsonObject;
+            return new OrderedImmutableDictionary<string, JsonValue>( jsonObject);
         }
 
         private static void ProcessProperty(Dictionary<string, JsonValue> jsonObject, JProperty property)
@@ -70,7 +71,7 @@ namespace Jayse
                 case JTokenType.None:
                     throw new NotImplementedException();
                 case JTokenType.Object:
-                    jsonObject.Add(property.Name, new JsonValue(ProcessObject((JObject)property.Value).ToImmutableDictionary()));
+                    jsonObject.Add(property.Name, new JsonValue(ProcessObject((JObject)property.Value)));
                     break;
                 case JTokenType.Array:
 
@@ -90,7 +91,7 @@ namespace Jayse
                                 ProcessProperty(childJsonObject, childProperty);
                             }
 
-                            children.Add(new JsonValue(childJsonObject.ToImmutableDictionary()));
+                            children.Add(new JsonValue(new OrderedImmutableDictionary<string, JsonValue>(childJsonObject)));
                         }
                     }
 

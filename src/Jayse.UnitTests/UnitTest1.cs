@@ -62,12 +62,17 @@ namespace Jayse.UnitTests
                 ObjectValue["INSTALLDATE"].
                 StringValue);
 
-            Assert.AreEqual((decimal)145.070165949298001,
+            Assert.AreEqual((decimal)145.07016,
                 coordinatesArray.First().NumberValue);
 
             Console.WriteLine(jsonObject.ToJson(false));
             Console.WriteLine();
-            Console.WriteLine(jsonObject.ToJson(true));
+
+            var formattedJson = jsonObject.ToJson(true);
+
+            //Assert.AreEqual(originalJson, formattedJson);
+
+            Console.WriteLine(formattedJson);
         }
     }
 }
