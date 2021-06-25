@@ -78,5 +78,5 @@ var properties = firstFeature.ObjectValue["properties"].ObjectValue;
 
 //Create a new properties node with the value of "newid" as the ID property
 var properties2 = properties.With("ID", new JsonValue("newid"));
-```cs
+```
 
