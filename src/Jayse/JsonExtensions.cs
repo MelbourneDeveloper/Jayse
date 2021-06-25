@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 
 #pragma warning disable format
@@ -133,6 +134,29 @@ namespace Jayse
                     throw new NotImplementedException();
             }
         }
+
+#pragma warning disable IDE0060 // Remove unused parameter
+#pragma warning disable IDE0022 // Use expression body for methods
+#pragma warning disable CA1801 // Review unused parameters
+#pragma warning disable IDE0059 // Unnecessary assignment of a value
+#pragma warning disable CA1062 // Validate arguments of public methods
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+        public static OrderedImmutableDictionary<string, JsonValue> SetValue(
+            this OrderedImmutableDictionary<string, JsonValue> jsonObject,
+            Expression<Func<OrderedImmutableDictionary<string, JsonValue>, JsonValue>> expression,
+            JsonValue newValue)
+        {
+            var body = expression.Body as MethodCallExpression;
+            var keyExpression = body.Arguments.First() as ConstantExpression;
+
+            var dictionary = new OrderedImmutableDictionary<string, JsonValue>(new List<KeyValuePair<string, JsonValue>>
+            {
+                new KeyValuePair<string, JsonValue>(keyExpression.Value.ToString(), newValue)
+            });
+
+            return dictionary;
+        }
+
     }
 
 
