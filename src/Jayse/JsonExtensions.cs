@@ -139,6 +139,9 @@ namespace Jayse
         {
             new(key, jsonValue )
         });
+
+        public static OrderedImmutableDictionary<string, JsonValue> CreateJsonObject(this IEnumerable<KeyValuePair<string, JsonValue>> jsonValues)
+        => new(jsonValues);
     }
 
 
