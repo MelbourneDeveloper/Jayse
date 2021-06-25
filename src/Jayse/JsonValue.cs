@@ -44,9 +44,9 @@ namespace Jayse
         =>
             ValueType switch
             {
-                JsonValueType.OfObject => (format ? "\r\n" : "") + ObjectValue.ToJson(format, depth + 1),
+                JsonValueType.OfObject => JsonExtensions.CrLf(format) + ObjectValue.ToJson(format, depth + 1),
                 JsonValueType.OfString => "\"" + StringValue + "\"",
-                JsonValueType.OfArray => (format ? "\r\n" : "") + JsonExtensions.RepeatTab(depth) + "[" + string.Join($",", ArrayValue.Select(v => (format ? $"\r\n" : "") + JsonExtensions.RepeatTab(depth + 1) + v.ToJson(format, depth + 1))) + $"{(format ? "\r\n" : "")}{JsonExtensions.RepeatTab(depth)}]",
+                JsonValueType.OfArray => JsonExtensions.CrLf(format) + JsonExtensions.RepeatTab(format, depth) + "[" + string.Join($",", ArrayValue.Select(v => JsonExtensions.CrLf(format) + JsonExtensions.RepeatTab(format, depth + 1) + v.ToJson(format, depth + 1))) + $"{JsonExtensions.CrLf(format)}{JsonExtensions.RepeatTab(format, depth)}]",
                 JsonValueType.OfBoolean => BooleanValue.ToString().ToLower(),
                 JsonValueType.OfNull => "null",
                 JsonValueType.OfNumber => NumberValue.ToString(),
