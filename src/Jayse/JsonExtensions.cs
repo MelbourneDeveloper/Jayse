@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-
+using System.Text;
 #pragma warning disable format
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
 #pragma warning disable CS8604 // Possible null reference argument.
@@ -12,10 +12,22 @@ using System.Linq;
 
 namespace Jayse
 {
+
+
     public static class JsonExtensions
     {
-        public static string ToJson(this IDictionary<string, JsonValue> jsonObject, bool format = false) =>
-            "{" + string.Join($",{(format?"\r\n":"")}", jsonObject.Select(kvp => $"\"{kvp.Key}\" : {kvp.Value.ToJson()}")) + "}";
+        public static string Repeat(this string text, int times)
+        {
+            var sb = new StringBuilder();
+            for (var i = 0; i < times; i++)
+            {
+                _ = sb.Append(text);
+            }
+            return sb.ToString();
+        }
+
+        public static string ToJson(this IDictionary<string, JsonValue> jsonObject, bool format = false, int depth = 0) =>
+            "\t".Repeat(depth-1) + "{" + (format ? "\r\n" : "") + string.Join($",{(format?"\r\n":"")}", jsonObject.Select(kvp => $"{"\t".Repeat(depth)}\"{kvp.Key}\" : {kvp.Value.ToJson(format, depth)}")) + (format ? "\r\n" : "") + "\t".Repeat(depth-1) + "}";
 
         public static Guid AsGuid(this JsonValue jsonValue) 
         => jsonValue==null?throw new InvalidOperationException(): new(jsonValue.StringValue);
