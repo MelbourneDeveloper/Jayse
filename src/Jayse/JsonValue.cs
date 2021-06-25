@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Immutable;
 using System.Linq;
 
@@ -27,16 +27,22 @@ namespace Jayse
         public ImmutableList<JsonValue> ArrayValue { get => arrayValue ?? throw new InvalidOperationException(); init { arrayValue = value; } }
         public JsonValue this[string key] => ObjectValue[key];
         public JsonValue this[int index] => ArrayValue[index];
-        public JsonValueType ValueType { get; }
+        public JsonValueType ValueType =>
+            stringValue != null ? JsonValueType.OfString :
+            booleanValue.HasValue ? JsonValueType.OfBoolean :
+            numberValue.HasValue ? JsonValueType.OfNumber :
+            arrayValue != null ? JsonValueType.OfArray :
+            objectValue != null ? JsonValueType.OfObject :
+            JsonValueType.OfNull;
         #endregion
 
         #region Constructors
-        public JsonValue() => ValueType = JsonValueType.OfNull;
-        public JsonValue(string value) { stringValue = value; ValueType = JsonValueType.OfString; }
-        public JsonValue(bool value) { booleanValue = value; ValueType = JsonValueType.OfBoolean; }
-        public JsonValue(decimal value) { numberValue = value; ValueType = JsonValueType.OfNumber; }
-        public JsonValue(OrderedImmutableDictionary<string, JsonValue> value) { objectValue = value; ValueType = JsonValueType.OfObject; }
-        public JsonValue(ImmutableList<JsonValue> value) { arrayValue = value; ValueType = JsonValueType.OfArray; }
+        public JsonValue() { }
+        public JsonValue(string value) => stringValue = value;
+        public JsonValue(bool value) => booleanValue = value;
+        public JsonValue(decimal value) => numberValue = value;
+        public JsonValue(OrderedImmutableDictionary<string, JsonValue> value) => objectValue = value;
+        public JsonValue(ImmutableList<JsonValue> value) => arrayValue = value;
         #endregion
 
         #region Methods

@@ -1,5 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 
@@ -8,6 +10,29 @@ namespace Jayse.UnitTests
     [TestClass]
     public class UnitTest1
     {
+        [TestMethod]
+        public void TestNonDestructiveMutability()
+        {
+            var expectedJson = File.ReadAllText("TestDataMutated.json");
+            var jsonObject = File.ReadAllText("TestData.json").ToJsonObject();
+
+            var features = jsonObject["features"];
+
+            var firstFeature = features.ArrayValue.First();
+
+            var properties = firstFeature.ObjectValue["properties"].ObjectValue;
+
+            var properties2 = properties.With("ID", new JsonValue("newid"));
+
+            var firstFeature2 = firstFeature.ObjectValue.With("properties", new JsonValue(properties2));
+
+            var jsonObject2 = jsonObject.With("features", new JsonValue(new List<JsonValue> { new JsonValue(firstFeature2) }.ToImmutableList()));
+
+            var mutatedJson = jsonObject2.ToJson(true);
+
+            Assert.AreEqual(expectedJson, mutatedJson);
+        }
+
         [TestMethod]
         public void TestTheJsons()
         {

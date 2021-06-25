@@ -32,6 +32,15 @@ namespace Jayse
             return sb.ToString();
         }
 
+#if !NETSTANDARD2_0
+        public static OrderedImmutableDictionary<string, JsonValue> With(this OrderedImmutableDictionary<string, JsonValue> jsonObject, string key, JsonValue value)
+        => new(new Dictionary<string, JsonValue>(jsonObject)
+            {
+                [key] = value
+            });
+#endif
+
+
         public static string ToJson(this IReadOnlyDictionary<string, JsonValue> jsonObject, bool format = false, int depth = 1) =>
             RepeatTab(format,depth - 1) + "{" + CrLf(format) + 
             string.Join($",{CrLf(format)}", jsonObject.Select(kvp => $"{RepeatTab(format,depth)}\"{kvp.Key}\" : {kvp.Value.ToJson(format, depth)}")) + CrLf(format) + 
