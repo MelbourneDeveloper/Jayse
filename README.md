@@ -99,13 +99,6 @@ public void PrintSomeJson()
         Add(arrayKey, jsonArray).
         Build();
 
-    //Get only the numbers from the array
-    var actualNumbers =
-        jsonObject[arrayKey].
-        ArrayValue.Where(n => n.ValueType == JsonValueType.OfNumber).
-        Select(n => n.NumberValue);
-
-
     //Print the formatted JSON
     var json = jsonObject.ToJson(true);
     Console.WriteLine(json);
