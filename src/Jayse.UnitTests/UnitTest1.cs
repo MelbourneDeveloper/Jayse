@@ -102,13 +102,17 @@ namespace Jayse.UnitTests
             var json = jsonObject.ToJson(true);
             Console.WriteLine(json);
 
+            //Convert JSON back to object
             jsonObject = json.ToJsonObject();
 
+            //Do the same asserts on the new object
             Assert.AreEqual(stringValue, jsonObject[stringKey].StringValue);
             Assert.AreEqual(true, jsonObject[boolKey].BooleanValue);
             Assert.AreEqual(numberValue, jsonObject[numberKey].NumberValue);
             Assert.AreEqual(innerValue, jsonObject[arrayKey][3][innerKey].StringValue);
             Assert.IsTrue(expectedNumbers.SequenceEqual(actualNumbers));
+
+            Assert.AreEqual(json, jsonObject.ToJson(true));
         }
 
         [TestMethod]
