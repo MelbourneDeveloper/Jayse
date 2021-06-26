@@ -5,7 +5,11 @@ Traverse and modify JSON documents with .NET records
 ![diagram](https://github.com/MelbourneDeveloper/Jayse/blob/main/Images/IconSmall.png) 
 
 ## What Is It And Why?
-Sometimes you need to traverse or modify a JSON document without serialization or deserialization. Jayse represents JSON as a simple object model with one record and one enum. The existing libraries like JSON.Net don't do this very well and can be clunky to traverse. For example, inspecting a JSON tree with Json.Net involves `JObject`, `JToken`, `JProperty`, `JArray` and so on. Jayse makes it easy to traverse the JSON document tree and locate values. Take this JSON as an example:
+Sometimes you need to traverse or modify a JSON document without serialization or deserialization. Jayse represents JSON as a simple object model with one record and one enum. The existing libraries like JSON.Net don't do this very well and can be clunky to traverse. For example, inspecting a JSON tree with Json.Net involves `JObject`, `JToken`, `JProperty`, `JArray` and so on. Jayse makes it easy to traverse the JSON document tree and locate values. 
+
+See the full set of examples [here](https://github.com/MelbourneDeveloper/Jayse/blob/906ac390e219d06110275347406a6391d2105220/src/Jayse.UnitTests/UnitTest1.cs#L13).
+
+Take this JSON as an example:
 
 ```JSON
 {
@@ -63,6 +67,68 @@ Output:
 
 > 72cdd9ee-b48d-41af-b6b4-63df02eb7e18
 
+## Build a JSON Model
+
+This code creates a JSON object using the builder pattern and then converts it to formatted JSON.
+
+```cs
+public void PrintSomeJson()
+{
+    const string numberKey = "key3";
+    const decimal numberValue = 3;
+    const string stringValue = "value1";
+    const string stringKey = "key1";
+    const string boolKey = "key2";
+    const string arrayKey = "key4";
+    const string innerKey = "innerkey";
+    const string innerValue = "innervalue";
+
+    //Create an array of numbers
+    var expectedNumbers = new decimal[] { 1, 2, 3 };
+    var jsonArray = expectedNumbers.ToJsonArray();
+
+    //Stick an object in the array
+    var innerObject =
+        new JsonValue(innerValue)
+        .ToJsonObject(innerKey)
+        .ToJsonValue();
+    jsonArray = jsonArray.Add(innerObject);
+
+    //Create an object with a builder
+    var jsonObject =
+        stringValue.
+        ToBuilder(stringKey).
+        Add(boolKey, true).
+        Add(numberKey, numberValue).
+        Add(arrayKey, jsonArray).
+        Build();
+
+    //Print the formatted JSON
+    var json = jsonObject.ToJson(true);
+    Console.WriteLine(json);
+}
+```
+
+Output:
+
+```JSON
+{
+    "key1" : "value1",
+    "key2" : true,
+    "key3" : 3,
+    "key4" : 
+    [
+        1,
+        2,
+        3,
+        
+        {
+            "innerkey" : "innervalue"
+        }
+    ]
+}
+```
+
 ## Design
 
 The object model is easy to inspect. Each node contains a value of string, bool, array, object, number or null exactly like  the [JSON spec](https://www.json.org/json-en.html). All nodes are immutable records. You can use [non-destructive mutation](https://docs.microsoft.com/en-us/dotnet/csharp/whats-new/tutorials/records#non-destructive-mutation) to modify values. For example, if you wanted to modify the ID property, you can create a new properties node like so:
@@ -78,14 +144,4 @@ var properties = firstFeature.ObjectValue["properties"].ObjectValue;
 
 //Create a new properties node with the value of "newid" as the ID property
 var properties2 = properties.With("ID", new JsonValue("newid"));
-```
-
-### ToJson()
-
-`ToJson()` converts the JSON tree model back to JSON text. This code converts the model back to JSON exactly as per the example above:
-
-```cs
-var jsonObject = File.ReadAllText("TestData.json").ToJsonObject();
-//Choose formatted or non-formatted JSON
-var formattedJson = jsonObject.ToJson(true);
 ```

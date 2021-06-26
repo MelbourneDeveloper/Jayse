@@ -159,10 +159,77 @@ namespace Jayse
 
 
         public static OrderedImmutableDictionary<string, JsonValue> CreateJsonObject(this JsonValue jsonValue, string key)
+        public static OrderedImmutableDictionary<string, JsonValue> ToJsonObject(this JsonValue jsonValue, string key)
         => new(new List<KeyValuePair<string, JsonValue>>
         {
             new(key, jsonValue )
         });
+
+        public static OrderedImmutableDictionary<string, JsonValue> ToJsonObject(this IEnumerable<KeyValuePair<string, JsonValue>> jsonValues)
+        => new(jsonValues);
+
+        public static JsonValue ToJsonValue(this string stringValue)
+        => new(stringValue);
+
+        public static JsonValue ToJsonValue(this bool booleanValue)
+        => new(booleanValue);
+
+        public static JsonValue ToJsonValue(this decimal numberValue)
+        => new(numberValue);
+
+        public static JsonValue ToJsonValue(this ImmutableList<JsonValue> arrayValue)
+        => new(arrayValue);
+
+        public static JsonValue ToJsonValue(this OrderedImmutableDictionary<string, JsonValue> jsonObject)
+        => new(jsonObject);
+
+        public static JsonValueBuilder Add(this JsonValueBuilder jsonValueBuilder, string key, string stringValue) 
+            => jsonValueBuilder==null?throw new ArgumentNullException(nameof(jsonValueBuilder)) : 
+            jsonValueBuilder.Add(key, stringValue.ToJsonValue());
+
+        public static JsonValueBuilder Add(this JsonValueBuilder jsonValueBuilder, string key, bool booleanValue)
+            => jsonValueBuilder == null ? throw new ArgumentNullException(nameof(jsonValueBuilder)) :
+            jsonValueBuilder.Add(key, booleanValue.ToJsonValue());
+
+        public static JsonValueBuilder Add(this JsonValueBuilder jsonValueBuilder, string key, decimal numberValue)
+            => jsonValueBuilder == null ? throw new ArgumentNullException(nameof(jsonValueBuilder)) :
+            jsonValueBuilder.Add(key, numberValue.ToJsonValue());
+
+        public static JsonValueBuilder Add(this JsonValueBuilder jsonValueBuilder, string key, ImmutableList<JsonValue> arrayValue)
+            => jsonValueBuilder == null ? throw new ArgumentNullException(nameof(jsonValueBuilder)) :
+            jsonValueBuilder.Add(key, arrayValue.ToJsonValue());
+
+        public static JsonValueBuilder ToBuilder(this JsonValue jsonValue, string key) 
+            => new JsonValueBuilder().Add(key, jsonValue);
+
+        public static JsonValueBuilder ToBuilder(this string stringValue, string key)
+            => new JsonValueBuilder().Add(key, new(stringValue));
+
+        public static JsonValueBuilder ToBuilder(this bool booleanValue, string key)
+            => new JsonValueBuilder().Add(key, new(booleanValue));
+
+        public static JsonValueBuilder ToBuilder(this decimal numberValue, string key)
+            => new JsonValueBuilder().Add(key, new(numberValue));
+
+        public static JsonValueBuilder ToBuilder(this ImmutableList<JsonValue> arrayValue, string key)
+            => new JsonValueBuilder().Add(key, new(arrayValue));
+
+
+        public static ImmutableList<JsonValue> ToJsonArray(this IEnumerable<string> stringValues) 
+            => stringValues == null? throw new ArgumentNullException(nameof(stringValues)):
+            stringValues.Select(s => new JsonValue(s)).ToImmutableList();
+
+
+        public static ImmutableList<JsonValue> ToJsonArray(this IEnumerable<bool> booleanValues)
+            => booleanValues == null ? throw new ArgumentNullException(nameof(booleanValues)) :
+            booleanValues.Select(s => new JsonValue(s)).ToImmutableList();
+
+        public static ImmutableList<JsonValue> ToJsonArray(this IEnumerable<decimal> numberValues)
+            => numberValues == null ? throw new ArgumentNullException(nameof(numberValues)) :
+            numberValues.Select(s => new JsonValue(s)).ToImmutableList();
+
+
+
     }
 
 
