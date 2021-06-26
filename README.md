@@ -65,7 +65,7 @@ Output:
 
 ## Build a JSON Model
 
-This code creates a JSON object and then converts it to formatted JSON.
+This code creates a JSON object using the builder pattern and then converts it to formatted JSON.
 
 ```cs
 public void PrintSomeJson()
