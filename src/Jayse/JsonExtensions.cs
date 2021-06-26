@@ -134,13 +134,13 @@ namespace Jayse
             }
         }
 
-        public static OrderedImmutableDictionary<string, JsonValue> CreateJsonObject(this JsonValue jsonValue, string key)
+        public static OrderedImmutableDictionary<string, JsonValue> ToJsonObject(this JsonValue jsonValue, string key)
         => new(new List<KeyValuePair<string, JsonValue>>
         {
             new(key, jsonValue )
         });
 
-        public static OrderedImmutableDictionary<string, JsonValue> CreateJsonObject(this IEnumerable<KeyValuePair<string, JsonValue>> jsonValues)
+        public static OrderedImmutableDictionary<string, JsonValue> ToJsonObject(this IEnumerable<KeyValuePair<string, JsonValue>> jsonValues)
         => new(jsonValues);
 
         public static JsonValue ToJsonValue(this string stringValue)
@@ -154,6 +154,9 @@ namespace Jayse
 
         public static JsonValue ToJsonValue(this ImmutableList<JsonValue> arrayValue)
         => new(arrayValue);
+
+        public static JsonValue ToJsonValue(this OrderedImmutableDictionary<string, JsonValue> jsonObject)
+        => new(jsonObject);
 
         public static JsonValueBuilder Add(this JsonValueBuilder jsonValueBuilder, string key, string stringValue) 
             => jsonValueBuilder==null?throw new ArgumentNullException(nameof(jsonValueBuilder)) : 
@@ -174,7 +177,7 @@ namespace Jayse
         public static JsonValueBuilder ToBuilder(this JsonValue jsonValue, string key) 
             => new JsonValueBuilder().Add(key, jsonValue);
 
-        public static JsonValueBuilder ToJsonValueBuilder(this string stringValue, string key)
+        public static JsonValueBuilder ToBuilder(this string stringValue, string key)
             => new JsonValueBuilder().Add(key, new(stringValue));
 
         public static JsonValueBuilder ToBuilder(this bool booleanValue, string key)

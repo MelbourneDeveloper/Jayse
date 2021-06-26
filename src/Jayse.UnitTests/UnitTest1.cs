@@ -32,7 +32,7 @@ namespace Jayse.UnitTests
         {
             const string key = "key";
             var jsonValue = new JsonValue("value");
-            var dictionary = jsonValue.CreateJsonObject(key);
+            var dictionary = jsonValue.ToJsonObject(key);
             Assert.AreEqual(jsonValue, dictionary[key]);
         }
 
@@ -48,7 +48,7 @@ namespace Jayse.UnitTests
                     new(key, jsonValue),
                     new("key2", "value2".ToJsonValue())
                 }
-                .CreateJsonObject();
+                .ToJsonObject();
 
             Assert.AreEqual(jsonValue, dictionary[key]);
         }
@@ -56,31 +56,59 @@ namespace Jayse.UnitTests
         [TestMethod]
         public void TestBuilder()
         {
-            const string key3 = "key3";
-            const decimal value3 = 3;
-            const string value1 = "value1";
-            const string key1 = "key1";
-            const string key2 = "key2";
-            const string key4 = "4";
-            var expectedNumbers = new decimal[] { 1, 2, 3 };
-            var numbersArray = expectedNumbers.ToJsonArray();
+            const string numberKey = "key3";
+            const decimal numberValue = 3;
+            const string stringValue = "value1";
+            const string stringKey = "key1";
+            const string boolKey = "key2";
+            const string arrayKey = "4";
+            const string innerKey = "innerkey";
+            const string innerValue = "innervalue";
 
+            //Create an array of numbers
+            var expectedNumbers = new decimal[] { 1, 2, 3 };
+            var jsonArray = expectedNumbers.ToJsonArray();
+
+            //Stick an object in the array
+            var innerObject =
+                new JsonValue(innerValue)
+                .ToJsonObject(innerKey)
+                .ToJsonValue();
+            jsonArray = jsonArray.Add(innerObject);
+
+            //Create an object with a builder
             var jsonObject =
-                value1.
-                ToJsonValueBuilder(key1).
-                Add(key2, true).
-                Add(key3, value3).
-                Add(key4, numbersArray).
+                stringValue.
+                ToBuilder(stringKey).
+                Add(boolKey, true).
+                Add(numberKey, numberValue).
+                Add(arrayKey, jsonArray).
                 Build();
 
-            var actualNumbers = jsonObject[key4].ArrayValue.Select(n => n.NumberValue);
+            //Get only the numbers from the array
+            var actualNumbers =
+                jsonObject[arrayKey].
+                ArrayValue.Where(n => n.ValueType == JsonValueType.OfNumber).
+                Select(n => n.NumberValue);
 
-            Assert.AreEqual(value1, jsonObject[key1].StringValue);
-            Assert.AreEqual(true, jsonObject[key2].BooleanValue);
-            Assert.AreEqual(value3, jsonObject[key3].NumberValue);
+            //Asserts
+            Assert.AreEqual(stringValue, jsonObject[stringKey].StringValue);
+            Assert.AreEqual(true, jsonObject[boolKey].BooleanValue);
+            Assert.AreEqual(numberValue, jsonObject[numberKey].NumberValue);
+            Assert.AreEqual(innerValue, jsonObject[arrayKey][3][innerKey].StringValue);
             Assert.IsTrue(expectedNumbers.SequenceEqual(actualNumbers));
 
-            Console.WriteLine(jsonObject.ToJson(true));
+            //Print the formatted JSON
+            var json = jsonObject.ToJson(true);
+            Console.WriteLine(json);
+
+            jsonObject = json.ToJsonObject();
+
+            Assert.AreEqual(stringValue, jsonObject[stringKey].StringValue);
+            Assert.AreEqual(true, jsonObject[boolKey].BooleanValue);
+            Assert.AreEqual(numberValue, jsonObject[numberKey].NumberValue);
+            Assert.AreEqual(innerValue, jsonObject[arrayKey][3][innerKey].StringValue);
+            Assert.IsTrue(expectedNumbers.SequenceEqual(actualNumbers));
         }
 
         [TestMethod]
