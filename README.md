@@ -79,7 +79,7 @@ public void PrintSomeJson()
     const string stringValue = "value1";
     const string stringKey = "key1";
     const string boolKey = "key2";
-    const string arrayKey = "4";
+    const string arrayKey = "key4";
     const string innerKey = "innerkey";
     const string innerValue = "innervalue";
 
@@ -116,7 +116,7 @@ Output:
     "key1" : "value1",
     "key2" : true,
     "key3" : 3,
-    "4" : 
+    "key4" : 
     [
         1,
         2,
