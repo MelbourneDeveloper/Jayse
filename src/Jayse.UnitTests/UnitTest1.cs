@@ -61,7 +61,7 @@ namespace Jayse.UnitTests
             const string stringValue = "value1";
             const string stringKey = "key1";
             const string boolKey = "key2";
-            const string arrayKey = "4";
+            const string arrayKey = "key4";
             const string innerKey = "innerkey";
             const string innerValue = "innervalue";
 
