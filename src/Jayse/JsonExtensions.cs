@@ -174,7 +174,7 @@ namespace Jayse
         public static JsonValueBuilder ToBuilder(this JsonValue jsonValue, string key) 
             => new JsonValueBuilder().Add(key, jsonValue);
 
-        public static JsonValueBuilder ToBuilder(this string stringValue, string key)
+        public static JsonValueBuilder ToJsonValueBuilder(this string stringValue, string key)
             => new JsonValueBuilder().Add(key, new(stringValue));
 
         public static JsonValueBuilder ToBuilder(this bool booleanValue, string key)
@@ -185,6 +185,22 @@ namespace Jayse
 
         public static JsonValueBuilder ToBuilder(this ImmutableList<JsonValue> arrayValue, string key)
             => new JsonValueBuilder().Add(key, new(arrayValue));
+
+
+        public static ImmutableList<JsonValue> ToJsonArray(this IEnumerable<string> stringValues) 
+            => stringValues == null? throw new ArgumentNullException(nameof(stringValues)):
+            stringValues.Select(s => new JsonValue(s)).ToImmutableList();
+
+
+        public static ImmutableList<JsonValue> ToJsonArray(this IEnumerable<bool> booleanValues)
+            => booleanValues == null ? throw new ArgumentNullException(nameof(booleanValues)) :
+            booleanValues.Select(s => new JsonValue(s)).ToImmutableList();
+
+        public static ImmutableList<JsonValue> ToJsonArray(this IEnumerable<decimal> numberValues)
+            => numberValues == null ? throw new ArgumentNullException(nameof(numberValues)) :
+            numberValues.Select(s => new JsonValue(s)).ToImmutableList();
+
+
 
     }
 

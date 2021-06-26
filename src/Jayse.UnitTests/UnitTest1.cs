@@ -57,19 +57,30 @@ namespace Jayse.UnitTests
         public void TestBuilder()
         {
             const string key3 = "key3";
-            const string value3 = "value3";
+            const decimal value3 = 3;
             const string value1 = "value1";
             const string key1 = "key1";
+            const string key2 = "key2";
+            const string key4 = "4";
+            var expectedNumbers = new decimal[] { 1, 2, 3 };
+            var numbersArray = expectedNumbers.ToJsonArray();
 
-            var dictionary =
+            var jsonObject =
                 value1.
-                ToBuilder(key1).
-                Add("key2", "value2").
+                ToJsonValueBuilder(key1).
+                Add(key2, true).
                 Add(key3, value3).
+                Add(key4, numbersArray).
                 Build();
 
-            Assert.AreEqual(value1, dictionary[key1].StringValue);
-            Assert.AreEqual(value3, dictionary[key3].StringValue);
+            var actualNumbers = jsonObject[key4].ArrayValue.Select(n => n.NumberValue);
+
+            Assert.AreEqual(value1, jsonObject[key1].StringValue);
+            Assert.AreEqual(true, jsonObject[key2].BooleanValue);
+            Assert.AreEqual(value3, jsonObject[key3].NumberValue);
+            Assert.IsTrue(expectedNumbers.SequenceEqual(actualNumbers));
+
+            Console.WriteLine(jsonObject.ToJson(true));
         }
 
         [TestMethod]
