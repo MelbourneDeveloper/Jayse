@@ -158,7 +158,6 @@ namespace Jayse
         }
 
 
-        public static OrderedImmutableDictionary<string, JsonValue> CreateJsonObject(this JsonValue jsonValue, string key)
         public static OrderedImmutableDictionary<string, JsonValue> ToJsonObject(this JsonValue jsonValue, string key)
         => new(new List<KeyValuePair<string, JsonValue>>
         {

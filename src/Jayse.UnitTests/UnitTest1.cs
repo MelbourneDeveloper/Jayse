@@ -20,7 +20,7 @@ namespace Jayse.UnitTests
             const string key = "key";
 
             var newDictionary = new JsonValue("value")
-                .CreateJsonObject(key)
+                .ToJsonObject(key)
                 .SetValue((d) => d[key], new JsonValue(newValue));
 
             Assert.AreEqual(newValue, newDictionary[key].StringValue);
