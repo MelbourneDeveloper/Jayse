@@ -63,6 +63,75 @@ Output:
 
 > 72cdd9ee-b48d-41af-b6b4-63df02eb7e18
 
+## Build a JSON Model
+
+This code creates a JSON object and then converts it to formatted JSON.
+
+```cs
+public void PrintSomeJson()
+{
+    const string numberKey = "key3";
+    const decimal numberValue = 3;
+    const string stringValue = "value1";
+    const string stringKey = "key1";
+    const string boolKey = "key2";
+    const string arrayKey = "4";
+    const string innerKey = "innerkey";
+    const string innerValue = "innervalue";
+
+    //Create an array of numbers
+    var expectedNumbers = new decimal[] { 1, 2, 3 };
+    var jsonArray = expectedNumbers.ToJsonArray();
+
+    //Stick an object in the array
+    var innerObject =
+        new JsonValue(innerValue)
+        .ToJsonObject(innerKey)
+        .ToJsonValue();
+    jsonArray = jsonArray.Add(innerObject);
+
+    //Create an object with a builder
+    var jsonObject =
+        stringValue.
+        ToBuilder(stringKey).
+        Add(boolKey, true).
+        Add(numberKey, numberValue).
+        Add(arrayKey, jsonArray).
+        Build();
+
+    //Get only the numbers from the array
+    var actualNumbers =
+        jsonObject[arrayKey].
+        ArrayValue.Where(n => n.ValueType == JsonValueType.OfNumber).
+        Select(n => n.NumberValue);
+
+
+    //Print the formatted JSON
+    var json = jsonObject.ToJson(true);
+    Console.WriteLine(json);
+}
+```
+
+Output:
+
+```JSON
+{
+    "key1" : "value1",
+    "key2" : true,
+    "key3" : 3,
+    "4" : 
+    [
+        1,
+        2,
+        3,
+        
+        {
+            "innerkey" : "innervalue"
+        }
+    ]
+}
+```
+
 ## Design
 
 The object model is easy to inspect. Each node contains a value of string, bool, array, object, number or null exactly like  the [JSON spec](https://www.json.org/json-en.html). All nodes are immutable records. You can use [non-destructive mutation](https://docs.microsoft.com/en-us/dotnet/csharp/whats-new/tutorials/records#non-destructive-mutation) to modify values. For example, if you wanted to modify the ID property, you can create a new properties node like so:
