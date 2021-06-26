@@ -7,6 +7,8 @@ using System.Linq;
 
 namespace Jayse.UnitTests
 {
+
+
     [TestClass]
     public class UnitTest1
     {
@@ -38,12 +40,36 @@ namespace Jayse.UnitTests
         public void TestCreateJsonObject2()
         {
             const string key = "key";
-            var jsonValue = new JsonValue("value");
+            var jsonValue = "value".ToJsonValue();
+
             var dictionary =
-                new List<KeyValuePair<string, JsonValue>> { new(key, jsonValue) }
+                new List<KeyValuePair<string, JsonValue>>
+                {
+                    new(key, jsonValue),
+                    new("key2", "value2".ToJsonValue())
+                }
                 .CreateJsonObject();
 
             Assert.AreEqual(jsonValue, dictionary[key]);
+        }
+
+        [TestMethod]
+        public void TestBuilder()
+        {
+            const string key3 = "key3";
+            const string value3 = "value3";
+            const string value1 = "value1";
+            const string key1 = "key1";
+
+            var dictionary =
+                value1.
+                ToBuilder(key1).
+                Add("key2", "value2").
+                Add(key3, value3).
+                Build();
+
+            Assert.AreEqual(value1, dictionary[key1].StringValue);
+            Assert.AreEqual(value3, dictionary[key3].StringValue);
         }
 
         [TestMethod]

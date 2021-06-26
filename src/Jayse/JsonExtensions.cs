@@ -149,8 +149,43 @@ namespace Jayse
         public static JsonValue ToJsonValue(this bool booleanValue)
         => new(booleanValue);
 
+        public static JsonValue ToJsonValue(this decimal numberValue)
+        => new(numberValue);
+
         public static JsonValue ToJsonValue(this ImmutableList<JsonValue> arrayValue)
         => new(arrayValue);
+
+        public static JsonValueBuilder Add(this JsonValueBuilder jsonValueBuilder, string key, string stringValue) 
+            => jsonValueBuilder==null?throw new ArgumentNullException(nameof(jsonValueBuilder)) : 
+            jsonValueBuilder.Add(key, stringValue.ToJsonValue());
+
+        public static JsonValueBuilder Add(this JsonValueBuilder jsonValueBuilder, string key, bool booleanValue)
+            => jsonValueBuilder == null ? throw new ArgumentNullException(nameof(jsonValueBuilder)) :
+            jsonValueBuilder.Add(key, booleanValue.ToJsonValue());
+
+        public static JsonValueBuilder Add(this JsonValueBuilder jsonValueBuilder, string key, decimal numberValue)
+            => jsonValueBuilder == null ? throw new ArgumentNullException(nameof(jsonValueBuilder)) :
+            jsonValueBuilder.Add(key, numberValue.ToJsonValue());
+
+        public static JsonValueBuilder Add(this JsonValueBuilder jsonValueBuilder, string key, ImmutableList<JsonValue> arrayValue)
+            => jsonValueBuilder == null ? throw new ArgumentNullException(nameof(jsonValueBuilder)) :
+            jsonValueBuilder.Add(key, arrayValue.ToJsonValue());
+
+        public static JsonValueBuilder ToBuilder(this JsonValue jsonValue, string key) 
+            => new JsonValueBuilder().Add(key, jsonValue);
+
+        public static JsonValueBuilder ToBuilder(this string stringValue, string key)
+            => new JsonValueBuilder().Add(key, new(stringValue));
+
+        public static JsonValueBuilder ToBuilder(this bool booleanValue, string key)
+            => new JsonValueBuilder().Add(key, new(booleanValue));
+
+        public static JsonValueBuilder ToBuilder(this decimal numberValue, string key)
+            => new JsonValueBuilder().Add(key, new(numberValue));
+
+        public static JsonValueBuilder ToBuilder(this ImmutableList<JsonValue> arrayValue, string key)
+            => new JsonValueBuilder().Add(key, new(arrayValue));
+
     }
 
 
