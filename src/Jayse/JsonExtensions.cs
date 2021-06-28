@@ -10,6 +10,7 @@ using System.Text;
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
 #pragma warning disable CS8604 // Possible null reference argument.
 #pragma warning disable CA1305 // Specify IFormatProvider
+#pragma warning disable IDE0057 // Use range operator
 
 namespace Jayse
 {
@@ -203,7 +204,37 @@ namespace Jayse
             => numberValues == null ? throw new ArgumentNullException(nameof(numberValues)) :
             numberValues.Select(s => new JsonValue(s)).ToImmutableList();
 
+#if !NETSTANDARD2_0
 
+        public static OrderedImmutableDictionary<string, JsonValue> Parse(this string json)
+        {
+            var keyValuePairs = new List<KeyValuePair< string, JsonValue>>();
+            var trimmedText = json.Trim();
+            if(trimmedText.First()!='{' || trimmedText.Last()!='}') throw new InvalidOperationException("Nah");
+            var innerJson = trimmedText.Substring(1, trimmedText.Length - 2);
+
+            var rows = innerJson.Split(new char[] { ',' });
+            foreach(var row in rows)
+            {
+                var tokens = row.Split(':', 2).Select(s => s.Trim()).ToList(); ;
+
+                if(tokens.Count!=2)
+                {
+                    throw new InvalidOperationException("Nah");
+                }
+
+                var keyName = tokens[0].Replace("\"", "", StringComparison.OrdinalIgnoreCase);
+
+                if(tokens[1][0]=='\"')
+                {
+                    keyValuePairs.Add(new KeyValuePair<string, JsonValue>( keyName, new JsonValue(tokens[1].Replace("\"", "", StringComparison.OrdinalIgnoreCase))));
+                }
+
+            }
+
+            return new OrderedImmutableDictionary<string, JsonValue>( keyValuePairs);
+        }
+#endif
 
     }
 

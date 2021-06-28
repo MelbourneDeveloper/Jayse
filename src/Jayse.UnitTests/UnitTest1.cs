@@ -204,6 +204,17 @@ namespace Jayse.UnitTests
 
             Console.WriteLine(formattedJson);
         }
+
+
+#pragma warning disable IDE0059 // Unnecessary assignment of a value
+        [TestMethod]
+        public void TestParse()
+        {
+            var json = "{ \"A\" : \"a\" }";
+            var jsonObject = json.Parse();
+            Assert.AreEqual("a", jsonObject["A"].StringValue);
+        }
+
     }
 }
 
