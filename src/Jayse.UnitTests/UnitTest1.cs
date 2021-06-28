@@ -215,6 +215,14 @@ namespace Jayse.UnitTests
             Assert.AreEqual("a", jsonObject["A"].StringValue);
         }
 
+        [TestMethod]
+        public void TestParse2()
+        {
+            var json = File.ReadAllText("TestData.json");
+            var jsonObject = json.Parse();
+            //Assert.AreEqual("a", jsonObject["A"].StringValue);
+        }
+
     }
 }
 

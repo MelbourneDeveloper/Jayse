@@ -208,6 +208,7 @@ namespace Jayse
 
         public static OrderedImmutableDictionary<string, JsonValue> Parse(this string json)
         {
+            if (json == null) throw new ArgumentNullException(nameof(json));
             var keyValuePairs = new List<KeyValuePair< string, JsonValue>>();
             var trimmedText = json.Trim();
             if(trimmedText.First()!='{' || trimmedText.Last()!='}') throw new InvalidOperationException("Nah");
@@ -225,11 +226,42 @@ namespace Jayse
 
                 var keyName = tokens[0].Replace("\"", "", StringComparison.OrdinalIgnoreCase);
 
-                if(tokens[1][0]=='\"')
+                //true
+                if (tokens[1].Length == 4 && tokens[1].Substring(0, 4) == "true")
+                {
+                    keyValuePairs.Add(new KeyValuePair<string, JsonValue>(keyName, new JsonValue(true)));
+                }
+                //null
+                else if (tokens[1].Length == 4 && tokens[1].Substring(0, 4) == "null")
+                {
+                    keyValuePairs.Add(new KeyValuePair<string, JsonValue>(keyName, new JsonValue()));
+                }     
+                //false
+                else if (tokens[1].Length == 5 && tokens[1].Substring(0, 4) == "false")
+                {
+                    keyValuePairs.Add(new KeyValuePair<string, JsonValue>(keyName, new JsonValue(false)));
+                }      
+                //string
+                else if (tokens[1][0]=='\"')
                 {
                     keyValuePairs.Add(new KeyValuePair<string, JsonValue>( keyName, new JsonValue(tokens[1].Replace("\"", "", StringComparison.OrdinalIgnoreCase))));
                 }
-
+                //Object
+                else if (tokens[1][0] == '{')
+                {
+                    var jsonObject = Parse(tokens[1]);
+                    keyValuePairs.Add(new KeyValuePair<string, JsonValue>(keyName, new JsonValue(jsonObject)));
+                }
+                //Array
+                else if (tokens[1][0] == '[')
+                {
+                    //TODO:
+                }
+                //Number
+                else
+                {
+                    keyValuePairs.Add(new KeyValuePair<string, JsonValue>(keyName, new JsonValue(decimal.Parse(tokens[1]))));
+                }
             }
 
             return new OrderedImmutableDictionary<string, JsonValue>( keyValuePairs);
