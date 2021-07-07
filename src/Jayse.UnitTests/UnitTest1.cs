@@ -204,6 +204,13 @@ namespace Jayse.UnitTests
 
             Console.WriteLine(formattedJson);
         }
+
+        [TestMethod]
+        public void TestTheJsons2()
+        {
+            var jsonValues = File.ReadAllText("TestData2.json").ToJsonArray();
+            Assert.AreEqual(89, jsonValues.Count);
+        }
     }
 }
 
