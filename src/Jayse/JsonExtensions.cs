@@ -11,6 +11,7 @@ using System.Text;
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
 #pragma warning disable CS8604 // Possible null reference argument.
 #pragma warning disable CA1305 // Specify IFormatProvider
+#pragma warning disable IDE0046 // Convert to conditional expression
 
 namespace Jayse
 {
@@ -59,6 +60,9 @@ namespace Jayse
 
         }
 
+        public static ImmutableList<JsonValue> ToJsonArray(this string json) =>
+            ProcessArray((JArray)JsonConvert.DeserializeObject(json)).ToImmutableList();
+
         private static OrderedImmutableDictionary<string, JsonValue> ProcessObject(JObject deserializedObject)
         {
             var jsonObject = new Dictionary<string, JsonValue>();
@@ -85,25 +89,9 @@ namespace Jayse
                     break;
                 case JTokenType.Array:
 
-                    var children = new List<JsonValue>();
-                    foreach(var token in property.Value.Children())
-                    {
-                        if (token is JValue value)
-                        {
-                            children.Add(value.Value!=null? new JsonValue(value.Value<decimal>()): new JsonValue());
-                        }
-                        else
-                        {
-                            var childJsonObject = new Dictionary<string, JsonValue>();
+                    var jArray = (JArray)property.Value;
 
-                            foreach (JProperty childProperty in token.Children())
-                            {
-                                ProcessProperty(childJsonObject, childProperty);
-                            }
-
-                            children.Add(new JsonValue(new OrderedImmutableDictionary<string, JsonValue>(childJsonObject)));
-                        }
-                    }
+                    var children = ProcessArray(jArray);
 
                     jsonObject.Add(property.Name, new JsonValue(children.ToImmutableList()));
 
@@ -120,10 +108,12 @@ namespace Jayse
                 case JTokenType.Boolean:
                     jsonObject.Add(property.Name, new JsonValue((bool)property.Value));
                     break;
+                case JTokenType.Float:
+                    jsonObject.Add(property.Name, new JsonValue((decimal)property.Value));
+                    break;
                 case JTokenType.Constructor:
                 case JTokenType.Property:
                 case JTokenType.Comment:
-                case JTokenType.Float:
                 case JTokenType.Undefined:
                 case JTokenType.Raw:
                 case JTokenType.Bytes:
@@ -141,22 +131,30 @@ namespace Jayse
 #pragma warning disable IDE0059 // Unnecessary assignment of a value
 #pragma warning disable CA1062 // Validate arguments of public methods
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
-        public static OrderedImmutableDictionary<string, JsonValue> SetValue(
-            this OrderedImmutableDictionary<string, JsonValue> jsonObject,
-            Expression<Func<OrderedImmutableDictionary<string, JsonValue>, JsonValue>> expression,
-            JsonValue newValue)
+        private static List<JsonValue> ProcessArray(JArray jArray)
         {
-            var body = expression.Body as MethodCallExpression;
-            var keyExpression = body.Arguments.First() as ConstantExpression;
-
-            var dictionary = new OrderedImmutableDictionary<string, JsonValue>(new List<KeyValuePair<string, JsonValue>>
+            var children = new List<JsonValue>();
+            foreach (var token in jArray.Children())
             {
-                new KeyValuePair<string, JsonValue>(keyExpression.Value.ToString(), newValue)
-            });
+                if (token is JValue value)
+                {
+                    children.Add(value.Value != null ? new JsonValue(value.Value<decimal>()) : new JsonValue());
+                }
+                else
+                {
+                    var childJsonObject = new Dictionary<string, JsonValue>();
 
-            return dictionary;
+                    foreach (JProperty childProperty in token.Children())
+                    {
+                        ProcessProperty(childJsonObject, childProperty);
+                    }
+
+                    children.Add(new JsonValue(new OrderedImmutableDictionary<string, JsonValue>(childJsonObject)));
+                }
+            }
+
+            return children;
         }
-
 
         public static OrderedImmutableDictionary<string, JsonValue> ToJsonObject(this JsonValue jsonValue, string key)
         => new(new List<KeyValuePair<string, JsonValue>>

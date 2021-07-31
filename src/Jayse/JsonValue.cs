@@ -47,7 +47,7 @@ namespace Jayse
 
         #region Methods
 
-        public override string ToString() => ToJson(true);
+        public override string ToString() => $"{ValueType}: {ToJson(true)}";
 
         public string ToJson(bool format = false, int depth = 0)
         =>
