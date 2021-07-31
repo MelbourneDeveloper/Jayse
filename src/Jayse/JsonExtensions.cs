@@ -226,6 +226,9 @@ namespace Jayse
             numberValues.Select(s => new JsonValue(s)).ToImmutableList();
 
 
+        public static JsonValue SetValue(this OrderedImmutableDictionary<string, JsonValue> dictionary, Expression<Func<JsonValue, JsonValue>> expression, JsonValue newValue) 
+            => throw new NotImplementedException();
+
 
     }
 
