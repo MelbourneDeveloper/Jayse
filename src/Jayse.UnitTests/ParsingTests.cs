@@ -18,6 +18,14 @@ namespace Jayse.UnitTests
         }
 
         [TestMethod]
+        public void Complex()
+        {
+            var text = File.ReadAllText("complex.json");
+            var jsonValue = new JsonParser(text).Parse();
+            Assert.IsNotNull(jsonValue);
+        }
+
+        [TestMethod]
         public void BadJSON()
         {
             var text = File.ReadAllText("badjson.json");

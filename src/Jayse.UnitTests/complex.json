@@ -1,0 +1,72 @@
+﻿{
+  "data": [
+    {
+      "id": "1",
+      "name": "John Doe",
+      "details": {
+        "age": 29,
+        "active": true,
+        "alternateNames": [
+          "Johnny",
+          "J.D."
+        ],
+        "birthDate": "1994-05-22",
+        "emails": [
+          {
+            "address": "john.doe@example.com",
+            "verified": true,
+            "tags": [
+              "primary",
+              "work"
+            ]
+          },
+          {
+            "address": "john.doe@gmail.com",
+            "verified": false,
+            "tags": [
+              "secondary",
+              "personal"
+            ]
+          }
+        ],
+        "address": {
+          "street": "123 Main St",
+          "city": "New York",
+          "state": "NY",
+          "zip": "10001",
+          "country": "United States",
+          "coordinates": {
+            "latitude": 40.7128,
+            "longitude": -74.0060
+          }
+        },
+        "hobbies": [
+          "reading",
+          "hiking",
+          "cooking"
+        ],
+        "pets": [
+          {
+            "type": "dog",
+            "name": "Buddy",
+            "age": 5,
+            "breed": "Golden Retriever"
+          },
+          {
+            "type": "cat",
+            "name": "Whiskers",
+            "age": 3,
+            "breed": "Maine Coon"
+          }
+        ]
+      }
+    }
+  ],
+  "metadata": {
+    "version": "1.0",
+    "timestamp": "2023-03-29T12:34:56Z",
+    "status": "active",
+    "source": "internal",
+    "records": 1
+  }
+}

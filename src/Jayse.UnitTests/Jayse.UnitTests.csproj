@@ -12,6 +12,7 @@
     <None Remove="TestDataMutated.json" />
     <None Remove="book.json" />
     <None Remove="badjson.json" />
+    <None Remove="complex.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -28,6 +29,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="badjson.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="complex.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
