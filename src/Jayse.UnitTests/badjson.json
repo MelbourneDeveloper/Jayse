@@ -1,0 +1,35 @@
+﻿{
+  "data": [
+    {
+      "id": 1,
+      "name" "John Doe",
+      "age": "29",
+      "emails": [
+        "john.doe@example.com",
+        "john.doe@gmail"
+      ],
+      "address": {
+        "street": "123 Main St",
+        "city": "New York",
+        "state": "NY",
+        "zip": 10001,
+        "country" "United States"
+      },
+      "hobbies": [
+        "reading",
+        "hiking",
+        "cooking"
+      ],
+      "pets": [
+        {
+          "type": "dog",
+          "name": "Buddy"
+        },
+        {
+          "type": "cat",
+          "name": "Whiskers"
+        }
+      ]
+    }
+  ]
+}
