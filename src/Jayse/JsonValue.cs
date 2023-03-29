@@ -5,6 +5,8 @@ using System.Linq;
 #pragma warning disable IDE1006 // Naming Styles
 #pragma warning disable CA1304 // Specify CultureInfo
 #pragma warning disable CA1305 // Specify IFormatProvider
+#pragma warning disable IDE0027 // Use expression body for accessors
+#pragma warning disable CA1311 // Specify a culture or use an invariant version
 
 namespace Jayse
 {

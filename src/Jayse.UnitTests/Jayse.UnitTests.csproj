@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
 
     <IsPackable>false</IsPackable>
   </PropertyGroup>
@@ -10,6 +10,7 @@
     <None Remove="TestData.json" />
     <None Remove="TestData2.json" />
     <None Remove="TestDataMutated.json" />
+    <None Remove="book.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -21,6 +22,9 @@
     </Content>
     <Content Include="TestDataMutated.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="book.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 

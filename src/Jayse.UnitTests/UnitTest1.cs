@@ -5,6 +5,9 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 
+#pragma warning disable CA1851 
+
+
 namespace Jayse.UnitTests
 {
 

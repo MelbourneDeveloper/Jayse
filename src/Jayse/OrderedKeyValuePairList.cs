@@ -3,6 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
+#pragma warning disable CA1851 // Possible multiple enumerations of 'IEnumerable' collection
+
+
 namespace Jayse
 {
     public class OrderedImmutableDictionary

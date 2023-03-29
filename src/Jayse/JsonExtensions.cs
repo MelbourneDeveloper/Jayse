@@ -137,10 +137,12 @@ namespace Jayse
                 {
                     var childJsonObject = new Dictionary<string, JsonValue>();
 
+#pragma warning disable IDE0220 // Add explicit cast
                     foreach (JProperty childProperty in token.Children())
                     {
                         ProcessProperty(childJsonObject, childProperty);
                     }
+#pragma warning restore IDE0220 // Add explicit cast
 
                     children.Add(new JsonValue(new OrderedImmutableDictionary<string, JsonValue>(childJsonObject)));
                 }
