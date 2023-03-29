@@ -44,8 +44,6 @@ namespace Jayse
                 default:
                     throw new JsonParserException("Unexpected token: " + token.Type);
             }
-#pragma warning restore IDE0066 // Convert switch statement to expression
-#pragma warning restore IDE0010 // Add missing cases
         }
 
         private JsonValue ParseObject()
@@ -66,9 +64,9 @@ namespace Jayse
                 }
             }
             Expect(JsonTokenType.RightBrace);
+            tokenizer.MoveNext();
             return new JsonValue(new OrderedImmutableDictionary<string, JsonValue>(properties));
         }
-
 
         private JsonValue ParseArray()
         {
@@ -85,18 +83,21 @@ namespace Jayse
                 }
             }
             Expect(JsonTokenType.RightBracket);
+            tokenizer.MoveNext();
             return new JsonValue(elements.ToImmutableList());
         }
 
         private JsonValue ParseString()
         {
             var token = Expect(JsonTokenType.StringValue);
+            tokenizer.MoveNext();
             return token.Value != null ? new JsonValue(token.Value) : new JsonValue(string.Empty);
         }
 
         private JsonValue ParseNumber()
         {
             var token = Expect(JsonTokenType.Number);
+            tokenizer.MoveNext();
 #pragma warning disable IDE0046 // Convert to conditional expression
             if (decimal.TryParse(token.Value, out var value))
             {
@@ -112,18 +113,21 @@ namespace Jayse
         private JsonValue ParseTrue()
         {
             Expect(JsonTokenType.True);
+            tokenizer.MoveNext();
             return new JsonValue(true);
         }
 
         private JsonValue ParseFalse()
         {
             Expect(JsonTokenType.False);
+            tokenizer.MoveNext();
             return new JsonValue(false);
         }
 
         private JsonValue ParseNull()
         {
             Expect(JsonTokenType.Null);
+            tokenizer.MoveNext();
             return new JsonValue();
         }
 

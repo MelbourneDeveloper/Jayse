@@ -2,7 +2,6 @@
 
 
 using System.Diagnostics;
-using Newtonsoft.Json.Linq;
 
 namespace Jayse
 {
@@ -17,10 +16,6 @@ namespace Jayse
         public JsonTokenType Type { get; }
         public string? Value { get; }
     }
-
-
-
-
 
     public enum JsonTokenType
     {
