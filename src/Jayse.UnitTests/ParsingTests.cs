@@ -11,11 +11,10 @@ namespace Jayse.UnitTests
         public void Go()
         {
             var text = File.ReadAllText("book.json");
-            var parser = new JsonParser(text);
-            var jsonValue = parser.Parse();
+            var jsonValue = new JsonParser(text).Parse();
             Assert.IsNotNull(jsonValue);
-            var actual = jsonValue["books"].ArrayValue[0]["title"].StringValue;
-            Assert.AreEqual("The Catcher in the Rye", actual);
+            Assert.AreEqual("The Catcher in the Rye", jsonValue["books"].ArrayValue[0]["title"].StringValue);
+            Assert.AreEqual(1951, jsonValue["books"].ArrayValue[0]["publication"]["year"].NumberValue);
         }
     }
 }
