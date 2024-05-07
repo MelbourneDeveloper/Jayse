@@ -1,8 +1,13 @@
 # Jayse
 
-Traverse and modify JSON documents with .NET records
+<small>**Note**: this repo has two separate libraries (Dart/.NET) for working with JSON with the same name. They are currently different, but the aim for the long term is to bring them together and make them converge.</small>
 
-![diagram](https://github.com/MelbourneDeveloper/Jayse/blob/main/Images/IconSmall.png) 
+Traverse and modify JSON documents with an immutable data structure and lossless conversion to and from strongly typed objects.
+
+[Dart Package](src/dart_jayse)
+[C# Package](src)
+
+![Logo](Images/IconSmall.png) 
 
 ## What Is It And Why?
 Sometimes you need to traverse or modify a JSON document without serialization or deserialization. Jayse represents JSON as a simple object model with one record and one enum. The existing libraries like JSON.Net don't do this very well and can be clunky to traverse. For example, inspecting a JSON tree with Json.Net involves `JObject`, `JToken`, `JProperty`, `JArray` and so on. Jayse makes it easy to traverse the JSON document tree and locate values. 
