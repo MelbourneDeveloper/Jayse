@@ -2,7 +2,7 @@
 
 Jayse for .NET: Traverse and modify JSON documents with .NET records
 
-<small>**Note**: this repo has two separate libraries (Dart/.NET) for working with JSON with the same name. They are currently different, but the aim for the long term is to bring them together and make them converge.</small>
+<small>**Note**: this repo has two separate libraries (Dart/.NET) for working with JSON with the same name. They are currently different, but the aim for the long term is to bring them together and make them converge. See the readme for both [here](../../README.md)</small>
 
 [Dart Package](../dart_jayse)
 
