@@ -3,21 +3,50 @@ import 'package:test/test.dart';
 
 void main() {
   group('Serialization and Deserialization Tests', () {
-    test('decodes and encodes a simple string', () {
-      const fieldName = 'message';
-      const fieldValue = 'hello';
-      const jsonText = '{"$fieldName":"$fieldValue"}';
-      final jsonValue = jsonValueDecode(jsonText);
+    test('encode and decode with primitive values', () {
+      const stringFieldName = 'message';
+      const stringFieldValue = 'hello';
 
-      expect(jsonValue, isA<JsonObject>());
-      expect((jsonValue as JsonObject).value[fieldName], isA<JsonString>());
+      const numberFieldName = 'count';
+      const numberFieldValue = 42;
+
+      const boolFieldName = 'isActive';
+      const boolFieldValue = true;
+
+      const jsonText =
+          '{"$stringFieldName":"$stringFieldValue","$numberFieldName":'
+          '$numberFieldValue,"$boolFieldName":$boolFieldValue}';
+
+      final jsonValue = jsonValueDecode(jsonText) as JsonObject;
+
+      // Check string field
+      expect(jsonValue.value[stringFieldName], isA<JsonString>());
       expect(
-        (jsonValue.value[fieldName]! as JsonString).value,
-        equals(fieldValue),
+        (jsonValue.value[stringFieldName]! as JsonString).value,
+        equals(stringFieldValue),
       );
+
+      // Check number field
+      expect(jsonValue.value[numberFieldName], isA<JsonNumber>());
+      expect(
+        (jsonValue.value[numberFieldName]! as JsonNumber).value,
+        equals(numberFieldValue),
+      );
+
+      // Check boolean field
+      expect(jsonValue.value[boolFieldName], isA<JsonBoolean>());
+      expect(
+        (jsonValue.value[boolFieldName]! as JsonBoolean).value,
+        equals(boolFieldValue),
+      );
+
+      // Check encoding
       expect(
         jsonValueEncode(jsonValue),
-        equals('{"$fieldName":"$fieldValue"}'),
+        equals(
+          '{"$stringFieldName":"$stringFieldValue","$numberFieldName":'
+          '$numberFieldValue,"$boolFieldName":$boolFieldValue}',
+        ),
       );
     });
   });
