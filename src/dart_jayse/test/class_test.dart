@@ -2,6 +2,8 @@
 
 import 'dart:convert';
 
+import 'package:jayse/definable.dart';
+import 'package:jayse/definable_extensions.dart';
 import 'package:jayse/json_object.dart';
 import 'package:test/test.dart';
 
