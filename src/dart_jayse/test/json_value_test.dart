@@ -4,17 +4,20 @@ import 'package:test/test.dart';
 void main() {
   group('Serialization and Deserialization Tests', () {
     test('decodes and encodes a simple string', () {
-      const jsonText = '{"value":"hello"}';
+      const fieldName = 'message';
+      const fieldValue = 'hello';
+      const jsonText = '{"$fieldName":"$fieldValue"}';
       final jsonValue = jsonValueDecode(jsonText);
+
       expect(jsonValue, isA<JsonObject>());
-      expect((jsonValue as JsonObject).value['value'], isA<JsonString>());
+      expect((jsonValue as JsonObject).value[fieldName], isA<JsonString>());
       expect(
-        (jsonValue.value['value']! as JsonString).value,
-        equals('hello'),
+        (jsonValue.value[fieldName]! as JsonString).value,
+        equals(fieldValue),
       );
       expect(
         jsonValueEncode(jsonValue),
-        equals('{"value":"hello"}'),
+        equals('{"$fieldName":"$fieldValue"}'),
       );
     });
   });
