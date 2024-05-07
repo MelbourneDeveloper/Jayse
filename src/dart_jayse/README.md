@@ -1,6 +1,6 @@
 # Jayse
 
-![Logo](Images/IconSmall.png) 
+![Logo](https://github.com/MelbourneDeveloper/Jayse/raw/main/Images/IconSmall.png) 
 
 Lossless conversion of JSON to and from statically-typed, immutable objects in Dart.
 
