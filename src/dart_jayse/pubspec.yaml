@@ -1,0 +1,14 @@
+name: jayse
+description: Map JSON to Dart strongly-typed objects without data loss or corruption
+version: 1.0.0
+repository: https://github.com/MelbourneDeveloper/Jayse
+
+environment:
+  sdk: ^3.3.4
+
+dependencies:
+
+dev_dependencies:
+  austerity: ^1.2.0
+  lints: ^3.0.0
+  test: ^1.24.0
