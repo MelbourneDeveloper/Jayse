@@ -2,7 +2,30 @@
 sealed class JsonValue {
   /// Creates an instance of [JsonValue]
   const JsonValue._internal();
+
+  factory JsonValue.fromJson(Object json) => switch (json) {
+        final String string => JsonString(string),
+        final num number => JsonNumber(number),
+        final bool boolean => JsonBoolean(boolean),
+        final List<dynamic> list => JsonArray(list.map(_safeCast).toList()),
+        final Map<String, dynamic> map => JsonObject(
+            map.map(
+              (key, value) => MapEntry(
+                key,
+                _safeCast(value),
+              ),
+            ),
+          ),
+        _ =>
+          throw ArgumentError('Unknown JSON value type: ${json.runtimeType}'),
+      };
 }
+
+// ignore: avoid_annotating_with_dynamic
+JsonValue _safeCast(dynamic value) => switch (value) {
+      final Object object => JsonValue.fromJson(object),
+      null => const JsonNull(),
+    };
 
 /// A class that represents a JSON string
 final class JsonString extends JsonValue {
