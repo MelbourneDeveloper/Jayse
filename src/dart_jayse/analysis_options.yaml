@@ -3,7 +3,7 @@ include: package:austerity/analysis_options.yaml
 
 analyzer:
   errors:
-    public_medmber_api_docs: ignore
+    public_member_api_docs: error
     avoid_equals_and_hash_code_on_mutable_classes: ignore
     unrelated_type_equality_checks: ignore
     always_declare_return_types: ignore

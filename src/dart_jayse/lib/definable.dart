@@ -29,17 +29,16 @@ final class Undefined<T> extends Definable<T> {
 /// A class that represents a value that is defined in a [JsonObject] but is of
 /// the wrong type
 final class WrongType<T> extends Definable<T> {
-
   /// Creates an instance of [WrongType]
   WrongType({required this.wrongTypeValue});
 
+  /// The value that is of the wrong type
   final Object wrongTypeValue;
 }
 
-/// A class that represents a value that is defined in a [JsonObject] and is 
+/// A class that represents a value that is defined in a [JsonObject] and is
 /// of the correct type
 final class Defined<T> extends Definable<T> {
-
   /// Creates an instance of [Defined]
   Defined(this.value);
 
