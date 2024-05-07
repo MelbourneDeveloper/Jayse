@@ -1,3 +1,3 @@
-## 1.0.0
+## 0.0.1-alpha
 
-- Initial version.
+- Basic library structure
