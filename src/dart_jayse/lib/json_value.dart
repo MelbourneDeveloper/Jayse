@@ -1,3 +1,12 @@
+import 'dart:convert';
+
+/// Decodes a JSON string into a [JsonValue]
+JsonValue jsonValueDecode(String value) =>
+    JsonValue.fromJson(jsonDecode(value) as Object);
+
+/// Encodes a [JsonValue] into a JSON string
+String jsonValueEncode(JsonObject value) => jsonEncode(value.toJson());
+
 /// A class that represents a JSON value
 sealed class JsonValue {
   /// Creates an instance of [JsonValue]
@@ -76,4 +85,19 @@ final class JsonObject extends JsonValue {
 
   /// JSON values
   final Map<String, JsonValue> value;
+
+  /// Converts the [JsonObject] to a JSON-compatible map.
+  Map<String, dynamic> toJson() =>
+      value.map((key, jsonValue) => MapEntry(key, _jsonValueToJson(jsonValue)));
+
+  /// Recursively converts a [JsonValue] to its JSON-compatible representation.
+  dynamic _jsonValueToJson(JsonValue jsonValue) => switch (jsonValue) {
+        final JsonString jsonString => jsonString.value,
+        final JsonNumber jsonNumber => jsonNumber.value,
+        final JsonBoolean jsonBoolean => jsonBoolean.value,
+        final JsonArray jsonArray =>
+          jsonArray.value.map(_jsonValueToJson).toList(),
+        final JsonObject jsonObject => jsonObject.toJson(),
+        JsonNull() => null,
+      };
 }
