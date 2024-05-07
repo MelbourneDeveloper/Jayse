@@ -1,147 +1,23 @@
 # Jayse
 
-Traverse and modify JSON documents with .NET records
+![Logo](Images/IconSmall.png) 
 
-![diagram](https://github.com/MelbourneDeveloper/Jayse/blob/main/Images/IconSmall.png) 
+Traverse and modify JSON documents with immutable data structures and lossless conversion to and from statically typed objects in Dart and .NET.
+
+<small>**Note**: this repo has two separate libraries (Dart/.NET) for working with JSON with the same name. They are currently different, but the aim for the long term is to bring them together and make them converge.</small>
+
+[Dart Package](src/dart_jayse)
+
+[C# Package](src/dotnet)
 
 ## What Is It And Why?
-Sometimes you need to traverse or modify a JSON document without serialization or deserialization. Jayse represents JSON as a simple object model with one record and one enum. The existing libraries like JSON.Net don't do this very well and can be clunky to traverse. For example, inspecting a JSON tree with Json.Net involves `JObject`, `JToken`, `JProperty`, `JArray` and so on. Jayse makes it easy to traverse the JSON document tree and locate values. 
 
-See the full set of examples [here](https://github.com/MelbourneDeveloper/Jayse/blob/906ac390e219d06110275347406a6391d2105220/src/Jayse.UnitTests/UnitTest1.cs#L13).
+[JSON](https://www.json.org/json-en.html) is a simple data structure and textual representation that allows the storage and transfer of data in a human readable format. Most of the web uses JSON for Web API data transfer. 
 
-Take this JSON as an example:
+Unlike data structures in statically typed languages like C# and Dart, JSON is a dynamic structure that can contain any type of data. This poses challenges for mapping JSON to statically typed languages. JSON is in stark contrast with comparable structures like [Protobuf](https://protobuf.dev/), which is modelled after statically typed languages and is designed to be converted to and from them.
 
-```JSON
-{
-    "type" : "FeatureCollection",
-    "name" : "Water_Supply_Pumpset_Assets",
-    "crs" : 
-    {
-        "type" : "name",
-        "properties" : 
-        {
-            "name" : "urn:ogc:def:crs:OGC:1.3:CRS84"
-        }
-    },
-    "stuff" : null,
-    "features" : 
-    [
-        
-        {
-            "type" : "Feature",
-            "properties" : 
-            {
-                "ID" : "72cdd9ee-b48d-41af-b6b4-63df02eb7e18",
-                "OBJECTID" : 1,
-                "MXUNITID" : "WP099P1P",
-                "MXSITEID" : "MWS",
-                "COMPKEY" : 53884,
-                "ISBIG" : true,
-                "INSTALLDATE" : "2009-02-15T00:00:00.000Z"
-            },
-            "geometry" : 
-            {
-                "type" : "Point",
-                "coordinates" : 
-                [
-                    145.07016,
-                    -37.64136
-                ]
-            }
-        }
-    ]
-}
-```
+JSON grew up alongside JavaScript, which is a dynamic language. JavaScript has an `undefined` type, which is not present in statically typed languages lke Dart or C#. This means that JavaScript is sensitive to the difference between `null` and `undefined` when converting from JSON to objects, or when serializing objects back to JSON. Not only this, JavaScript preserves information like fields with incorrect data types when converting to and from JSON. 
 
-Let's say that we want to get the value of `ID` as a `Guid`. We can do that by accessing the value like so:
+Dart and C# cannot handle the undefined (absent) fields and data is lost when converting to a statically typed object that doesn't make a distinction between `null` and `undefined`. This is not a problem when you're in control of the backend, but it becomes a problem when you have communicate with APIs that are not under your control. If the API distinguishes between `null` and `undefined`, you can lose data when converting to and from JSON.
 
-```cs
-//Convert JSON to the object model
-var jsonObject = File.ReadAllText("TestData.json").ToJsonObject();
-
-//Access the value in the ID property
-Console.WriteLine(jsonObject["features"][0]["properties"]["ID"].AsGuid().ToString());
-```
-
-Output:
-
-> 72cdd9ee-b48d-41af-b6b4-63df02eb7e18
-
-## Build a JSON Model
-
-This code creates a JSON object using the builder pattern and then converts it to formatted JSON.
-
-```cs
-public void PrintSomeJson()
-{
-    const string numberKey = "key3";
-    const decimal numberValue = 3;
-    const string stringValue = "value1";
-    const string stringKey = "key1";
-    const string boolKey = "key2";
-    const string arrayKey = "key4";
-    const string innerKey = "innerkey";
-    const string innerValue = "innervalue";
-
-    //Create an array of numbers
-    var expectedNumbers = new decimal[] { 1, 2, 3 };
-    var jsonArray = expectedNumbers.ToJsonArray();
-
-    //Stick an object in the array
-    var innerObject =
-        new JsonValue(innerValue)
-        .ToJsonObject(innerKey)
-        .ToJsonValue();
-    jsonArray = jsonArray.Add(innerObject);
-
-    //Create an object with a builder
-    var jsonObject =
-        stringValue.
-        ToBuilder(stringKey).
-        Add(boolKey, true).
-        Add(numberKey, numberValue).
-        Add(arrayKey, jsonArray).
-        Build();
-
-    //Print the formatted JSON
-    var json = jsonObject.ToJson(true);
-    Console.WriteLine(json);
-}
-```
-
-Output:
-
-```JSON
-{
-    "key1" : "value1",
-    "key2" : true,
-    "key3" : 3,
-    "key4" : 
-    [
-        1,
-        2,
-        3,
-        
-        {
-            "innerkey" : "innervalue"
-        }
-    ]
-}
-```
-
-## Design
-
-The object model is easy to inspect. Each node contains a value of string, bool, array, object, number or null exactly like  the [JSON spec](https://www.json.org/json-en.html). All nodes are immutable records. You can use [non-destructive mutation](https://docs.microsoft.com/en-us/dotnet/csharp/whats-new/tutorials/records#non-destructive-mutation) to modify values. For example, if you wanted to modify the ID property, you can create a new properties node like so:
-
-```cs
-//Convert JSON to the object model
-var jsonObject = File.ReadAllText("TestData.json").ToJsonObject();
-
-var features = jsonObject["features"];
-var firstFeature = features.ArrayValue.First();
-//Get the properties node
-var properties = firstFeature.ObjectValue["properties"].ObjectValue;
-
-//Create a new properties node with the value of "newid" as the ID property
-var properties2 = properties.With("ID", new JsonValue("newid"));
-```
+The Dart version of Jayse aims at fixing this issue, while providing a modern, type-safe API that allows you to work with JSON in a way that is similar to working with statically typed objects. The .NET version of Jayse, which started as an experiment, is a little different, but the aim for the long term is to bring them together and make them converge.

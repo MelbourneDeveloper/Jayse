@@ -19,3 +19,5 @@ src/.idea/*
 *.user
 
 src/.vsconfig
+
+.DS_Store
