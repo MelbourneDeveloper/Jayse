@@ -90,20 +90,25 @@ void main() {
   });
 
   test('Complete Type With a List', () async {
-    final jsonObject = Message(
-      JsonValue.fromJson({
-        'message': 'Hello, World!',
-        'isGood': 'true',
-        'people': [
-          {'name': 'jim', 'type': 'recipient'},
-          {'name': 'bob', 'type': 'sender'},
-        ],
-      }) as JsonObject,
+    final messageObject = JsonValue.fromJson({
+      'message': 'Hello, World!',
+      'isGood': 'true',
+      'people': [
+        {'name': 'jim', 'type': 'recipient'},
+        {'name': 'bob', 'type': 'sender'},
+      ],
+    }) as JsonObject;
+
+    final message = Message(
+      messageObject,
     );
 
-    expect(jsonObject.message, 'Hello, World!');
-    expect(jsonObject.isGood, const JsonString('true'));
-    final people = jsonObject.people;
+    expect(message.message, 'Hello, World!');
+
+    expect(message.isGood, null);
+    expect(messageObject.getValue('isGood'), const JsonString('true'));
+
+    final people = message.people;
     final first = people![0];
     final second = people[1];
     final relationship = first.type!;
@@ -111,9 +116,9 @@ void main() {
     expect(first.name, 'jim');
     expect(second.name, 'bob');
 
-    final updatedJsonObject = jsonObject.setMessage('newmessage');
+    final updatedJsonObject = message.setMessage('newmessage');
     expect(updatedJsonObject.message, 'newmessage');
-    expect(jsonObject.message, 'Hello, World!');
+    expect(message.message, 'Hello, World!');
   });
 
   test(
