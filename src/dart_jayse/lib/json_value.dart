@@ -147,22 +147,22 @@ final class WrongType extends JsonValue {
 /// A class that represents a JSON object
 final class JsonObject extends JsonValue {
   /// Creates an instance of [JsonObject]
-  const JsonObject(this.value) : super._internal();
+  const JsonObject(this._value) : super._internal();
 
   /// JSON values
-  final Map<String, JsonValue> value;
+  final Map<String, JsonValue> _value;
 
   /// Returns a clone of this object with the key-value replacing the original
   // ignore: avoid_annotating_with_dynamic
   JsonObject update(String key, JsonValue value) {
-    final clonedMap = Map<String, JsonValue>.from(this.value)..remove(key);
+    final clonedMap = Map<String, JsonValue>.from(_value)..remove(key);
     clonedMap[key] = value;
     final entries = clonedMap.entries.toList();
     return JsonObject(Map.fromEntries(entries));
   }
 
   /// Returns the value of the field if it is defined and has the correct type
-  T? getValueTyped<T>(String field) => switch (value[field]) {
+  T? getValueTyped<T>(String field) => switch (_value[field]) {
         (final JsonString jsonString) when T == String => jsonString.value as T,
         (final JsonNumber jsonNumber)
             when T == num ||
@@ -182,11 +182,14 @@ final class JsonObject extends JsonValue {
       };
 
   /// Get the JSON Value
-  JsonValue getValue(String field) => value[field] ?? const Undefined();
+  JsonValue operator [](String field) => _value[field] ?? const Undefined();
+
+  /// Available fields
+  Iterable<String> get fields => _value.keys;
 
   /// Converts the [JsonObject] to a JSON-compatible map.
-  Map<String, dynamic> toJson() =>
-      value.map((key, jsonValue) => MapEntry(key, _jsonValueToJson(jsonValue)));
+  Map<String, dynamic> toJson() => _value
+      .map((key, jsonValue) => MapEntry(key, _jsonValueToJson(jsonValue)));
 
   /// Recursively converts a [JsonValue] to its JSON-compatible representation.
   dynamic _jsonValueToJson(JsonValue jsonValue) => switch (jsonValue) {
@@ -202,23 +205,23 @@ final class JsonObject extends JsonValue {
       };
 
   @override
-  int get hashCode => Object.hashAll(value.entries);
+  int get hashCode => Object.hashAll(_value.entries);
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is JsonObject &&
-          value.length == other.value.length &&
-          value.keys.every(
+          _value.length == other._value.length &&
+          _value.keys.every(
             (key) =>
-                other.value.containsKey(key) && value[key] == other.value[key],
+                other._value.containsKey(key) &&
+                _value[key] == other._value[key],
           ));
 }
 
 /// An extension on [JsonValue]
 extension JsonValueExtensions on JsonValue {
   /// Returns the value of the field if it is defined and has the correct type
-  JsonValue getValue(String field) => this is JsonObject
-      ? (this as JsonObject).getValue(field)
-      : const Undefined();
+  JsonValue getValue(String field) =>
+      this is JsonObject ? (this as JsonObject)[field] : const Undefined();
 }
