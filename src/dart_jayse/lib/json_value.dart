@@ -16,7 +16,8 @@ sealed class JsonValue {
         final String string => JsonString(string),
         final num number => JsonNumber(number),
         final bool boolean => JsonBoolean(boolean),
-        final List<dynamic> list => JsonArray(list.map(_safeCast).toList()),
+        final List<dynamic> list =>
+          JsonArray.unmodifiable(list.map(_safeCast).toList()),
         final Map<String, dynamic> map =>
           JsonObject(map.map((key, value) => MapEntry(key, _safeCast(value)))),
         _ =>
@@ -76,13 +77,18 @@ final class JsonBoolean extends JsonValue {
 
 /// A class that represents a JSON array
 final class JsonArray extends JsonValue {
-  /// Creates an instance of [JsonArray]
-  JsonArray(Iterable<JsonValue> values)
+  /// Creates an instance of [JsonArray]. Note this currently allows for an
+  /// mutable list. Use the unmodifiable for runtime immutability.
+  /// Warning: mutating this list breaks the hashCode and equality checks.
+  const JsonArray(this.value) : super._internal();
+
+  /// Creates an instance of [JsonArray] with an unmodifiable list
+  JsonArray.unmodifiable(Iterable<JsonValue> values)
       : value = List.unmodifiable(values),
         super._internal();
 
-  /// The JSON array value. This list is runtime immutable. Attempting
-  /// to modify the list will result in an exception.
+  /// The JSON array value. This list is runtime immutable by default.
+  /// Attempting to modify the list will result in an exception.
   /// TODO: Make this compile time immutable
   final List<JsonValue> value;
 
@@ -90,7 +96,13 @@ final class JsonArray extends JsonValue {
   int get hashCode => Object.hashAll(value);
 
   @override
-  bool operator ==(Object other) => other is JsonArray && other.value == value;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is JsonArray &&
+          value.length == other.value.length &&
+          value.asMap().entries.every(
+                (entry) => entry.value == other.value[entry.key],
+              ));
 }
 
 /// A class that represents a JSON null

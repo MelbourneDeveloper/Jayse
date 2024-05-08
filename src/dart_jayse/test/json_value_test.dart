@@ -12,6 +12,8 @@ void main() {
           '{"title": "The Great Gatsby", "author": "F. Scott Fitzgerald"}';
 
       final book = jsonValueDecode(bookJson) as JsonObject;
+      final titleValue = book.value['title']! as JsonString;
+      expect(titleValue.value, 'The Great Gatsby');
       expect(book.value['title'], const JsonString('The Great Gatsby'));
       expect(book.value['author'], const JsonString('F. Scott Fitzgerald'));
     });
@@ -354,6 +356,89 @@ void main() {
 
       // Check that JSON is preserved
       expect(jsonValueEncode(jsonValue), equals(jsonText));
+    });
+
+    test('Equality test for all JSON value types', () {
+      // Test string equality
+      const stringJson = '{"message": "Hello, world!"}';
+      final stringObj = jsonValueDecode(stringJson) as JsonObject;
+      expect(stringObj.value['message'], const JsonString('Hello, world!'));
+
+      // Test number equality
+      const numberJson = '{"value": 42}';
+      final numberObj = jsonValueDecode(numberJson) as JsonObject;
+      expect(numberObj.value['value'], const JsonNumber(42));
+
+      // Test boolean equality
+      const booleanJson = '{"isActive": true}';
+      final booleanObj = jsonValueDecode(booleanJson) as JsonObject;
+      expect(booleanObj.value['isActive'], const JsonBoolean(true));
+
+      // Test null equality
+      const nullJson = '{"data": null}';
+      final nullObj = jsonValueDecode(nullJson) as JsonObject;
+      expect(nullObj.value['data'], const JsonNull());
+
+      // Test array equality
+      const arrayJson = '{"numbers": [1, 2, 3]}';
+      final arrayObj = jsonValueDecode(arrayJson) as JsonObject;
+      expect(
+        arrayObj.value['numbers'],
+        const JsonArray(
+          [JsonNumber(1), JsonNumber(2), JsonNumber(3)],
+        ),
+      );
+
+      // Test object equality
+      const objectJson = '{"person": {"name": "John", "age": 30}}';
+      final objectObj = jsonValueDecode(objectJson) as JsonObject;
+      expect(
+        objectObj.value['person'],
+        const JsonObject({
+          'name': JsonString('John'),
+          'age': JsonNumber(30),
+        }),
+      );
+
+      // Test complex object equality
+      const complexJson = '''
+    {
+      "id": 123,
+      "name": "John Doe",
+      "email": "john@example.com",
+      "isActive": true,
+      "scores": [85, 92, 78],
+      "address": {
+        "street": "123 Main St",
+        "city": "New York",
+        "country": "USA"
+      },
+      "tags": ["developer", "engineer"],
+      "preferences": [true, false, true],
+      "status": null
+    }
+  ''';
+      final complexObj = jsonValueDecode(complexJson) as JsonObject;
+      expect(
+        complexObj,
+        const JsonObject({
+          'id': JsonNumber(123),
+          'name': JsonString('John Doe'),
+          'email': JsonString('john@example.com'),
+          'isActive': JsonBoolean(true),
+          'scores': JsonArray([JsonNumber(85), JsonNumber(92), JsonNumber(78)]),
+          'address': JsonObject({
+            'street': JsonString('123 Main St'),
+            'city': JsonString('New York'),
+            'country': JsonString('USA'),
+          }),
+          'tags': JsonArray([JsonString('developer'), JsonString('engineer')]),
+          'preferences': JsonArray(
+            [JsonBoolean(true), JsonBoolean(false), JsonBoolean(true)],
+          ),
+          'status': JsonNull(),
+        }),
+      );
     });
   });
 
