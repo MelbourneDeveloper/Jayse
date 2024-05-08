@@ -152,12 +152,35 @@ final class JsonObject extends JsonValue {
   /// JSON values
   final Map<String, JsonValue> _value;
 
+  /// Returns a clone of this object with the key-value pairs replacing the
+  /// original values
+  JsonObject withUpdates(Map<String, JsonValue> updates) {
+    var jo = this;
+    //Note: performance here could be improved by merging these
+    for (final entry in updates.entries) {
+      jo = jo.withUpdate(entry.key, entry.value);
+    }
+    return jo;
+  }
+
   /// Returns a clone of this object with the key-value replacing the original
-  // ignore: avoid_annotating_with_dynamic
-  JsonObject update(String key, JsonValue value) {
-    final clonedMap = Map<String, JsonValue>.from(_value)..remove(key);
-    clonedMap[key] = value;
-    final entries = clonedMap.entries.toList();
+  /// Note: this preserves field ordering
+  JsonObject withUpdate(String key, JsonValue value) {
+    final entries = _value.entries.toList();
+    var replaced = false;
+    for (var i = 0; i >= 0; i--) {
+      final entry = entries[i];
+      if (entry.key == key) {
+        entries
+          ..removeAt(i)
+          ..insert(i, MapEntry(key, value));
+        replaced = true;
+        break;
+      }
+    }
+
+    if (!replaced) entries.insert(entries.length - 1, MapEntry(key, value));
+
     return JsonObject(Map.fromEntries(entries));
   }
 
@@ -243,4 +266,18 @@ extension JsonValueExtensions on JsonValue {
   /// Returns the value of the field if it is defined and has the correct type
   JsonValue getValue(String field) =>
       this is JsonObject ? (this as JsonObject)[field] : const Undefined();
+}
+
+/// An extension on [bool] for [JsonValue]
+extension BoolExtensions on bool? {
+  /// Converts a [bool] to a [JsonValue]
+  JsonValue toJsonValue() =>
+      this == null ? const JsonNull() : JsonBoolean(this!);
+}
+
+/// An extension on [String] for [JsonValue]
+extension StringExtensions on String? {
+  /// Converts a [String] to a [JsonValue]
+  JsonValue toJsonValue() =>
+      this == null ? const JsonNull() : JsonString(this!);
 }

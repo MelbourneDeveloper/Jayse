@@ -8,6 +8,14 @@ Lossless conversion of JSON to and from statically-typed, immutable objects in D
 
 [C# Package](../dotnet/)
 
+## Features
+
+- **Lossless Conversion**: convert to Dart strongly typed Dart objects and back to JSON without any information. See below for more information.
+- **Strong Typing**: All values are strongly typed. No accessing `dynamic` values.
+- **Immutable**: All objects are immutable. There are no setters. Use non-destructive mutation to create new `JsonObject`s.
+- Less need for code generation.
+
+
 ## What Is It And Why?
 
 Jayse is a Dart library that facilitates safe and lossless conversion of JSON to and from statically-typed, immutable objects. When you receive data from a backend, you can modify it and send it back without destroying other data that arrived in the payload. This is in contrast with packages like `json_serializable` and `freezed`, which can corrupt data when converting JSON to Dart objects and back.
@@ -114,3 +122,7 @@ Output:
 ```
 
 Notice that the `gender` field was added with a `null` value. This is a problem because the original JSON did not have a `gender` field. This is corruption. If send this value back to the server, it may set an existing value to `null` even though the original value was not `null`.
+
+### Field Order Preservation
+
+Some code is sensitive to the ordering of fields. For example, if you are using Firestore, the order of fields is important. If you convert JSON to a Dart object and back, the order of fields may change. This can cause problems with Firestore. Jayse preserves field ordering.

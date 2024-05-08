@@ -13,7 +13,7 @@ extension MessageExtensions on JsonObject {
     return value is JsonString ? value.value : null;
   }
 
-  JsonObject setMessage(String? message) => update(
+  JsonObject setMessage(String? message) => withUpdate(
         'message',
         message == null ? const JsonNull() : JsonString(message),
       );
@@ -168,7 +168,9 @@ void main() {
 
     expect(
       jsonEncode(updatedJsonObject.toJson()),
-      '''{"isGood":"true","people":[{"name":"jim","type":"recipient"},{"name":"bob","type":"sender"}],"message":"newmessage"}''',
+      '''{"message":"newmessage","isGood":"true",'''
+      '"people":[{"name":"jim","type":"recipient"},'
+      '{"name":"bob","type":"sender"}]}',
     );
   });
 

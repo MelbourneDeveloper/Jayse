@@ -16,8 +16,19 @@ class Message {
   bool? get isGood => _jsonObject.value('isGood');
   String? get message => _jsonObject.value('message');
 
+  Message copyWith({
+    bool? isGood,
+    String? message,
+  }) =>
+      Message(
+        _jsonObject.withUpdates({
+          if (isGood != null) 'isGood': isGood.toJsonValue(),
+          if (message != null) 'message': message.toJsonValue(),
+        }),
+      );
+
   Message setMessage(String? message) => Message(
-        _jsonObject.update(
+        _jsonObject.withUpdate(
           'message',
           message == null ? const JsonNull() : JsonString(message),
         ),
@@ -78,7 +89,7 @@ void main() {
     expect(second.name, 'bob');
 
     // Non-destructive mutation on the message field
-    final updatedMessage = message.setMessage('newmessage');
+    final updatedMessage = message.copyWith(message: 'newmessage');
     expect(updatedMessage.message, 'newmessage');
 
     //Ensure the original object is not mutated
@@ -87,9 +98,23 @@ void main() {
     //This ensures there is no loss from the original JSON
     expect(jsonEncode(jsonObject.toJson()), json);
 
+    //Verify the JSON got updated
     expect(
       jsonEncode(updatedMessage._jsonObject.toJson()),
-      '''{"isGood":"true","people":[{"name":"jim","type":"recipient"},{"name":"bob","type":"sender"}],"message":"newmessage"}''',
+      '''{"message":"newmessage","isGood":"true","people":[{"name":"jim","type":"recipient"},{"name":"bob","type":"sender"}]}''',
+    );
+
+    //Verify we can correct the value
+    final updatedMessage2 = message.copyWith(isGood: false);
+    expect(updatedMessage2.isGood, false);
+
+    // ignore: avoid_print
+    print(jsonEncode(updatedMessage2._jsonObject.toJson()));
+
+    //Verify the JSON got corrected, and field ordering was maintained
+    expect(
+      jsonEncode(updatedMessage2._jsonObject.toJson()),
+      '''{"message":"Hello, World!","isGood":false,"people":[{"name":"jim","type":"recipient"},{"name":"bob","type":"sender"}]}''',
     );
   });
 }
