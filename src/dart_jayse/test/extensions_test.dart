@@ -173,7 +173,7 @@ void main() {
   });
 
   test('Nested objects', () {
-    final jsonObject = JsonValue.fromJson({
+    final json = {
       'person': {
         'name': 'Alice',
         'age': 30,
@@ -183,7 +183,9 @@ void main() {
           'country': 'USA',
         },
       },
-    }) as JsonObject;
+    };
+    
+    final jsonObject = JsonValue.fromJson(json) as JsonObject;
 
     expect(
       jsonObject.getValue('person').getValue('name'),
