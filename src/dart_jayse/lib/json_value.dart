@@ -19,8 +19,7 @@ sealed class JsonValue {
         final bool boolean => JsonBoolean(boolean),
         final List<dynamic> list =>
           JsonArray.unmodifiable(list.map(_safeCast).toList()),
-        final Map<String, dynamic> map =>
-          JsonObject(map.map((key, value) => MapEntry(key, _safeCast(value)))),
+        final Map<String, dynamic> map => map.toJsonValue(),
         _ =>
           throw ArgumentError('Unknown JSON value type: ${json.runtimeType}'),
       };
@@ -148,6 +147,9 @@ final class WrongType extends JsonValue {
 final class JsonObject extends JsonValue {
   /// Creates an instance of [JsonObject]
   const JsonObject(this._value) : super._internal();
+
+  /// Creates an instance of [JsonObject] from a JSON map
+  factory JsonObject.fromJson(Map<String, dynamic> json) => json.toJsonValue();
 
   /// JSON values
   final Map<String, JsonValue> _value;
@@ -280,4 +282,11 @@ extension StringExtensions on String? {
   /// Converts a [String] to a [JsonValue]
   JsonValue toJsonValue() =>
       this == null ? const JsonNull() : JsonString(this!);
+}
+
+/// An extension on [Map<String, dynamic>] for [JsonObject]
+extension Asdfsdf on Map<String, dynamic> {
+  /// Converts a [Map<String, dynamic>] to a [JsonObject]
+  JsonObject toJsonValue() =>
+      JsonObject(map((key, value) => MapEntry(key, _safeCast(value))));
 }

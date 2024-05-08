@@ -11,8 +11,8 @@ enum Relationship { recipient, sender }
 class Message {
   Message(this._jsonObject);
 
-  factory Message.fromJson(String json) =>
-      Message(jsonValueDecode(json) as JsonObject);
+  factory Message.fromJson(Map<String, dynamic> json) =>
+      Message(JsonObject.fromJson(json));
 
   final JsonObject _jsonObject;
 
@@ -31,7 +31,7 @@ class Message {
           if (message != null) 'message': message.toJsonValue(),
         }),
       );
-      
+
   List<Person>? get people => switch (_jsonObject['people']) {
         (final JsonArray ja) when ja.value.every((jv) => jv is JsonObject) =>
           ja.value.map((jv) => Person(jv as JsonObject)).toList(),
@@ -118,5 +118,18 @@ void main() {
       '"people":[{"name":"jim","type":"recipient"},'
       '{"name":"bob","type":"sender"}]}',
     );
+  });
+
+  test('To and From Json', () {
+    final message = Message.fromJson({
+      'message': 'Hello, World!',
+      'isGood': 'true',
+      'people': [
+        {'name': 'jim', 'type': 'recipient'},
+        {'name': 'bob', 'type': 'sender'},
+      ],
+    });
+
+    expect(message.people?[1].name, 'bob');
   });
 }
