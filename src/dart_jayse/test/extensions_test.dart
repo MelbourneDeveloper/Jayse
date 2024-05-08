@@ -5,7 +5,7 @@ import 'dart:convert';
 import 'package:jayse/json_value.dart';
 import 'package:test/test.dart';
 
-import 'class_test.dart';
+import 'class_test.dart' as ct;
 
 extension MessageExtensions on JsonObject {
   String? get message {
@@ -13,23 +13,19 @@ extension MessageExtensions on JsonObject {
     return value is JsonString ? value.value : null;
   }
 
-  Message setMessage(String? message) {
-    final jsonObject = update(
-      'message',
-      message == null ? const JsonNull() : JsonString(message),
-    );
-
-    return Message(jsonObject);
-  }
+  JsonObject setMessage(String? message) => update(
+        'message',
+        message == null ? const JsonNull() : JsonString(message),
+      );
 
   bool? get isGood {
     final value = getValue('isGood');
     return value is JsonBoolean ? value.value : null;
   }
 
-  List<Person>? get people => switch (getValue('people')) {
+  List<JsonObject>? get people => switch (getValue('people')) {
         (final JsonArray ja) when ja.value.every((jv) => jv is JsonObject) =>
-          ja.value.map((jv) => Person(jv as JsonObject)).toList(),
+          ja.value.map((jv) => jv as JsonObject).toList(),
         _ => null,
       };
 }
@@ -40,10 +36,11 @@ extension PersonExtensions on JsonObject {
     return value is JsonString ? value.value : null;
   }
 
-  Relationship? get type => switch (getValue('type')) {
+  ct.Relationship? get type => switch (getValue('type')) {
         (final JsonString js) when js.value == 'recipient' =>
-          Relationship.recipient,
-        (final JsonString js) when js.value == 'sender' => Relationship.sender,
+          ct.Relationship.recipient,
+        (final JsonString js) when js.value == 'sender' =>
+          ct.Relationship.sender,
         _ => null,
       };
 }
@@ -81,7 +78,7 @@ void main() {
     final person = jsonMap.getValueTyped<JsonObject>('person')!;
 
     expect(person.name, 'jim');
-    expect(person.type, Relationship.recipient);
+    expect(person.type, ct.Relationship.recipient);
   });
 
   test('Complete Type With a List', () async {
@@ -94,26 +91,22 @@ void main() {
       ],
     }) as JsonObject;
 
-    final message = Message(
-      messageObject,
-    );
+    expect(messageObject.message, 'Hello, World!');
 
-    expect(message.message, 'Hello, World!');
-
-    expect(message.isGood, null);
+    expect(messageObject.isGood, null);
     expect(messageObject.getValue('isGood'), const JsonString('true'));
 
-    final people = message.people;
+    final people = messageObject.people;
     final first = people![0];
     final second = people[1];
     final relationship = first.type!;
-    expect(relationship, Relationship.recipient);
+    expect(relationship, ct.Relationship.recipient);
     expect(first.name, 'jim');
     expect(second.name, 'bob');
 
-    final updatedJsonObject = message.setMessage('newmessage');
+    final updatedJsonObject = messageObject.setMessage('newmessage');
     expect(updatedJsonObject.message, 'newmessage');
-    expect(message.message, 'Hello, World!');
+    expect(messageObject.message, 'Hello, World!');
   });
 
   test(
@@ -150,13 +143,13 @@ void main() {
     final jsonObject = jsonValueDecode(json) as JsonObject;
 
     final people = jsonObject.people!;
-    final first = people[0] as JsonObject;
-    final second = people[1] as JsonObject;
+    final first = people[0];
+    final second = people[1];
 
     //Basic strongly typed path access with extension properties and methods
     expect(jsonObject.message, 'Hello, World!');
 
-    expect(first.type, Relationship.recipient);
+    expect(first.type, ct.Relationship.recipient);
     expect(first.name, 'jim');
     expect(second.name, 'bob');
 
@@ -174,7 +167,7 @@ void main() {
     expect(jsonEncode(jsonObject.toJson()), json);
 
     expect(
-      jsonEncode(updatedJsonObject.jsonObject.toJson()),
+      jsonEncode(updatedJsonObject.toJson()),
       '''{"isGood":"true","people":[{"name":"jim","type":"recipient"},{"name":"bob","type":"sender"}],"message":"newmessage"}''',
     );
   });
