@@ -17,24 +17,16 @@ sealed class JsonValue {
         final num number => JsonNumber(number),
         final bool boolean => JsonBoolean(boolean),
         final List<dynamic> list => JsonArray(list.map(_safeCast).toList()),
-        final Map<String, dynamic> map => JsonObject(
-            map.map(
-              (key, value) => MapEntry(
-                key,
-                _safeCast(value),
-              ),
-            ),
-          ),
+        final Map<String, dynamic> map =>
+          JsonObject(map.map((key, value) => MapEntry(key, _safeCast(value)))),
         _ =>
           throw ArgumentError('Unknown JSON value type: ${json.runtimeType}'),
       };
 }
 
 // ignore: avoid_annotating_with_dynamic
-JsonValue _safeCast(dynamic value) => switch (value) {
-      final Object object => JsonValue.fromJson(object),
-      null => const JsonNull(),
-    };
+JsonValue _safeCast(dynamic value) =>
+    value is Object ? JsonValue.fromJson(value) : const JsonNull();
 
 /// A class that represents a JSON string
 final class JsonString extends JsonValue {
@@ -43,6 +35,12 @@ final class JsonString extends JsonValue {
 
   /// The JSON string value
   final String value;
+
+  @override
+  int get hashCode => value.hashCode;
+
+  @override
+  bool operator ==(Object other) => other is JsonString && other.value == value;
 }
 
 /// A class that represents a JSON number
@@ -52,6 +50,12 @@ final class JsonNumber extends JsonValue {
 
   /// The JSON number value
   final num value;
+
+  @override
+  int get hashCode => value.hashCode;
+
+  @override
+  bool operator ==(Object other) => other is JsonNumber && other.value == value;
 }
 
 /// A class that represents a JSON boolean
@@ -61,21 +65,44 @@ final class JsonBoolean extends JsonValue {
 
   /// The JSON boolean value
   final bool value;
+
+  @override
+  int get hashCode => value.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      other is JsonBoolean && other.value == value;
 }
 
 /// A class that represents a JSON array
 final class JsonArray extends JsonValue {
   /// Creates an instance of [JsonArray]
-  const JsonArray(this.value) : super._internal();
+  JsonArray(Iterable<JsonValue> values)
+      : value = List.unmodifiable(values),
+        super._internal();
 
-  /// The JSON array value
+  /// The JSON array value. This list is runtime immutable. Attempting
+  /// to modify the list will result in an exception.
+  /// TODO: Make this compile time immutable
   final List<JsonValue> value;
+
+  @override
+  int get hashCode => Object.hashAll(value);
+
+  @override
+  bool operator ==(Object other) => other is JsonArray && other.value == value;
 }
 
 /// A class that represents a JSON null
 final class JsonNull extends JsonValue {
   /// Creates an instance of [JsonNull]
   const JsonNull() : super._internal();
+
+  @override
+  int get hashCode => 0;
+
+  @override
+  bool operator ==(Object other) => other is JsonNull;
 }
 
 /// A class that represents a JSON object
@@ -100,4 +127,10 @@ final class JsonObject extends JsonValue {
         final JsonObject jsonObject => jsonObject.toJson(),
         JsonNull() => null,
       };
+
+  @override
+  int get hashCode => Object.hashAll(value.entries);
+
+  @override
+  bool operator ==(Object other) => other is JsonObject && other.value == value;
 }

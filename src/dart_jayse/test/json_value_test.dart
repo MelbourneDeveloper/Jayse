@@ -6,6 +6,17 @@ import 'package:jayse/json_value.dart';
 import 'package:test/test.dart';
 
 void main() {
+  group('Basic Examples', () {
+    test('Basic JSON to object', () {
+      const bookJson =
+          '{"title": "The Great Gatsby", "author": "F. Scott Fitzgerald"}';
+
+      final book = jsonValueDecode(bookJson) as JsonObject;
+      expect(book.value['title'], const JsonString('The Great Gatsby'));
+      expect(book.value['author'], const JsonString('F. Scott Fitzgerald'));
+    });
+  });
+
   group('Serialization and Deserialization Tests', () {
     test('encode and decode with primitive values', () {
       const stringFieldName = 'message';
@@ -161,19 +172,16 @@ void main() {
       expect(address.value['street'], isA<JsonString>());
       expect(
         (address.value['street']! as JsonString).value,
-        // ignore: avoid_dynamic_calls
         equals(personFieldValue['address']['street']),
       );
       expect(address.value['city'], isA<JsonString>());
       expect(
         (address.value['city']! as JsonString).value,
-        // ignore: avoid_dynamic_calls
         equals(personFieldValue['address']['city']),
       );
       expect(address.value['country'], isA<JsonString>());
       expect(
         (address.value['country']! as JsonString).value,
-        // ignore: avoid_dynamic_calls
         equals(personFieldValue['address']['country']),
       );
 
