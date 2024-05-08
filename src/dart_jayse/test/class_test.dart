@@ -79,7 +79,7 @@ void main() {
     expect(second.name.definedValue, 'bob');
 
     //Ensure we can access a value where the type is incorrect
-    expect(message.isGood.value, 'true');
+    expect(message.isGood.value, const JsonString('true'));
 
     // Non-destructive mutation on the message field
     final updatedMessage = Message(message.setMessage('newmessage'));
