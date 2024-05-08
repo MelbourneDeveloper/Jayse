@@ -22,7 +22,16 @@ class Message {
   Definable<bool> get isGood => _jsonObject.getValue<bool>('isGood');
 
   Definable<List<Person>> get people =>
-      _jsonObject.getValue<List<Person>>('people');
+      switch (_jsonObject.getValue<JsonArray>('people')) {
+        (final Defined<JsonArray> ja)
+            when ja.definedValue!.value.every((jv) => jv is JsonObject) =>
+          Defined(
+            ja.definedValue!.value
+                .map((jo) => Person(jo as JsonObject))
+                .toList(),
+          ),
+        _ => const Undefined<List<Person>>(),
+      };
 }
 
 class Person {

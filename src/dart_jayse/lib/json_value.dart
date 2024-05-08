@@ -196,7 +196,10 @@ final class JsonObject extends JsonValue {
           Defined(jsonNumber.value as T),
         (final JsonBoolean jsonBoolean) when T == bool =>
           Defined(jsonBoolean.value as T),
+        //Is this case necessary?
         (final JsonArray jsonArray) when T == JsonArray =>
+          Defined(jsonArray as T),
+        (final JsonArray jsonArray) when T == (List<JsonValue>) =>
           Defined(jsonArray.value as T),
         (final JsonObject jsonObject) when T == JsonObject =>
           Defined(jsonObject as T),

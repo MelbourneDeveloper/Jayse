@@ -5,6 +5,7 @@ analyzer:
   errors:
     public_member_api_docs: error
     constant_pattern_never_matches_value_type: error
+    pattern_never_matches_value_type: error
 
     avoid_equals_and_hash_code_on_mutable_classes: ignore
     unrelated_type_equality_checks: ignore
