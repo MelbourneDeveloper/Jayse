@@ -101,7 +101,9 @@ void main() {
     //Verify the JSON got updated
     expect(
       jsonEncode(updatedMessage._jsonObject.toJson()),
-      '''{"message":"newmessage","isGood":"true","people":[{"name":"jim","type":"recipient"},{"name":"bob","type":"sender"}]}''',
+      '''{"message":"newmessage","isGood":"true",'''
+      '"people":[{"name":"jim","type":"recipient"},'
+      '{"name":"bob","type":"sender"}]}',
     );
 
     //Verify we can correct the value
@@ -114,7 +116,9 @@ void main() {
     //Verify the JSON got corrected, and field ordering was maintained
     expect(
       jsonEncode(updatedMessage2._jsonObject.toJson()),
-      '''{"message":"Hello, World!","isGood":false,"people":[{"name":"jim","type":"recipient"},{"name":"bob","type":"sender"}]}''',
+      '''{"message":"Hello, World!","isGood":false,'''
+      '"people":[{"name":"jim","type":"recipient"},'
+      '{"name":"bob","type":"sender"}]}',
     );
   });
 }
