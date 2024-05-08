@@ -196,7 +196,7 @@ final class JsonObject extends JsonValue {
           Defined(jsonNumber.value as T),
         (final JsonBoolean jsonBoolean) when T == bool =>
           Defined(jsonBoolean.value as T),
-        (final JsonArray jsonArray) when T == (List<JsonValue>) =>
+        (final JsonArray jsonArray) when T == JsonArray =>
           Defined(jsonArray.value as T),
         (final JsonObject jsonObject) when T == JsonObject =>
           Defined(jsonObject as T),
@@ -236,7 +236,6 @@ final class JsonObject extends JsonValue {
 
 /// Extension methods for [Definable]
 extension DefinableExtensions<T> on Definable<T> {
-
   /// Returns the defined value if it is defined and has the correct type,
   /// TODO: this looks wrong and requires some serious testing
   Definable<T> getValue(String field) => switch (this) {
@@ -269,12 +268,13 @@ extension DefinableExtensions<T> on Definable<T> {
 }
 
 /// Extension methods for [Definable]s that contain [JsonObject]s
-extension ListExtensions on Definable<List<JsonObject>> {
+extension ListExtensions on Definable<JsonArray> {
   /// Returns the defined value if it is defined and has the correct type,
-  Definable<JsonObject> operator [](int index) =>
-      switch (definedValue?[index]) {
-        (final JsonObject json) => Defined(json),
-        _ => const Undefined(),
+  Definable<JsonValue> operator [](int index) => switch (this) {
+        (final Defined<JsonArray> array)
+            when array.definedValue!.value.length > index =>
+          array[index],
+        _ => const Undefined<JsonValue>(),
       };
 
   /// Returns the first element of the defined value if it is defined and has

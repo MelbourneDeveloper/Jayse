@@ -5,6 +5,8 @@ import 'dart:convert';
 import 'package:jayse/json_value.dart';
 import 'package:test/test.dart';
 
+import 'class_test.dart';
+
 extension MessageExtensions on JsonObject {
   Definable<String> get message => getValue<String>('message');
 
@@ -14,8 +16,8 @@ extension MessageExtensions on JsonObject {
       );
 
   Definable<bool> get isGood => getValue<bool>('isGood');
-  Definable<List<JsonObject>> get people =>
-      getValue<List<JsonObject>>('people');
+
+  Definable<JsonArray> get people => getValue<JsonArray>('people');
 }
 
 extension DefinableMessageExtensions on Definable<JsonObject> {
@@ -99,20 +101,25 @@ void main() {
   });
 
   test('Complete Type With a List', () async {
-    final jsonObject = JsonValue.fromJson({
-      'message': 'Hello, World!',
-      'isGood': 'true',
-      'people': [
-        {'name': 'jim', 'type': 'recipient'},
-        {'name': 'bob', 'type': 'sender'},
-      ],
-    }) as JsonObject;
+    final jsonObject = Message(
+      JsonValue.fromJson({
+        'message': 'Hello, World!',
+        'isGood': 'true',
+        'people': [
+          {'name': 'jim', 'type': 'recipient'},
+          {'name': 'bob', 'type': 'sender'},
+        ],
+      }) as JsonObject,
+    );
 
     expect(jsonObject.message.equals('Hello, World!'), isTrue);
     expect(jsonObject.isGood.value, const JsonString('true'));
-    expect(jsonObject.people[0].type.equals(Relationship.recipient), isTrue);
-    expect(jsonObject.people.first.name.equals('jim'), isTrue);
-    expect(jsonObject.people[1].name.definedValue, 'bob');
+    final people = jsonObject.people;
+    final first = people.definedValue![0];
+    final second = people.definedValue![0];
+    expect(first.type.definedValue, Relationship.recipient);
+    expect(first.name.equals('jim'), isTrue);
+    expect(second.name.definedValue, 'bob');
 
     final updatedJsonObject = jsonObject.setMessage('newmessage');
     expect(updatedJsonObject.message.equals('newmessage'), isTrue);
@@ -160,11 +167,16 @@ void main() {
     //Wrap the Map in a JsonObject
     final jsonObject = jsonValueDecode(json) as JsonObject;
 
+    final people = jsonObject.people;
+    final first = people[0].definedValue! as JsonObject;
+    final second = people[1].definedValue! as JsonObject;
+
     //Basic strongly typed path access with extension properties and methods
     expect(jsonObject.message.equals('Hello, World!'), isTrue);
-    expect(jsonObject.people[0].type.equals(Relationship.recipient), isTrue);
+
+    expect(first.type.equals(Relationship.recipient), isTrue);
     expect(jsonObject.people.first.name.equals('jim'), isTrue);
-    expect(jsonObject.people[1].name.definedValue, 'bob');
+    expect(second.name.definedValue, 'bob');
 
     //Ensure we can access a value where the type is incorrect
     expect(jsonObject.isGood.value, 'true');

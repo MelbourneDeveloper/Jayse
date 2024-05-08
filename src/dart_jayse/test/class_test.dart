@@ -21,11 +21,12 @@ class Message {
 
   Definable<bool> get isGood => _jsonObject.getValue<bool>('isGood');
 
-  Definable<List<JsonObject>> get people =>
-      _jsonObject.getValue<List<JsonObject>>('people');
+  Definable<List<Person>> get people =>
+      _jsonObject.getValue<List<Person>>('people');
 }
 
 class Person {
+  // ignore: unreachable_from_main
   Person(this._jsonObject);
 
   final JsonObject _jsonObject;
@@ -53,14 +54,20 @@ void main() {
     final jsonObject = jsonValueDecode(json) as JsonObject;
     final message = Message(jsonObject);
 
+    final people = message.people;
+    expect(people.definedValue!.length, 2);
+
+    final first = people.definedValue![0];
+    final second = people.definedValue![1];
+
     //Basic strongly typed path access with class properties and methods
     expect(message.message.equals('Hello, World!'), isTrue);
     expect(
-      message.people[0].map(Person.new)!.type.equals(Relationship.recipient),
+      first.type.equals(Relationship.recipient),
       isTrue,
     );
-    expect(message.people.first.map(Person.new)!.name.equals('jim'), isTrue);
-    expect(message.people[1].map(Person.new)!.name.definedValue, 'bob');
+    expect(first.name.equals('jim'), isTrue);
+    expect(second.name.definedValue, 'bob');
 
     //Ensure we can access a value where the type is incorrect
     expect(message.isGood.value, 'true');
