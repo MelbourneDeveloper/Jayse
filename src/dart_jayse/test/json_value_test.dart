@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_dynamic_calls
+
 import 'dart:convert';
 
 import 'package:jayse/json_value.dart';
@@ -193,6 +195,154 @@ void main() {
         (company.value['isPublic']! as JsonBoolean).value,
         equals(companyFieldValue['isPublic']),
       );
+
+      // Check that JSON is preserved
+      expect(jsonValueEncode(jsonValue), equals(jsonText));
+    });
+
+    test('encode and decode with all types combined', () {
+      const userFieldName = 'user';
+      const userFieldValue = <String, dynamic>{
+        'id': '123',
+        'name': 'John Doe',
+        'email': 'john@example.com',
+        'age': 30,
+        'isActive': true,
+        'roles': ['admin', 'user'],
+        'scores': [85.5, 92.0, 78.3],
+        'preferences': [true, false, true],
+        'address': {
+          'street': '123 Main St',
+          'city': 'New York',
+          'country': 'USA',
+        },
+        'education': [
+          {
+            'degree': 'Bachelor',
+            'major': 'Computer Science',
+            'year': 2015,
+          },
+          {
+            'degree': 'Master',
+            'major': 'Software Engineering',
+            'year': 2018,
+          },
+        ],
+      };
+
+      final jsonText = '{"$userFieldName":${jsonEncode(userFieldValue)}}';
+
+      final jsonValue = jsonValueDecode(jsonText) as JsonObject;
+
+      // Check user field
+      expect(jsonValue.value[userFieldName], isA<JsonObject>());
+      final user = jsonValue.value[userFieldName]! as JsonObject;
+
+      // Check primitive fields
+      expect(user.value['id'], isA<JsonString>());
+      expect(
+        (user.value['id']! as JsonString).value,
+        equals(userFieldValue['id']),
+      );
+      expect(user.value['name'], isA<JsonString>());
+      expect(
+        (user.value['name']! as JsonString).value,
+        equals(userFieldValue['name']),
+      );
+      expect(user.value['email'], isA<JsonString>());
+      expect(
+        (user.value['email']! as JsonString).value,
+        equals(userFieldValue['email']),
+      );
+      expect(user.value['age'], isA<JsonNumber>());
+      expect(
+        (user.value['age']! as JsonNumber).value,
+        equals(userFieldValue['age']),
+      );
+      expect(user.value['isActive'], isA<JsonBoolean>());
+      expect(
+        (user.value['isActive']! as JsonBoolean).value,
+        equals(userFieldValue['isActive']),
+      );
+
+      // Check array fields
+      expect(user.value['roles'], isA<JsonArray>());
+      final roles = user.value['roles']! as JsonArray;
+      expect(roles.value, hasLength(userFieldValue['roles'].length));
+      for (var i = 0; i < (userFieldValue['roles'] as List).length; i++) {
+        expect(roles.value[i], isA<JsonString>());
+        expect(
+          (roles.value[i] as JsonString).value,
+          equals(userFieldValue['roles'][i]),
+        );
+      }
+
+      expect(user.value['scores'], isA<JsonArray>());
+      final scores = user.value['scores']! as JsonArray;
+      expect(scores.value, hasLength(userFieldValue['scores'].length));
+      for (var i = 0; i < (userFieldValue['scores'] as List).length; i++) {
+        expect(scores.value[i], isA<JsonNumber>());
+        expect(
+          (scores.value[i] as JsonNumber).value,
+          equals(userFieldValue['scores'][i]),
+        );
+      }
+
+      expect(user.value['preferences'], isA<JsonArray>());
+      final preferences = user.value['preferences']! as JsonArray;
+      expect(
+        preferences.value,
+        hasLength(userFieldValue['preferences'].length),
+      );
+      for (var i = 0; i < (userFieldValue['preferences'] as List).length; i++) {
+        expect(preferences.value[i], isA<JsonBoolean>());
+        expect(
+          (preferences.value[i] as JsonBoolean).value,
+          equals(userFieldValue['preferences'][i]),
+        );
+      }
+
+      // Check nested object field
+      expect(user.value['address'], isA<JsonObject>());
+      final address = user.value['address']! as JsonObject;
+      expect(address.value['street'], isA<JsonString>());
+      expect(
+        (address.value['street']! as JsonString).value,
+        equals(userFieldValue['address']['street']),
+      );
+      expect(address.value['city'], isA<JsonString>());
+      expect(
+        (address.value['city']! as JsonString).value,
+        equals(userFieldValue['address']['city']),
+      );
+      expect(address.value['country'], isA<JsonString>());
+      expect(
+        (address.value['country']! as JsonString).value,
+        equals(userFieldValue['address']['country']),
+      );
+
+      // Check array of objects field
+      expect(user.value['education'], isA<JsonArray>());
+      final education = user.value['education']! as JsonArray;
+      expect(education.value, hasLength(userFieldValue['education'].length));
+      for (var i = 0; i < (userFieldValue['education'] as List).length; i++) {
+        final educationObj = education.value[i] as JsonObject;
+        expect(educationObj.value['degree'], isA<JsonString>());
+        expect(
+          (educationObj.value['degree']! as JsonString).value,
+          equals(userFieldValue['education'][i]['degree']),
+        );
+        expect(educationObj.value['major'], isA<JsonString>());
+        expect(
+          (educationObj.value['major']! as JsonString).value,
+          equals(userFieldValue['education'][i]['major']),
+        );
+        expect(educationObj.value['year'], isA<JsonNumber>());
+        expect(
+          (educationObj.value['year']! as JsonNumber).value,
+          equals(userFieldValue['education'][i]['year']),
+        );
+      }
 
       // Check that JSON is preserved
       expect(jsonValueEncode(jsonValue), equals(jsonText));
