@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:jayse/json_value.dart';
 import 'package:test/test.dart';
 
@@ -40,14 +42,68 @@ void main() {
         equals(boolFieldValue),
       );
 
-      // Check encoding
+      // Check that JSON is preserved
       expect(
         jsonValueEncode(jsonValue),
-        equals(
-          '{"$stringFieldName":"$stringFieldValue","$numberFieldName":'
-          '$numberFieldValue,"$boolFieldName":$boolFieldValue}',
-        ),
+        equals(jsonText),
       );
+    });
+
+    test('encode and decode with arrays of primitive values', () {
+      const stringArrayFieldName = 'tags';
+      const stringArrayFieldValue = ['flutter', 'dart', 'json'];
+
+      const numberArrayFieldName = 'numbers';
+      const numberArrayFieldValue = [1, 2, 3, 4, 5];
+
+      const boolArrayFieldName = 'flags';
+      const boolArrayFieldValue = [true, false, true];
+
+      final jsonText =
+          '{"$stringArrayFieldName":${jsonEncode(stringArrayFieldValue)},'
+          '"$numberArrayFieldName":${jsonEncode(numberArrayFieldValue)},'
+          '"$boolArrayFieldName":${jsonEncode(boolArrayFieldValue)}}';
+
+      final jsonValue = jsonValueDecode(jsonText) as JsonObject;
+
+      // Check string array field
+      expect(jsonValue.value[stringArrayFieldName], isA<JsonArray>());
+      final stringArray = jsonValue.value[stringArrayFieldName]! as JsonArray;
+      expect(stringArray.value, hasLength(stringArrayFieldValue.length));
+      for (var i = 0; i < stringArrayFieldValue.length; i++) {
+        expect(stringArray.value[i], isA<JsonString>());
+        expect(
+          (stringArray.value[i] as JsonString).value,
+          equals(stringArrayFieldValue[i]),
+        );
+      }
+
+      // Check number array field
+      expect(jsonValue.value[numberArrayFieldName], isA<JsonArray>());
+      final numberArray = jsonValue.value[numberArrayFieldName]! as JsonArray;
+      expect(numberArray.value, hasLength(numberArrayFieldValue.length));
+      for (var i = 0; i < numberArrayFieldValue.length; i++) {
+        expect(numberArray.value[i], isA<JsonNumber>());
+        expect(
+          (numberArray.value[i] as JsonNumber).value,
+          equals(numberArrayFieldValue[i]),
+        );
+      }
+
+      // Check boolean array field
+      expect(jsonValue.value[boolArrayFieldName], isA<JsonArray>());
+      final boolArray = jsonValue.value[boolArrayFieldName]! as JsonArray;
+      expect(boolArray.value, hasLength(boolArrayFieldValue.length));
+      for (var i = 0; i < boolArrayFieldValue.length; i++) {
+        expect(boolArray.value[i], isA<JsonBoolean>());
+        expect(
+          (boolArray.value[i] as JsonBoolean).value,
+          equals(boolArrayFieldValue[i]),
+        );
+      }
+
+      // Check that JSON is preserved
+      expect(jsonValueEncode(jsonValue), equals(jsonText));
     });
   });
 
