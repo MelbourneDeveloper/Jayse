@@ -27,8 +27,6 @@ extension DefinableMessageExtensions on Definable<JsonObject> {
       };
 }
 
-enum Relationship { recipient, sender }
-
 extension PersonExtensions on JsonObject {
   Definable<String> get name => getValue<String>('name');
 
@@ -116,8 +114,9 @@ void main() {
     expect(jsonObject.isGood.value, const JsonString('true'));
     final people = jsonObject.people;
     final first = people.definedValue![0];
-    final second = people.definedValue![0];
-    expect(first.type.definedValue, Relationship.recipient);
+    final second = people.definedValue![1];
+    final relationship = first.type.definedValue!;
+    expect(relationship, Relationship.recipient);
     expect(first.name.equals('jim'), isTrue);
     expect(second.name.definedValue, 'bob');
 
@@ -141,7 +140,7 @@ void main() {
 
       expect(
         map.isGood.value,
-        'true',
+        const JsonString('true'),
       );
       expect(
         map.isGood.equals(false),
