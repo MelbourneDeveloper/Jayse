@@ -2,9 +2,7 @@
 
 import 'dart:convert';
 
-import 'package:jayse/definable.dart';
-import 'package:jayse/definable_extensions.dart';
-import 'package:jayse/json_object.dart';
+import 'package:jayse/json_value.dart';
 import 'package:test/test.dart';
 
 enum Relationship { recipient, sender }
@@ -16,8 +14,10 @@ class Message {
 
   Definable<String> get message => _jsonObject.getValue<String>('message');
 
-  JsonObject setMessage(String? message) =>
-      _jsonObject.update('message', message);
+  JsonObject setMessage(String? message) => _jsonObject.update(
+        'message',
+        message == null ? const JsonNull() : JsonString(message),
+      );
 
   Definable<bool> get isGood => _jsonObject.getValue<bool>('isGood');
 
@@ -50,7 +50,7 @@ void main() {
         '{"name":"bob","type":"sender"}]}';
 
     //Wrap the Map in a JsonObject
-    final jsonObject = JsonObject.fromJson(json);
+    final jsonObject = jsonValueDecode(json) as JsonObject;
     final message = Message(jsonObject);
 
     //Basic strongly typed path access with class properties and methods

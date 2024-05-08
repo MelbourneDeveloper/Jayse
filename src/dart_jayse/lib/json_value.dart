@@ -117,6 +117,57 @@ final class JsonNull extends JsonValue {
   bool operator ==(Object other) => other is JsonNull;
 }
 
+/// A class that represents a value that may or may not be defined in a
+/// [JsonObject]
+sealed class Definable<T> {
+  const Definable();
+
+  /// Returns true if this value is defined and is equal to [other]
+  bool equals(T other) => this is Defined && value == other;
+}
+
+/// A class that represents a value that is not defined in a [JsonObject]
+final class Undefined<T> extends Definable<T> {
+  /// Creates an instance of [Undefined]
+  const Undefined();
+
+  @override
+  //Note: We don't specify a type argument here because they may not
+  //match. But, regardless of type, undefined is undefined
+
+  bool operator ==(Object other) => other is Undefined;
+
+  //TODO: is there a different option here?
+  @override
+  int get hashCode => 'Undefined'.hashCode;
+}
+
+/// A class that represents a value that is defined in a [JsonObject] but is of
+/// the wrong type
+final class WrongType<T> extends Definable<T> {
+  /// Creates an instance of [WrongType]
+  WrongType({required this.wrongTypeValue});
+
+  /// The value that is of the wrong type
+  final Object wrongTypeValue;
+}
+
+/// A class that represents a value that is defined in a [JsonObject] and is
+/// of the correct type
+final class Defined<T> extends Definable<T> {
+  /// Creates an instance of [Defined]
+  Defined(this.value);
+
+  /// The value of this instance that may be null
+  final T? value;
+
+  @override
+  bool operator ==(Object other) => other is Defined<T> && other.value == value;
+
+  @override
+  int get hashCode => value?.hashCode ?? 0.hashCode;
+}
+
 /// A class that represents a JSON object
 final class JsonObject extends JsonValue {
   /// Creates an instance of [JsonObject]
@@ -124,6 +175,35 @@ final class JsonObject extends JsonValue {
 
   /// JSON values
   final Map<String, JsonValue> value;
+
+  /// Returns a clone of this object with the key-value replacing the original
+  // ignore: avoid_annotating_with_dynamic
+  JsonObject update(String key, JsonValue value) {
+    final clonedMap = Map<String, JsonValue>.from(this.value)..remove(key);
+    clonedMap[key] = value;
+    final entries = clonedMap.entries.toList();
+    return JsonObject(Map.fromEntries(entries));
+  }
+
+  /// Returns the value of the field if it is defined and has the correct type
+  Definable<T> getValue<T>(String field) => switch (value[field]) {
+        (final JsonString jsonString) when T == String =>
+          Defined(jsonString.value as T),
+        (final JsonNumber jsonNumber)
+            when T == num ||
+                T == int && jsonNumber.value is int ||
+                T == double && jsonNumber.value is double =>
+          Defined(jsonNumber.value as T),
+        (final JsonBoolean jsonBoolean) when T == bool =>
+          Defined(jsonBoolean.value as T),
+        (final JsonArray jsonArray) when T == (List<JsonValue>) =>
+          Defined(jsonArray.value as T),
+        (final JsonObject jsonObject) when T == JsonObject =>
+          Defined(jsonObject as T),
+        (final JsonNull _) when T == Null => Defined(null),
+        (final JsonValue jsonValue) => WrongType(wrongTypeValue: jsonValue),
+        _ => const Undefined(),
+      };
 
   /// Converts the [JsonObject] to a JSON-compatible map.
   Map<String, dynamic> toJson() =>
@@ -152,4 +232,50 @@ final class JsonObject extends JsonValue {
             (key) =>
                 other.value.containsKey(key) && value[key] == other.value[key],
           ));
+}
+
+/// Extension methods for [Definable]
+extension DefinableExtensions<T> on Definable<T> {
+  /// Returns the defined value if it is defined and has the correct type,
+  /// otherwise returns null
+  T? get definedValue => switch (this) {
+        Defined<T>(value: final val) => val,
+        Undefined() => null,
+        WrongType() => null,
+      };
+
+  /// Returns value if it is defined, but without strong typing, and
+  /// without any distinction between null and undefined
+  Object? get value => switch (this) {
+        Defined<T>(value: final val) => val,
+        Undefined() => null,
+        (final WrongType<T> wt) => wt.wrongTypeValue,
+      };
+
+  /// Allows you to map the defined value to a new value or returns null
+  R? map<R>(R Function(T) f) =>
+      definedValue != null ? f(definedValue as T) : null;
+}
+
+/// Extension methods for [Definable]s that contain [JsonObject]s
+extension ListExtensions on Definable<List<JsonObject>> {
+  /// Returns the defined value if it is defined and has the correct type,
+  Definable<JsonObject> operator [](int index) =>
+      switch (definedValue?[index]) {
+        (final JsonObject json) => Defined(json),
+        _ => const Undefined(),
+      };
+
+  /// Returns the first element of the defined value if it is defined and has
+  Definable<JsonObject> get first => switch (this) {
+        (final Defined<List<JsonObject>> defined) =>
+          Defined(defined.value?.first),
+        _ => const Undefined(),
+      };
+}
+
+/// Extension methods for [JsonObject]
+extension JsonObjectExtensions on JsonObject {
+  /// Returns a [Definable] of the object
+  Definable<JsonObject> toDefinable() => Defined(this);
 }
