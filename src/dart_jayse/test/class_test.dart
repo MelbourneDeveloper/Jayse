@@ -9,28 +9,21 @@ import 'package:test/test.dart';
 enum Relationship { recipient, sender }
 
 class Message {
-  Message(this.jsonObject);
+  Message(this._jsonObject);
 
-  final JsonObject jsonObject;
+  final JsonObject _jsonObject;
 
-  String? get message {
-    final value = jsonObject.getValue('message');
-    return value is JsonString ? value.value : null;
-  }
+  bool? get isGood => _jsonObject('isGood');
+  String? get message => _jsonObject('message');
 
   Message setMessage(String? message) => Message(
-        jsonObject.update(
+        _jsonObject.update(
           'message',
           message == null ? const JsonNull() : JsonString(message),
         ),
       );
 
-  bool? get isGood {
-    final value = jsonObject.getValue('isGood');
-    return value is JsonBoolean ? value.value : null;
-  }
-
-  List<Person>? get people => switch (jsonObject.getValue('people')) {
+  List<Person>? get people => switch (_jsonObject['people']) {
         (final JsonArray ja) when ja.value.every((jv) => jv is JsonObject) =>
           ja.value.map((jv) => Person(jv as JsonObject)).toList(),
         _ => null,
@@ -95,7 +88,7 @@ void main() {
     expect(jsonEncode(jsonObject.toJson()), json);
 
     expect(
-      jsonEncode(updatedMessage.jsonObject.toJson()),
+      jsonEncode(updatedMessage._jsonObject.toJson()),
       '''{"isGood":"true","people":[{"name":"jim","type":"recipient"},{"name":"bob","type":"sender"}],"message":"newmessage"}''',
     );
   });

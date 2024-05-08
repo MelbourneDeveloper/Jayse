@@ -161,6 +161,9 @@ final class JsonObject extends JsonValue {
     return JsonObject(Map.fromEntries(entries));
   }
 
+  /// Same as [value]
+  T? call<T>(String field) => value<T>(field);
+
   /// Returns the value of the field if it is defined and has the correct type
   T? value<T>(String field) => switch (_value[field]) {
         (final JsonString jsonString) when T == String => jsonString.value as T,
