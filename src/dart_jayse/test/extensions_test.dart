@@ -184,11 +184,13 @@ void main() {
         },
       },
     };
-    
+
     final jsonObject = JsonValue.fromJson(json) as JsonObject;
+    final person = jsonObject.getValue('person') as JsonObject;
+    final name = person.getValue('name');
 
     expect(
-      jsonObject.getValue('person').getValue('name'),
+      name,
       const JsonString('Alice'),
     );
     expect(

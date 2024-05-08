@@ -218,6 +218,7 @@ final class JsonObject extends JsonValue {
 /// An extension on [JsonValue]
 extension JsonValueExtensions on JsonValue {
   /// Returns the value of the field if it is defined and has the correct type
-  JsonValue getValue(String field) =>
-      this is JsonObject ? getValue(field) : const Undefined();
+  JsonValue getValue(String field) => this is JsonObject
+      ? (this as JsonObject).getValue(field)
+      : const Undefined();
 }
