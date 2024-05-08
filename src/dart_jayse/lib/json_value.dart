@@ -144,5 +144,12 @@ final class JsonObject extends JsonValue {
   int get hashCode => Object.hashAll(value.entries);
 
   @override
-  bool operator ==(Object other) => other is JsonObject && other.value == value;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is JsonObject &&
+          value.length == other.value.length &&
+          value.keys.every(
+            (key) =>
+                other.value.containsKey(key) && value[key] == other.value[key],
+          ));
 }
