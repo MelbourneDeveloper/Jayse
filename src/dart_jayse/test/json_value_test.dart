@@ -17,6 +17,29 @@ void main() {
       expect(book['title'], const JsonString('The Great Gatsby'));
       expect(book['author'], const JsonString('F. Scott Fitzgerald'));
     });
+
+    test('Nested Object Test', () {
+      final person = JsonValue.fromJson(<String, dynamic>{
+        'name': 'John Doe',
+        'age': 30,
+        'isEmployed': true,
+        'address': {
+          'street': '123 Main St',
+          'city': 'New York',
+          'country': 'USA',
+        },
+      });
+
+      expect(person['address']['street'], const JsonString('123 Main St'));
+    });
+
+    test('Missing Value Test', () {
+      const bookJson = '{"title": "The Great Gatsby"}';
+
+      final book = jsonValueDecode(bookJson) as JsonObject;
+      final nameValue = book['author']['name'];
+      expect(nameValue, const Undefined());
+    });
   });
 
   group('Serialization and Deserialization Tests', () {

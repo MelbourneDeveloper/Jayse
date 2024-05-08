@@ -13,8 +13,8 @@ class Message {
 
   final JsonObject _jsonObject;
 
-  bool? get isGood => _jsonObject('isGood');
-  String? get message => _jsonObject('message');
+  bool? get isGood => _jsonObject.value('isGood');
+  String? get message => _jsonObject.value('message');
 
   Message setMessage(String? message) => Message(
         _jsonObject.update(

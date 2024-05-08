@@ -161,9 +161,6 @@ final class JsonObject extends JsonValue {
     return JsonObject(Map.fromEntries(entries));
   }
 
-  /// Same as [value]
-  T? call<T>(String field) => value<T>(field);
-
   /// Returns the value of the field if it is defined and has the correct type
   T? value<T>(String field) => switch (_value[field]) {
         (final JsonString jsonString) when T == String => jsonString.value as T,
@@ -185,7 +182,7 @@ final class JsonObject extends JsonValue {
       };
 
   /// Get the JSON Value
-  JsonValue operator [](String field) => _value[field] ?? const Undefined();
+  //JsonValue operator [](String field) => _value[field] ?? const Undefined();
 
   /// Available fields
   Iterable<String> get fields => _value.keys;
@@ -224,6 +221,17 @@ final class JsonObject extends JsonValue {
 
 /// An extension on [JsonValue]
 extension JsonValueExtensions on JsonValue {
+  /// Returns the value of the field if this is a JSON object
+  JsonValue operator [](String field) => switch (this) {
+        (final JsonObject jo) when jo._value[field] != null =>
+          jo._value[field]!,
+        _ => const Undefined()
+      };
+
+  /// Same as []
+  // T? call<T>(String field) =>
+  //     switch (this[field]) { (final T? value) => value, _ => null };
+
   /// Returns the value of the field if it is defined and has the correct type
   JsonValue getValue(String field) =>
       this is JsonObject ? (this as JsonObject)[field] : const Undefined();
