@@ -167,18 +167,18 @@ void main() {
     final jsonObject = jsonValueDecode(json) as JsonObject;
 
     final people = jsonObject.people;
-    final first = people[0].definedValue! as JsonObject;
-    final second = people[1].definedValue! as JsonObject;
+    final first = people.definedValue!.value[0] as JsonObject;
+    final second = people.definedValue!.value[1] as JsonObject;
 
     //Basic strongly typed path access with extension properties and methods
     expect(jsonObject.message.equals('Hello, World!'), isTrue);
 
     expect(first.type.equals(Relationship.recipient), isTrue);
-    expect(jsonObject.people.first.name.equals('jim'), isTrue);
+    expect(first.name.equals('jim'), isTrue);
     expect(second.name.definedValue, 'bob');
 
     //Ensure we can access a value where the type is incorrect
-    expect(jsonObject.isGood.value, 'true');
+    expect(jsonObject.isGood.value, const JsonString('true'));
 
     // Non destructive mutation on the message field
     final updatedJsonObject = jsonObject.setMessage('newmessage');

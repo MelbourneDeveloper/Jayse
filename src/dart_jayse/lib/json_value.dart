@@ -271,23 +271,26 @@ extension DefinableExtensions<T> on Definable<T> {
       definedValue != null ? f(definedValue as T) : null;
 }
 
+/*
 /// Extension methods for [Definable]s that contain [JsonObject]s
 extension ListExtensions on Definable<JsonArray> {
   /// Returns the defined value if it is defined and has the correct type,
   Definable<JsonValue> operator [](int index) => switch (this) {
-        (final Defined<JsonArray> array)
-            when array.definedValue!.value.length > index =>
-          array[index],
+        (final Defined<JsonArray> array) => Defined(array.value?[index]),
+        //TODO: this ain't right
         _ => const Undefined<JsonValue>(),
       };
 
   /// Returns the first element of the defined value if it is defined and has
   Definable<JsonObject> get first => switch (this) {
-        (final Defined<List<JsonObject>> defined) =>
+        (final Defined<List<JsonObject>> defined)
+            when defined.value?.isNotEmpty ?? false =>
           Defined(defined.value?.first),
+        //TODO: this ain't right
         _ => const Undefined(),
       };
 }
+*/
 
 /// Extension methods for [JsonObject]
 extension JsonObjectExtensions on JsonObject {
