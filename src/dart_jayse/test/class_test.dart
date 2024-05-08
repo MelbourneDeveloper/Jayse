@@ -11,10 +11,15 @@ enum Relationship { recipient, sender }
 class Message {
   Message(this._jsonObject);
 
+  factory Message.fromJson(String json) =>
+      Message(jsonValueDecode(json) as JsonObject);
+
   final JsonObject _jsonObject;
 
   bool? get isGood => _jsonObject.value('isGood');
   String? get message => _jsonObject.value('message');
+
+  Map<String, dynamic> toJson() => _jsonObject.toJson();
 
   Message copyWith({
     bool? isGood,
@@ -26,14 +31,7 @@ class Message {
           if (message != null) 'message': message.toJsonValue(),
         }),
       );
-
-  Message setMessage(String? message) => Message(
-        _jsonObject.withUpdate(
-          'message',
-          message == null ? const JsonNull() : JsonString(message),
-        ),
-      );
-
+      
   List<Person>? get people => switch (_jsonObject['people']) {
         (final JsonArray ja) when ja.value.every((jv) => jv is JsonObject) =>
           ja.value.map((jv) => Person(jv as JsonObject)).toList(),
