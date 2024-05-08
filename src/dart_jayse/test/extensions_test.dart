@@ -61,14 +61,9 @@ void main() {
 
     expect(jsonMap.getValue('nothere'), const Undefined());
 
-    final actual = switch (jsonMap.getValue('isGood')) {
-      (WrongType(wrongTypeValue: final v)) => v,
-      _ => null,
-    }! as JsonString;
-
     expect(
-      actual.value,
-      'true',
+      jsonMap.getValue('isGood'),
+      const JsonString('true'),
     );
 
     final jsonString = jsonMap.getValueTyped<String>('isGood');
