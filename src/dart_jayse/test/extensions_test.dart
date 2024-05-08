@@ -63,7 +63,7 @@ void main() {
       const JsonString('true'),
     );
 
-    final jsonString = jsonMap.getValueTyped<String>('isGood');
+    final jsonString = jsonMap.value<String>('isGood');
     expect(
       jsonString,
       'true',
@@ -75,7 +75,7 @@ void main() {
       'person': {'name': 'jim', 'type': 'recipient'},
     }) as JsonObject;
 
-    final person = jsonMap.getValueTyped<JsonObject>('person')!;
+    final person = jsonMap.value<JsonObject>('person')!;
 
     expect(person.name, 'jim');
     expect(person.type, ct.Relationship.recipient);
@@ -244,16 +244,13 @@ void main() {
       }) as JsonObject;
 
       expect(
-        jsonObject
-            .getValueTyped<JsonArray>('numbers')!
-            .value
-            .map((e) => e as num),
+        jsonObject.value<JsonArray>('numbers')!.value.map((e) => e as num),
         containsAllInOrder([1, 2, 3, 4, 5]),
       );
 
       expect(
         jsonObject
-            .getValueTyped<JsonArray>('names')!
+            .value<JsonArray>('names')!
             .value
             .map((e) => (e as JsonString).value),
         containsAllInOrder(['Alice', 'Bob', 'Charlie']),
@@ -296,9 +293,9 @@ void main() {
         'spouse': null,
       }) as JsonObject;
 
-      expect(jsonObject.getValueTyped<String>('name'), 'John');
-      expect(jsonObject.getValueTyped<int>('age'), 30);
-      expect(jsonObject.getValueTyped<bool>('married'), true);
+      expect(jsonObject.value<String>('name'), 'John');
+      expect(jsonObject.value<int>('age'), 30);
+      expect(jsonObject.value<bool>('married'), true);
       expect(
         jsonObject.getValue('address').getValue('street'),
         const JsonString('123 Main St'),
@@ -340,7 +337,7 @@ void main() {
       //   isTrue,
       // );
       expect(
-        jsonObject.getValueTyped<JsonArray>('children'),
+        jsonObject.value<JsonArray>('children'),
         isA<JsonArray>(),
       );
       expect(jsonObject.getValue('spouse'), JsonNull);
@@ -366,11 +363,11 @@ void main() {
 
       final jsonObject = jsonValueDecode(json) as JsonObject;
 
-      expect(jsonObject.getValueTyped<String>('name'), 'Alice');
-      expect(jsonObject.getValueTyped<int>('age'), 25);
-      expect(jsonObject.getValueTyped<String>('city'), 'London');
+      expect(jsonObject.value<String>('name'), 'Alice');
+      expect(jsonObject.value<int>('age'), 25);
+      expect(jsonObject.value<String>('city'), 'London');
       expect(
-        jsonObject.getValueTyped<JsonArray>('hobbies')!.value.map(
+        jsonObject.value<JsonArray>('hobbies')!.value.map(
               (e) => (e as JsonString).value,
             ),
         containsAllInOrder(['reading', 'painting']),

@@ -162,7 +162,7 @@ final class JsonObject extends JsonValue {
   }
 
   /// Returns the value of the field if it is defined and has the correct type
-  T? getValueTyped<T>(String field) => switch (_value[field]) {
+  T? value<T>(String field) => switch (_value[field]) {
         (final JsonString jsonString) when T == String => jsonString.value as T,
         (final JsonNumber jsonNumber)
             when T == num ||
