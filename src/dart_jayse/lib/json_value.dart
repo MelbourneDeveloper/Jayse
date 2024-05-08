@@ -203,9 +203,10 @@ final class JsonObject extends JsonValue {
           Defined(jsonArray.value as T),
         (final JsonObject jsonObject) when T == JsonObject =>
           Defined(jsonObject as T),
-        (final JsonNull _) when T == Null => Defined(null),
+        (final JsonNull jsonNull) => Defined(jsonNull as T),
+        //Is this right?
         (final JsonValue jsonValue) => WrongType(wrongTypeValue: jsonValue),
-        _ => const Undefined(),
+        (null) => Undefined<T>(),
       };
 
   /// Converts the [JsonObject] to a JSON-compatible map.

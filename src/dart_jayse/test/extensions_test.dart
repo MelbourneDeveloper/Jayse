@@ -257,7 +257,15 @@ void main() {
     );
   });
 
-  test('Nullable values', () {
+  test('Nullable values 1', () {
+    final jsonObject = JsonValue.fromJson({
+      'age': null,
+    }) as JsonObject;
+
+    expect(jsonObject.getValue<int>('age') is Defined<JsonNull>, isTrue);
+  });
+
+  test('Nullable values 2', () {
     final jsonObject = JsonValue.fromJson({
       'name': 'John',
       'age': null,
@@ -266,7 +274,7 @@ void main() {
     }) as JsonObject;
 
     expect(jsonObject.getValue<String>('name').equals('John'), isTrue);
-    expect(jsonObject.getValue<int?>('age').equals(null), isTrue);
+    expect(jsonObject.getValue<int>('age') is Defined<JsonNull>, isTrue);
     expect(jsonObject.getValue<String>('email').equals(''), isTrue);
     expect(jsonObject.getValue<String>('phone').definedValue, null);
   });
