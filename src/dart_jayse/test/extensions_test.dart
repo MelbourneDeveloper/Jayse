@@ -65,17 +65,19 @@ void main() {
 
     expect(jsonMap.getValue<String>('nothere'), const Undefined<String>());
 
+    final actual = switch (jsonMap.getValue<bool>('isGood')) {
+      (WrongType(wrongTypeValue: final v)) => v,
+      _ => null,
+    }! as JsonString;
+
     expect(
-      switch (jsonMap.getValue<bool>('isGood')) {
-        (WrongType(wrongTypeValue: final v)) => v,
-        _ => null,
-      },
+      actual.value,
       'true',
     );
 
-    final definableBool = jsonMap.getValue<bool>('isGood');
+    final jsonString = jsonMap.getValue<bool>('isGood').value! as JsonString;
     expect(
-      definableBool.value,
+      jsonString.value,
       'true',
     );
   });
