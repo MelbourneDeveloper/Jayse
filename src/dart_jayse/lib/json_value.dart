@@ -236,6 +236,17 @@ final class JsonObject extends JsonValue {
 
 /// Extension methods for [Definable]
 extension DefinableExtensions<T> on Definable<T> {
+
+  /// Returns the defined value if it is defined and has the correct type,
+  /// TODO: this looks wrong and requires some serious testing
+  Definable<T> getValue(String field) => switch (this) {
+        (final Defined<JsonObject> defined) =>
+          defined.value?.getValue<T>(field) ?? Undefined<T>(),
+        (final Undefined<T> undefined) => undefined as Definable<T>,
+        (final WrongType<T> wrongType) => wrongType as Definable<T>,
+        _ => Undefined<T>() as Definable<T>,
+      };
+
   /// Returns the defined value if it is defined and has the correct type,
   /// otherwise returns null
   T? get definedValue => switch (this) {

@@ -1,7 +1,5 @@
 // ignore_for_file: missing_whitespace_between_adjacent_strings
 
-/*
-
 import 'dart:convert';
 
 import 'package:jayse/json_value.dart';
@@ -10,7 +8,10 @@ import 'package:test/test.dart';
 extension MessageExtensions on JsonObject {
   Definable<String> get message => getValue<String>('message');
 
-  JsonObject setMessage(String? message) => update('message', message);
+  JsonObject setMessage(String? message) => update(
+        'message',
+        message == null ? const JsonNull() : JsonString(message),
+      );
 
   Definable<bool> get isGood => getValue<bool>('isGood');
   Definable<List<JsonObject>> get people =>
@@ -53,10 +54,10 @@ extension DefinablePersonExtensions on Definable<JsonObject> {
 
 void main() {
   test('Test 1', () async {
-    final jsonMap = JsonObject({
+    final jsonMap = JsonValue.fromJson({
       'message': 'Hello, World!',
       'isGood': 'true',
-    });
+    }) as JsonObject;
 
     expect(jsonMap.message.definedValue, 'Hello, World!');
 
@@ -80,12 +81,11 @@ void main() {
   });
 
   test('Test 2', () async {
-    final jsonMap = JsonObject({
+    final jsonMap = JsonValue.fromJson({
       'person': {'name': 'jim', 'type': 'recipient'},
-    });
+    }) as JsonObject;
 
-    final person =
-        jsonMap.getValue<Map<String, dynamic>>('person').map(JsonObject.new)!;
+    final person = jsonMap.getValue<JsonObject>('person');
 
     expect(person.name.definedValue, 'jim');
     expect(person.type.definedValue, Relationship.recipient);
@@ -97,14 +97,14 @@ void main() {
   });
 
   test('Complete Type With a List', () async {
-    final jsonObject = JsonObject({
+    final jsonObject = JsonValue.fromJson({
       'message': 'Hello, World!',
       'isGood': 'true',
       'people': [
         {'name': 'jim', 'type': 'recipient'},
         {'name': 'bob', 'type': 'sender'},
       ],
-    });
+    }) as JsonObject;
 
     expect(jsonObject.message.equals('Hello, World!'), isTrue);
     expect(jsonObject.isGood.value, 'true');
@@ -120,10 +120,10 @@ void main() {
   test(
     'Test 4',
     () {
-      final map = JsonObject({
+      final map = JsonValue.fromJson({
         'message': 'Hello, World!',
         'isGood': 'true',
-      });
+      }) as JsonObject;
 
       expect(
         map.message.equals('Hello, World!'),
@@ -156,7 +156,7 @@ void main() {
         '{"name":"bob","type":"sender"}]}';
 
     //Wrap the Map in a JsonObject
-    final jsonObject = JsonObject.fromJson(json);
+    final jsonObject = jsonValueDecode(json) as JsonObject;
 
     //Basic strongly typed path access with extension properties and methods
     expect(jsonObject.message.equals('Hello, World!'), isTrue);
@@ -179,13 +179,12 @@ void main() {
 
     expect(
       jsonEncode(updatedJsonObject.toJson()),
-      '''{"isGood":"true","people":[{"name":"jim","type":"recipient"},'
-      '{"name":"bob","type":"sender"}],"message":"newmessage"}''',
+      '''{"isGood":"true","people":[{"name":"jim","type":"recipient"},{"name":"bob","type":"sender"}],"message":"newmessage"}''',
     );
   });
 
   test('Nested objects', () {
-    final jsonObject = JsonObject({
+    final jsonObject = JsonValue.fromJson({
       'person': {
         'name': 'Alice',
         'age': 30,
@@ -195,50 +194,50 @@ void main() {
           'country': 'USA',
         },
       },
-    });
+    }) as JsonObject;
 
     expect(
       jsonObject
-          .getValue<Map<String, dynamic>>('person')
-          .map(JsonObject.new)!
+          .getValue<JsonObject>('person')
+          .definedValue!
           .getValue<String>('name')
           .equals('Alice'),
       isTrue,
     );
     expect(
       jsonObject
-          .getValue<Map<String, dynamic>>('person')
-          .map(JsonObject.new)!
+          .getValue<JsonObject>('person')
+          .definedValue!
           .getValue<int>('age')
           .equals(30),
       isTrue,
     );
     expect(
       jsonObject
-          .getValue<Map<String, dynamic>>('person')
-          .map(JsonObject.new)!
-          .getValue<Map<String, dynamic>>('address')
-          .map(JsonObject.new)!
+          .getValue<JsonObject>('person')
+          .definedValue!
+          .getValue<JsonObject>('address')
+          .definedValue!
           .getValue<String>('street')
           .equals('123 Main St'),
       isTrue,
     );
     expect(
       jsonObject
-          .getValue<Map<String, dynamic>>('person')
-          .map(JsonObject.new)!
-          .getValue<Map<String, dynamic>>('address')
-          .map(JsonObject.new)!
+          .getValue<JsonObject>('person')
+          .definedValue!
+          .getValue<JsonObject>('address')
+          .definedValue!
           .getValue<String>('city')
           .equals('New York'),
       isTrue,
     );
     expect(
       jsonObject
-          .getValue<Map<String, dynamic>>('person')
-          .map(JsonObject.new)!
-          .getValue<Map<String, dynamic>>('address')
-          .map(JsonObject.new)!
+          .getValue<JsonObject>('person')
+          .definedValue!
+          .getValue<JsonObject>('address')
+          .definedValue!
           .getValue<String>('country')
           .equals('USA'),
       isTrue,
@@ -246,12 +245,12 @@ void main() {
   });
 
   test('Nullable values', () {
-    final jsonObject = JsonObject({
+    final jsonObject = JsonValue.fromJson({
       'name': 'John',
       'age': null,
       'email': '',
       'phone': null,
-    });
+    }) as JsonObject;
 
     expect(jsonObject.getValue<String>('name').equals('John'), isTrue);
     expect(jsonObject.getValue<int?>('age').equals(null), isTrue);
@@ -263,11 +262,11 @@ void main() {
   test(
     'List of primitive values',
     () {
-      final jsonObject = JsonObject({
+      final jsonObject = JsonValue.fromJson({
         'numbers': [1, 2, 3, 4, 5],
         'names': ['Alice', 'Bob', 'Charlie'],
         'mixed': [1, 'two', true, null],
-      });
+      }) as JsonObject;
 
       expect(
         jsonObject.getValue<List<int>>('numbers').equals([1, 2, 3, 4, 5]),
@@ -292,7 +291,7 @@ void main() {
   test(
     'Complex nested structure',
     () {
-      final jsonObject = JsonObject({
+      final jsonObject = JsonValue.fromJson({
         'name': 'John',
         'age': 30,
         'married': true,
@@ -313,34 +312,31 @@ void main() {
         ],
         'children': <dynamic>[],
         'spouse': null,
-      });
+      }) as JsonObject;
 
       expect(jsonObject.getValue<String>('name').equals('John'), isTrue);
       expect(jsonObject.getValue<int>('age').equals(30), isTrue);
       expect(jsonObject.getValue<bool>('married').equals(true), isTrue);
       expect(
         jsonObject
-            .getValue<Map<String, dynamic>>('address')
-            .map(JsonObject.new)!
-            .getValue<String>('street')
-            .equals('123 Main St'),
-        isTrue,
+            .getValue<JsonObject>('address')
+            .getValue('street')
+            .definedValue,
+        '123 Main St',
       );
       expect(
         jsonObject
-            .getValue<Map<String, dynamic>>('address')
-            .map(JsonObject.new)!
-            .getValue<String>('city')
-            .equals('New York'),
-        isTrue,
+            .getValue<JsonObject>('address')
+            .getValue('city')
+            .definedValue,
+        'New York',
       );
       expect(
         jsonObject
-            .getValue<Map<String, dynamic>>('address')
-            .map(JsonObject.new)!
-            .getValue<String>('country')
-            .equals('USA'),
-        isTrue,
+            .getValue<JsonObject>('address')
+            .getValue('country')
+            .definedValue,
+        'USA',
       );
       // expect(
       //   jsonObject
@@ -395,7 +391,7 @@ void main() {
     }
   ''';
 
-      final jsonObject = JsonObject.fromJson(json);
+      final jsonObject = jsonValueDecode(json) as JsonObject;
 
       expect(jsonObject.getValue<String>('name').equals('Alice'), isTrue);
       expect(jsonObject.getValue<int>('age').equals(25), isTrue);
@@ -408,19 +404,17 @@ void main() {
       );
       expect(
         jsonObject
-            .getValue<Map<String, dynamic>>('education')
-            .map(JsonObject.new)!
-            .getValue<String>('degree')
-            .equals("Bachelor's"),
-        isTrue,
+            .getValue<JsonObject>('education')
+            .getValue('degree')
+            .definedValue,
+        "Bachelor's",
       );
       expect(
         jsonObject
-            .getValue<Map<String, dynamic>>('education')
-            .map(JsonObject.new)!
-            .getValue<String>('major')
-            .equals('Computer Science'),
-        isTrue,
+            .getValue<JsonObject>('education')
+            .getValue('major')
+            .definedValue,
+        'Computer Science',
       );
 
       final encodedJson = jsonEncode(jsonObject.toJson());
@@ -429,4 +423,3 @@ void main() {
     skip: true,
   );
 }
-*/
