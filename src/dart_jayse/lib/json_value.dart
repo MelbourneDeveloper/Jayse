@@ -12,6 +12,7 @@ sealed class JsonValue {
   /// Creates an instance of [JsonValue]
   const JsonValue._internal();
 
+  /// Creates a [JsonValue] from a JSON object
   factory JsonValue.fromJson(Object json) => switch (json) {
         final String string => JsonString(string),
         final num number => JsonNumber(number),
@@ -117,19 +118,10 @@ final class JsonNull extends JsonValue {
   bool operator ==(Object other) => other is JsonNull;
 }
 
-/// A class that represents a value that may or may not be defined in a
-/// [JsonObject]
-sealed class Definable<T> {
-  const Definable();
-
-  /// Returns true if this value is defined and is equal to [other]
-  bool equals(T other) => this is Defined && value == other;
-}
-
 /// A class that represents a value that is not defined in a [JsonObject]
-final class Undefined<T> extends Definable<T> {
+final class Undefined extends JsonValue {
   /// Creates an instance of [Undefined]
-  const Undefined();
+  const Undefined() : super._internal();
 
   @override
   //Note: We don't specify a type argument here because they may not
@@ -144,28 +136,12 @@ final class Undefined<T> extends Definable<T> {
 
 /// A class that represents a value that is defined in a [JsonObject] but is of
 /// the wrong type
-final class WrongType<T> extends Definable<T> {
+final class WrongType extends JsonValue {
   /// Creates an instance of [WrongType]
-  WrongType({required this.wrongTypeValue});
+  WrongType({required this.wrongTypeValue}) : super._internal();
 
   /// The value that is of the wrong type
   final Object wrongTypeValue;
-}
-
-/// A class that represents a value that is defined in a [JsonObject] and is
-/// of the correct type
-final class Defined<T> extends Definable<T> {
-  /// Creates an instance of [Defined]
-  Defined(this.value);
-
-  /// The value of this instance that may be null
-  final T? value;
-
-  @override
-  bool operator ==(Object other) => other is Defined<T> && other.value == value;
-
-  @override
-  int get hashCode => value?.hashCode ?? 0.hashCode;
 }
 
 /// A class that represents a JSON object
@@ -186,28 +162,27 @@ final class JsonObject extends JsonValue {
   }
 
   /// Returns the value of the field if it is defined and has the correct type
-  Definable<T> getValue<T>(String field) => switch (value[field]) {
-        (final JsonString jsonString) when T == String =>
-          Defined(jsonString.value as T),
+  T? getValueTyped<T>(String field) => switch (value[field]) {
+        (final JsonString jsonString) when T == String => jsonString.value as T,
         (final JsonNumber jsonNumber)
             when T == num ||
-                T == int && jsonNumber.value is int ||
-                T == double && jsonNumber.value is double =>
-          Defined(jsonNumber.value as T),
+                T == int && jsonNumber is int ||
+                T == double && jsonNumber is double =>
+          jsonNumber.value as T,
         (final JsonBoolean jsonBoolean) when T == bool =>
-          Defined(jsonBoolean.value as T),
-        //Is this case necessary?
-        (final JsonArray jsonArray) when T == JsonArray =>
-          Defined(jsonArray as T),
+          jsonBoolean.value as T,
+        (final JsonArray jsonArray) when T == JsonArray => jsonArray as T,
         (final JsonArray jsonArray) when T == (List<JsonValue>) =>
-          Defined(jsonArray.value as T),
-        (final JsonObject jsonObject) when T == JsonObject =>
-          Defined(jsonObject as T),
-        (final JsonNull jsonNull) => Defined(jsonNull as T),
-        //Is this right?
-        (final JsonValue jsonValue) => WrongType(wrongTypeValue: jsonValue),
-        (null) => Undefined<T>(),
+          jsonArray.value as T,
+        (final JsonObject jsonObject) when T == JsonObject => jsonObject as T,
+        //(final JsonNull jsonNull) => jsonNull,
+        //(final JsonValue jsonValue) => WrongType(wrongTypeValue: jsonValue),
+        (null) => null,
+        _ => null,
       };
+
+  /// Get the JSON Value
+  JsonValue getValue(String field) => value[field] ?? const Undefined();
 
   /// Converts the [JsonObject] to a JSON-compatible map.
   Map<String, dynamic> toJson() =>
@@ -222,6 +197,8 @@ final class JsonObject extends JsonValue {
           jsonArray.value.map(_jsonValueToJson).toList(),
         final JsonObject jsonObject => jsonObject.toJson(),
         JsonNull() => null,
+        Undefined() => null,
+        (final WrongType wrongType) => wrongType.wrongTypeValue,
       };
 
   @override
@@ -238,62 +215,9 @@ final class JsonObject extends JsonValue {
           ));
 }
 
-/// Extension methods for [Definable]
-extension DefinableExtensions<T> on Definable<T> {
-  /// Returns the defined value if it is defined and has the correct type,
-  /// TODO: this looks wrong and requires some serious testing
-  Definable<T> getValue(String field) => switch (this) {
-        (final Defined<JsonObject> defined) =>
-          defined.value?.getValue<T>(field) ?? Undefined<T>(),
-        (final Undefined<T> undefined) => undefined as Definable<T>,
-        (final WrongType<T> wrongType) => wrongType as Definable<T>,
-        _ => Undefined<T>() as Definable<T>,
-      };
-
-  /// Returns the defined value if it is defined and has the correct type,
-  /// otherwise returns null
-  T? get definedValue => switch (this) {
-        Defined<T>(value: final val) => val,
-        Undefined() => null,
-        WrongType() => null,
-      };
-
-  /// Returns value if it is defined, but without strong typing, and
-  /// without any distinction between null and undefined
-  Object? get value => switch (this) {
-        Defined<T>(value: final val) => val,
-        Undefined() => null,
-        (final WrongType<T> wt) => wt.wrongTypeValue,
-      };
-
-  /// Allows you to map the defined value to a new value or returns null
-  R? map<R>(R Function(T) f) =>
-      definedValue != null ? f(definedValue as T) : null;
-}
-
-/*
-/// Extension methods for [Definable]s that contain [JsonObject]s
-extension ListExtensions on Definable<JsonArray> {
-  /// Returns the defined value if it is defined and has the correct type,
-  Definable<JsonValue> operator [](int index) => switch (this) {
-        (final Defined<JsonArray> array) => Defined(array.value?[index]),
-        //TODO: this ain't right
-        _ => const Undefined<JsonValue>(),
-      };
-
-  /// Returns the first element of the defined value if it is defined and has
-  Definable<JsonObject> get first => switch (this) {
-        (final Defined<List<JsonObject>> defined)
-            when defined.value?.isNotEmpty ?? false =>
-          Defined(defined.value?.first),
-        //TODO: this ain't right
-        _ => const Undefined(),
-      };
-}
-*/
-
-/// Extension methods for [JsonObject]
-extension JsonObjectExtensions on JsonObject {
-  /// Returns a [Definable] of the object
-  Definable<JsonObject> toDefinable() => Defined(this);
+/// An extension on [JsonValue]
+extension JsonValueExtensions on JsonValue {
+  /// Returns the value of the field if it is defined and has the correct type
+  JsonValue getValue(String field) =>
+      this is JsonObject ? getValue(field) : const Undefined();
 }
