@@ -228,6 +228,14 @@ extension JsonValueExtensions on JsonValue {
         _ => const Undefined()
       };
 
+  /// Returns the value or null
+  String? get stringValue =>
+      this is JsonString ? (this as JsonString).value : null;
+
+  /// Returns the value or null
+  num? get numericValue =>
+      this is JsonNumber ? (this as JsonNumber).value : null;
+
   /// Same as []
   // T? call<T>(String field) =>
   //     switch (this[field]) { (final T? value) => value, _ => null };
