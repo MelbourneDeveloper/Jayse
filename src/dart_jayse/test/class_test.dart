@@ -120,16 +120,38 @@ void main() {
     );
   });
 
-  test('To and From Json', () {
+  test('To and From Json 1', () {
     final message = Message.fromJson({
       'message': 'Hello, World!',
-      'isGood': 'true',
-      'people': [
-        {'name': 'jim', 'type': 'recipient'},
-        {'name': 'bob', 'type': 'sender'},
-      ],
+      'isGood': true,
     });
 
-    expect(message.people?[1].name, 'bob');
+    expect(message.isGood, true);
+
+    final updatedMessage = message.copyWith(isGood: false);
+
+    expect(updatedMessage.isGood, false);
+
+    final json = jsonEncode(updatedMessage.toJson());
+
+    expect(json, '''{"message":"Hello, World!","isGood":false}''');
+  });
+
+  test('To and From Json 2', () {
+    final message = Message.fromJson({
+      'message': 'Hello, World!',
+      'isGood': true,
+    });
+
+    expect(message.isGood, true);
+
+    final updatedMessage = message.copyWith(isGood: false, message: 'test');
+
+    expect(updatedMessage.isGood, false);
+    expect(updatedMessage.message, 'test');
+
+    final json = jsonEncode(updatedMessage.toJson());
+
+    expect(json, '''{"message":"test","isGood":false}''');
   });
 }

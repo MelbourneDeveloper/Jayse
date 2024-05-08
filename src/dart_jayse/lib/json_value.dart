@@ -170,7 +170,7 @@ final class JsonObject extends JsonValue {
   JsonObject withUpdate(String key, JsonValue value) {
     final entries = _value.entries.toList();
     var replaced = false;
-    for (var i = 0; i >= 0; i--) {
+    for (var i = _value.entries.length-1; i >= 0; i--) {
       final entry = entries[i];
       if (entry.key == key) {
         entries
