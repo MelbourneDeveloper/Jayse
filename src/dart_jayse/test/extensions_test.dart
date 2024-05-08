@@ -109,7 +109,7 @@ void main() {
     }) as JsonObject;
 
     expect(jsonObject.message.equals('Hello, World!'), isTrue);
-    expect(jsonObject.isGood.value, 'true');
+    expect(jsonObject.isGood.value, const JsonString('true'));
     expect(jsonObject.people[0].type.equals(Relationship.recipient), isTrue);
     expect(jsonObject.people.first.name.equals('jim'), isTrue);
     expect(jsonObject.people[1].name.definedValue, 'bob');
