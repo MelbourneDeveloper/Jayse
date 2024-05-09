@@ -235,7 +235,7 @@ void main() {
     expect(jsonObject.getValue('phone'), isA<JsonNull>());
   });
 
-  //TODO: Add support for lists of primitive values
+  //TODO
   test(
     'List of primitive values',
     () {
@@ -389,4 +389,70 @@ void main() {
     },
     skip: true,
   );
+
+  group('JsonArray equality tests', () {
+    test('Equality with identical arrays', () {
+      const array1 = JsonArray([
+        JsonString('hello'),
+        JsonNumber(42),
+        JsonBoolean(true),
+      ]);
+      const array2 = JsonArray([
+        JsonString('hello'),
+        JsonNumber(42),
+        JsonBoolean(true),
+      ]);
+
+      expect(array1, equals(array2));
+      expect(array1.hashCode, equals(array2.hashCode));
+    });
+
+    test(
+        'Inequality with arrays containing the same'
+        ' elements in different order', () {
+      const array1 = JsonArray([
+        JsonString('hello'),
+        JsonNumber(42),
+        JsonBoolean(true),
+      ]);
+      const array2 = JsonArray([
+        JsonNumber(42),
+        JsonBoolean(true),
+        JsonString('hello'),
+      ]);
+
+      expect(array1, isNot(equals(array2)));
+    });
+
+    test('Equality with arrays containing duplicates', () {
+      const array1 = JsonArray([
+        JsonString('hello'),
+        JsonNumber(42),
+        JsonString('hello'),
+      ]);
+      const array2 = JsonArray([
+        JsonString('hello'),
+        JsonNumber(42),
+        JsonString('hello'),
+      ]);
+
+      expect(array1, equals(array2));
+      expect(array1.hashCode, equals(array2.hashCode));
+    });
+
+    test('Inequality with arrays containing different duplicates', () {
+      const array1 = JsonArray([
+        JsonString('hello'),
+        JsonNumber(42),
+        JsonString('hello'),
+      ]);
+      const array2 = JsonArray([
+        JsonString('hello'),
+        JsonNumber(42),
+        JsonNumber(42),
+      ]);
+
+      expect(array1, isNot(equals(array2)));
+    });
+  });
 }
