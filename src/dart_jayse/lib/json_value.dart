@@ -23,6 +23,19 @@ sealed class JsonValue {
         _ =>
           throw ArgumentError('Unknown JSON value type: ${json.runtimeType}'),
       };
+
+  @override
+  String toString() => switch (this) {
+        (final JsonString jsonString) => "'${jsonString.value}'",
+        (final JsonNumber jsonNumber) => jsonNumber.value.toString(),
+        (final JsonBoolean jsonBoolean) => jsonBoolean.value.toString(),
+        (final JsonArray jsonArray) =>
+          jsonArray.value.map((e) => e.toString()).join(', '),
+        (final JsonObject jsonObject) => jsonValueEncode(jsonObject),
+        JsonNull() => 'JsonNull',
+        Undefined() => 'Undefined',
+        (final WrongType wrongType) => 'WrongType(${wrongType.wrongTypeValue})',
+      };
 }
 
 // ignore: avoid_annotating_with_dynamic
@@ -170,7 +183,7 @@ final class JsonObject extends JsonValue {
   JsonObject withUpdate(String key, JsonValue value) {
     final entries = _value.entries.toList();
     var replaced = false;
-    for (var i = _value.entries.length-1; i >= 0; i--) {
+    for (var i = _value.entries.length - 1; i >= 0; i--) {
       final entry = entries[i];
       if (entry.key == key) {
         entries

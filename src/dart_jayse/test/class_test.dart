@@ -1,5 +1,5 @@
 // ignore: lines_longer_than_80_chars
-// ignore_for_file: missing_whitespace_between_adjacent_strings,, unreachable_from_main
+// ignore_for_file: missing_whitespace_between_adjacent_strings,, unreachable_from_main, avoid_print
 
 import 'dart:convert';
 
@@ -153,5 +153,14 @@ void main() {
     final json = jsonEncode(updatedMessage.toJson());
 
     expect(json, '''{"message":"test","isGood":false}''');
+  });
+
+  test('toString Basic', () {
+    final jo = jsonValueDecode('{"name": "John Doe", "age": 30}');
+
+    final name = jo['name'];
+    final age = jo['age'];
+
+    expect('Name: $name, Age: $age', "Name: 'John Doe', Age: 30");
   });
 }

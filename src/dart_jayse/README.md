@@ -8,12 +8,60 @@ Lossless conversion of JSON to and from statically-typed, immutable objects in D
 
 [C# Package](../dotnet/)
 
+## Getting Started
+
+There is no code generation, and there are no external dependencies. Just add the package to your `pubspec.yaml` file.
+
+You can convert a JSON string to a `JsonObject` and access values like this:
+
+```dart
+import 'package:jayse/jayse.dart';
+
+void main() {
+  final jsonString = '{"name": "John Doe", "age": 30}';
+  final jsonObject = JsonObject.fromJson(jsonString);
+
+  final name = jsonObject.value('name');
+  final age = jsonObject.value('age');
+
+  print('Name: $name, Age: $age');
+}
+```
+
 ## Features
 
-- **Lossless Conversion**: convert to Dart strongly typed Dart objects and back to JSON without any information. See below for more information.
-- **Strong Typing**: All values are strongly typed. No accessing `dynamic` values.
+- **Lossless Conversion**: convert to strongly typed Dart objects and back to JSON without any information loss. See below for more information.
+- **Strong Typing**: all values are strongly typed. No accessing `dynamic` values.
 - **Immutable**: All objects are immutable. There are no setters. Use non-destructive mutation to create new `JsonObject`s.
-- Less need for code generation.
+- **Simpler data classes and less code generation**: data classes are simpler and code generation with tools like `json_serializable` is often not necessary.
+
+Example:
+```dart
+class Message {
+  Message(this._jsonObject);
+
+  factory Message.fromJson(Map<String, dynamic> json) =>
+      Message(JsonObject.fromJson(json));
+
+  final JsonObject _jsonObject;
+
+  bool? get isGood => _jsonObject.value('isGood');
+  String? get message => _jsonObject.value('message');
+
+  Map<String, dynamic> toJson() => _jsonObject.toJson();
+
+  Message copyWith({
+    bool? isGood,
+    String? message,
+  }) =>
+      Message(
+        _jsonObject.withUpdates({
+          if (isGood != null) 'isGood': isGood.toJsonValue(),
+          if (message != null) 'message': message.toJsonValue(),
+        }),
+      );
+}
+```
 
 
 ## What Is It And Why?
