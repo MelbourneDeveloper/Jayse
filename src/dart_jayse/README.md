@@ -56,6 +56,7 @@ You can also handle values with a [switch expression](https://www.christianfindl
 - **Strong Typing**: all values are strongly typed. No accessing `dynamic` values.
 - **Immutable**: All objects are immutable. There are no setters. Use non-destructive mutation to create new `JsonObject`s.
 - **Simpler data classes and less code generation**: data classes are simpler and code generation with tools like `json_serializable` is often not necessary.
+- **Simple, tight code**: the library is small and easy to understand. It's a single file with no dependencies, and currently under 200 LOC.
 
 Example:
 ```dart
