@@ -108,7 +108,6 @@ void main() {
     final updatedMessage2 = message.copyWith(isGood: false);
     expect(updatedMessage2.isGood, false);
 
-    // ignore: avoid_print
     print(jsonEncode(updatedMessage2._jsonObject.toJson()));
 
     //Verify the JSON got corrected, and field ordering was maintained
