@@ -28,7 +28,7 @@ class JsonPathParser {
   }
 
   JsonValue _parseExpression(JsonValue value) {
-    print('Parsing expression at index: $_index');
+    print('Parsing expression for value $value at index: $_index');
     if (_index >= jsonPath.length) {
       print('Reached end of JSON path, returning value: $value');
       return value;
@@ -145,8 +145,9 @@ class JsonPathParser {
     return int.parse(buffer.toString());
   }
 
- JsonValue _parseRecursiveDescent(JsonValue value) {
-    print('Parsing recursive descent for value: $value');
+  JsonValue _parseRecursiveDescent(JsonValue value) {
+    print('Parsing recursive descent for value $value at index: $_index');
+
     if (value is JsonObject) {
       final fields = value.fields.toList();
       for (final field in fields) {
