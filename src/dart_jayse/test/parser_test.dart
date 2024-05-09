@@ -4,6 +4,19 @@ import 'package:jayse/parser.dart';
 import 'package:test/test.dart';
 
 void main() {
+  test('Path Test Basic', () async {
+    final jsonValue = jsonValueDecode('''
+  {
+    "author": "bob"
+  }
+  ''');
+
+    final parser = JsonPathParser(r'$..author');
+    final result = parser.parse(jsonValue);
+
+    expect(result.stringValue, 'bob');
+  });
+
   test('Path Test', () async {
     const jsonString = '''
   {
