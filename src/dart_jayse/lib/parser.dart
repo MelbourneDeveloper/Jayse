@@ -4,7 +4,9 @@ import 'package:jayse/jayse.dart';
 
 class JsonPathParser {
   JsonPathParser(this.jsonPath);
+
   final String jsonPath;
+
   int _index = 0;
 
   JsonValue parse(JsonValue rootValue) {
@@ -101,6 +103,7 @@ class JsonPathParser {
   }
 
   JsonValue _parseWildcard(JsonValue value) {
+    print('Parsing wildcard for value: $value');
     if (value is JsonObject) {
       final values = value.fields
           .map((field) => _parseExpression(value.getValue(field)))
@@ -113,6 +116,7 @@ class JsonPathParser {
       return const Undefined();
     }
   }
+
 
   String _parseFieldName() {
     final buffer = StringBuffer();
@@ -145,19 +149,25 @@ class JsonPathParser {
 JsonValue _parseRecursiveDescent(JsonValue value) {
     print('Parsing recursive descent for value: $value');
     if (value is JsonObject) {
-      final values = value.fields
-          .map((field) => _parseRecursiveDescent(value.getValue(field)))
-          .where((value) => value is! Undefined)
-          .toList();
-      return JsonArray(values);
+      final fields = value.fields.toList();
+      for (final field in fields) {
+        final result = _parseRecursiveDescent(value.getValue(field));
+        if (result is! Undefined) {
+          return _parseExpression(result);
+        }
+      }
+      return const Undefined();
     } else if (value is JsonArray) {
-      final values = value.value
-          .map(_parseRecursiveDescent)
-          .where((value) => value is! Undefined)
-          .toList();
-      return JsonArray(values);
+      final items = value.value;
+      for (final item in items) {
+        final result = _parseRecursiveDescent(item);
+        if (result is! Undefined) {
+          return _parseExpression(result);
+        }
+      }
+      return const Undefined();
     } else {
-      return _parseExpression(value);
+      return value;
     }
   }
 
