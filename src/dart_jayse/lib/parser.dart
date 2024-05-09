@@ -117,7 +117,6 @@ class JsonPathParser {
     }
   }
 
-
   String _parseFieldName() {
     final buffer = StringBuffer();
     while (_index < jsonPath.length && _isUnquotedFieldChar(jsonPath[_index])) {
@@ -146,7 +145,7 @@ class JsonPathParser {
     return int.parse(buffer.toString());
   }
 
-JsonValue _parseRecursiveDescent(JsonValue value) {
+ JsonValue _parseRecursiveDescent(JsonValue value) {
     print('Parsing recursive descent for value: $value');
     if (value is JsonObject) {
       final fields = value.fields.toList();
@@ -167,7 +166,7 @@ JsonValue _parseRecursiveDescent(JsonValue value) {
       }
       return const Undefined();
     } else {
-      return value;
+      return _parseExpression(value);
     }
   }
 
