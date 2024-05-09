@@ -88,7 +88,7 @@ class Message {
 
 ## What Problem Does It Solve?
 
-Jayse is a Dart library that facilitates safe and lossless conversion of JSON to and from statically-typed, immutable objects. When you receive data from a backend, you can modify it and send it back without destroying other data that arrived in the payload. This is in contrast with packages like `json_serializable` and `freezed`, which can corrupt data when converting JSON to Dart objects and back.
+Jayse attempts to solve the problem of data loss or corruption when serializing or deserializing JSON in Dart. Jayse facilitates safe and lossless conversion of JSON to and from statically-typed, immutable objects. When you receive data from a backend, you can modify it and send it back without destroying other data that arrived in the payload. This is in contrast with packages like `json_serializable` and `freezed`, which can corrupt data when converting JSON to Dart objects and back.
 
 See the overall goal [here](../../README.md).
 
