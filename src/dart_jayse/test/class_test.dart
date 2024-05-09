@@ -1,5 +1,5 @@
 // ignore: lines_longer_than_80_chars
-// ignore_for_file: missing_whitespace_between_adjacent_strings,, unreachable_from_main, avoid_print
+// ignore_for_file: missing_whitespace_between_adjacent_strings,, unreachable_from_main
 
 import 'dart:convert';
 
@@ -107,8 +107,6 @@ void main() {
     //Verify we can correct the value
     final updatedMessage2 = message.copyWith(isGood: false);
     expect(updatedMessage2.isGood, false);
-
-    print(jsonEncode(updatedMessage2._jsonObject.toJson()));
 
     //Verify the JSON got corrected, and field ordering was maintained
     expect(
