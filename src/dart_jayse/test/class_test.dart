@@ -170,9 +170,11 @@ void main() {
 
     final ageValue2 = switch (age) {
       (final JsonNumber jn) => jn.value,
-      (final JsonString js) => int.tryParse(js.value),
+      (final JsonString js) => num.tryParse(js.value),
       //TODO: other cases
       _ => null,
     };
+
+    expect(ageValue2, 30);
   });
 }
