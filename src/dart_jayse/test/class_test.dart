@@ -162,5 +162,17 @@ void main() {
     final age = jo['age'];
 
     expect('Name: $name, Age: $age', "Name: 'John Doe', Age: 30");
+
+    // ignore: omit_local_variable_types, prefer_final_locals
+    num? ageValue = age.numericValue;
+
+    expect(ageValue, 30);
+
+    final ageValue2 = switch (age) {
+      (final JsonNumber jn) => jn.value,
+      (final JsonString js) => int.tryParse(js.value),
+      //TODO: other cases
+      _ => null,
+    };
   });
 }

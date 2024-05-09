@@ -18,14 +18,36 @@ You can convert a JSON string to a `JsonObject` and access values like this:
 import 'package:jayse/jayse.dart';
 
 void main() {
-  final jsonString = '{"name": "John Doe", "age": 30}';
-  final jsonObject = JsonObject.fromJson(jsonString);
+  final jo = jsonValueDecode('{"name": "John Doe", "age": 30}');
 
-  final name = jsonObject.value('name');
-  final age = jsonObject.value('age');
+  final name = jo['name'];
+  final age = jo['age'];
 
   print('Name: $name, Age: $age');
 }
+```
+
+Output: 
+> Name: 'John Doe', Age: 30
+
+But, `name` and `age` are `JsonValue`s. They are strongly typed. There are several ways to access the value, but you can't just cast them to a `String` or `int` because this would involve casting (`as`). Jayse uses [`pattern matching`](https://dart.dev/language/patterns) under the hood and avoids casting where possible. 
+
+The accessors here return a subtype of `JsonValue`, which could be `JsonString`, `JsonNumber`, `JsonBoolean`, `JsonArray`, `JsonObject`, `JsonNull`, or `Undefined`. If you know what the value will be ahead of time, you can access the value like this. It will return `num` or null if the field doesn't exist, or the value is null.
+
+```dart
+num? ageValue = age.numericValue;
+```
+
+You can also handle values with a [switch expression](https://www.christianfindlay.com/blog/dart-switch-expressions). The important thing to understand about `JsonValue` is that there are only a preset number of subtypes. That means that you will get an analyzer warning/error if you don't handle all the cases in the switch expression. This is good because it forces you to handle all cases, and you won't get an exception from an unhandled case at runtime. This is good for handling cases where the data type might not be what you expect. For example:
+
+```dart
+    final ageValue2 = switch (age) {
+      (final JsonNumber jn) => jn.value,
+      (final JsonString js) => int.tryParse(js.value),
+      //TODO: other cases
+      //Catch all case...
+      _ => null,
+    };
 ```
 
 ## Features
@@ -64,7 +86,7 @@ class Message {
 ```
 
 
-## What Is It And Why?
+## What Problem Does It Solve?
 
 Jayse is a Dart library that facilitates safe and lossless conversion of JSON to and from statically-typed, immutable objects. When you receive data from a backend, you can modify it and send it back without destroying other data that arrived in the payload. This is in contrast with packages like `json_serializable` and `freezed`, which can corrupt data when converting JSON to Dart objects and back.
 
@@ -72,7 +94,7 @@ See the overall goal [here](../../README.md).
 
 ## The Problem - Data Loss / Corruption
 
-Let's take a look at the two most popular Dart packages for dealing with JSON serialization and some problems that arise with these. Here is a very simple scenario. The JSON payload has three fields: `name`, `age` and `gender`, but the `User` class is missing the `gender` field. Watch what happens to the JSON when we convert to `User` and back to JSON text.
+Let's take a look at an example problem with the most common Dart package for dealing with JSON serialization `json_serializable`. The same problem occurs with all popular packages like `freezed` and so on. Here is a very simple scenario. The JSON payload has three fields: `name`, `age` and `gender`, but the `User` class is missing the `gender` field. Watch what happens to the JSON when we convert to `User` and back to JSON text.
 
 user.dart
 ```dart
