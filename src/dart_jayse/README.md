@@ -92,8 +92,6 @@ Jayse attempts to solve the problem of data loss or corruption when serializing 
 
 See the overall goal [here](../../README.md).
 
-## The Problem - Data Loss / Corruption
-
 Let's take a look at an example problem with the most common Dart package for dealing with JSON serialization `json_serializable`. The same problem occurs with all popular packages like `freezed` and so on. Here is a very simple scenario. The JSON payload has three fields: `name`, `age` and `gender`, but the `User` class is missing the `gender` field. Watch what happens to the JSON when we convert to `User` and back to JSON text.
 
 user.dart
