@@ -191,6 +191,20 @@ Output:
 
 Notice that the `gender` field was added with a `null` value. This is a problem because the original JSON did not have a `gender` field. This is corruption. If send this value back to the server, it may set an existing value to `null` even though the original value was not `null`.
 
+### Undefined
+
+While `Undefined` is not technically a JSON value, it does come up, and JavaScript handles this concept. JSON after all stands for JavaScript Object Notation, so ignoring undefined values is sticking your head in the sand. Jayse has a concept of `Undefined` which is a value that is not set. This is different from `null` which is a value that is set to `null`. 
+
+Most importantly, Jayse distinguishes between undefined and null, so you can POST the object back to the server in the way that the server expects.
+
 ### Field Order Preservation
 
 Some code is sensitive to the ordering of fields. For example, if you are using Firestore, the order of fields is important. If you convert JSON to a Dart object and back, the order of fields may change. This can cause problems with Firestore. Jayse preserves field ordering.
+
+### Extra Fields
+
+If you receive an extra field in the payload that you don't know about, Jayse will preserve it. This is useful for forward compatibility. You can still send the data back to the server without losing the extra field.
+
+### Non-destructive Mutation
+
+`JsonObject`s have the `withUpdate` and other methods for cloning the object with updates. This allows you to create `copyWith` methods on your data classes. Calling these methods creates a new `JsonObject` with the updates applied, but does not mutate the original object.
