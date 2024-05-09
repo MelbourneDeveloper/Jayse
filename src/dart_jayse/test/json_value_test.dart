@@ -2,7 +2,7 @@
 
 import 'dart:convert';
 
-import 'package:jayse/json_value.dart';
+import 'package:jayse/jayse.dart';
 import 'package:test/test.dart';
 
 void main() {
