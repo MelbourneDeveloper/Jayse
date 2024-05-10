@@ -664,6 +664,50 @@ void main() {
         ]),
       );
     });
+
+    test('Readme Examples', () {
+      final jsonObject = jsonValueDecode('''
+  {
+    "books": [
+      {
+        "title": "Book 1",
+        "author": "Author 1",
+        "price": 10.99
+      },
+      {
+        "title": "Book 2",
+        "author": "Author 2",
+        "price": 15.99
+      },
+      {
+        "title": "Book 3",
+        "author": "Author 1",
+        "price": 12.99
+      }
+    ]
+  }
+''') as JsonObject;
+
+      final expensiveBooks = jsonObject.whereFromPath(
+        r'$.books',
+        (book) => (book['price'].doubleValue ?? 0) > 12,
+      );
+      // ignore: avoid_print
+      print(expensiveBooks);
+      expect(expensiveBooks.length, 2);
+      expect(expensiveBooks[0]['title'].stringValue, 'Book 2');
+
+      final authorBooks = jsonObject.whereFromPath(
+        r'$.books',
+        (book) => book['author'].stringValue == 'Author 1',
+      );
+
+      // ignore: avoid_print
+      print(authorBooks);
+      expect(authorBooks.length, 2);
+      expect(authorBooks[0]['title'].stringValue, 'Book 1');
+      expect(authorBooks[1]['title'].stringValue, 'Book 3');
+    });
   });
 
   group(

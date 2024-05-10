@@ -200,13 +200,13 @@ final expensiveBooks = jsonObject.whereFromPath(
   r'$.books',
   (book) => (book['price'].doubleValue ?? 0) > 12,
 );
-print(expensiveBooks); // Output: [Book 2]
+print(expensiveBooks); // Output: [{"title":"Book 2","author":"Author 2","price":15.99}, {"title":"Book 3","author":"Author 1","price":12.99}]
 
 final authorBooks = jsonObject.whereFromPath(
   r'$.books',
   (book) => book['author'].stringValue == 'Author 1',
 );
-print(authorBooks); // Output: [Book 1, Book 3]
+print(authorBooks); // Output: [{"title":"Book 1","author":"Author 1","price":10.99}, {"title":"Book 3","author":"Author 1","price":12.99}]
 ```
 
 The `whereFromPath` method allows you to filter arrays based on any custom criteria. You can access nested properties, perform comparisons, and combine multiple conditions using logical operators.
