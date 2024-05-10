@@ -258,7 +258,7 @@ final topActionMovies = jsonObject.whereFromPath(
 
 Whether you're working with APIs, processing large datasets, or manipulating JSON data in your Dart applications, Jayse simplifies the process and provides a clean and intuitive API for handling JSON paths and filtering.
 
-For more details and advanced usage, please see the comprehensive tests.
+For more details and advanced usage, please see the comprehensive [tests](https://github.com/MelbourneDeveloper/Jayse/blob/c1d3c9ef4aaa8f94d189c4eca61db82014c82d27/src/dart_jayse/test/parser_test.dart#L271).
 
 ## What Problem Does It Solve?
 
