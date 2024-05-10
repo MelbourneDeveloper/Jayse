@@ -3,7 +3,6 @@ import 'package:jayse/parser.dart';
 
 import 'package:test/test.dart';
 
-
 void main() {
   test('Basic Property Access', () {
     final jsonValue = jsonValueDecode('''
@@ -20,14 +19,9 @@ void main() {
   });
 
   test('Array Index Access', () {
-    final jsonValue = jsonValueDecode('''
-    {
-      "users": ["Alice", "Bob", "Charlie"]
-    }
-    ''');
-
     final parser = JsonPathParser(r'$.users[1]');
-    final result = parser.parse(jsonValue);
+    final result = parser
+        .parse(jsonValueDecode('''{"users": ["Alice", "Bob", "Charlie"]}'''));
 
     expect(result.stringValue, 'Bob');
   });
