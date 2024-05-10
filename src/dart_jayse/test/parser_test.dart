@@ -457,6 +457,213 @@ void main() {
         equals([]),
       );
     });
+
+    test('whereFromPath Extension with Deep Nesting', () {
+      final jsonObject = jsonValueDecode('''
+      {
+        "users": [
+          {
+            "name": "John",
+            "age": 30,
+            "hobbies": ["reading", "gaming", "traveling"],
+            "address": {
+              "city": "New York",
+              "country": "USA"
+            },
+            "scores": [
+              { "subject": "Math", "score": 85 },
+              { "subject": "Science", "score": 92 },
+              { "subject": "English", "score": 88 }
+            ]
+          },
+          {
+            "name": "Alice",
+            "age": 25,
+            "hobbies": ["painting", "dancing"],
+            "address": {
+              "city": "London",
+              "country": "UK"
+            },
+            "scores": [
+              { "subject": "Math", "score": 90 },
+              { "subject": "Science", "score": 87 },
+              { "subject": "English", "score": 95 }
+            ]
+          },
+          {
+            "name": "Bob",
+            "age": 35,
+            "hobbies": ["fishing", "hiking", "photography"],
+            "address": {
+              "city": "Sydney",
+              "country": "Australia"
+            },
+            "scores": [
+              { "subject": "Math", "score": 78 },
+              { "subject": "Science", "score": 82 },
+              { "subject": "English", "score": 90 }
+            ]
+          }
+        ]
+      }
+    ''') as JsonObject;
+
+      // Test filtering users with age greater than 30
+      expect(
+        jsonObject.whereFromPath(
+          r'$.users',
+          (value) => (value['age'].integerValue ?? 0) > 30,
+        ),
+        equals([
+          jsonValueDecode('''
+          {
+            "name": "Bob",
+            "age": 35,
+            "hobbies": ["fishing", "hiking", "photography"],
+            "address": {
+              "city": "Sydney",
+              "country": "Australia"
+            },
+            "scores": [
+              { "subject": "Math", "score": 78 },
+              { "subject": "Science", "score": 82 },
+              { "subject": "English", "score": 90 }
+            ]
+          }
+        '''),
+        ]),
+      );
+
+      // Test filtering users with a specific hobby
+      expect(
+        jsonObject.whereFromPath(
+          r'$.users',
+          (value) =>
+              value['hobbies']
+                  .arrayValue
+                  ?.contains(const JsonString('traveling')) ??
+              false,
+        ),
+        equals([
+          jsonValueDecode('''
+          {
+            "name": "John",
+            "age": 30,
+            "hobbies": ["reading", "gaming", "traveling"],
+            "address": {
+              "city": "New York",
+              "country": "USA"
+            },
+            "scores": [
+              { "subject": "Math", "score": 85 },
+              { "subject": "Science", "score": 92 },
+              { "subject": "English", "score": 88 }
+            ]
+          }
+        '''),
+        ]),
+      );
+
+      // Test filtering users from a specific country
+      expect(
+        jsonObject.whereFromPath(
+          r'$.users',
+          (value) => value['address']['country'].stringValue == 'UK',
+        ),
+        equals([
+          jsonValueDecode('''
+          {
+            "name": "Alice",
+            "age": 25,
+            "hobbies": ["painting", "dancing"],
+            "address": {
+              "city": "London",
+              "country": "UK"
+            },
+            "scores": [
+              { "subject": "Math", "score": 90 },
+              { "subject": "Science", "score": 87 },
+              { "subject": "English", "score": 95 }
+            ]
+          }
+        '''),
+        ]),
+      );
+
+      // Test filtering users with a score greater than 90 in any subject
+      expect(
+        jsonObject.whereFromPath(
+          r'$.users',
+          (value) => value['scores']
+              .arrayValue!
+              .any((score) => (score['score'].integerValue ?? 0) > 90),
+        ),
+        equals([
+          jsonValueDecode('''
+          {
+            "name": "John",
+            "age": 30,
+            "hobbies": ["reading", "gaming", "traveling"],
+            "address": {
+              "city": "New York",
+              "country": "USA"
+            },
+            "scores": [
+              { "subject": "Math", "score": 85 },
+              { "subject": "Science", "score": 92 },
+              { "subject": "English", "score": 88 }
+            ]
+          }
+        '''),
+          jsonValueDecode('''
+          {
+            "name": "Alice",
+            "age": 25,
+            "hobbies": ["painting", "dancing"],
+            "address": {
+              "city": "London",
+              "country": "UK"
+            },
+            "scores": [
+              { "subject": "Math", "score": 90 },
+              { "subject": "Science", "score": 87 },
+              { "subject": "English", "score": 95 }
+            ]
+          }
+        '''),
+        ]),
+      );
+
+      // Test filtering users with a specific score in a specific subject
+      expect(
+        jsonObject.whereFromPath(
+          r'$.users',
+          (value) => value['scores'].arrayValue!.any(
+                (score) =>
+                    score['subject'].stringValue == 'Math' &&
+                    score['score'].integerValue == 90,
+              ),
+        ),
+        equals([
+          jsonValueDecode('''
+          {
+            "name": "Alice",
+            "age": 25,
+            "hobbies": ["painting", "dancing"],
+            "address": {
+              "city": "London",
+              "country": "UK"
+            },
+            "scores": [
+              { "subject": "Math", "score": 90 },
+              { "subject": "Science", "score": 87 },
+              { "subject": "English", "score": 95 }
+            ]
+          }
+        '''),
+        ]),
+      );
+    });
   });
 
   group(
