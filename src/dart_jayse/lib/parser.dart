@@ -153,13 +153,11 @@ class JsonPathParser {
     log('Parsing recursive descent', value);
 
     if (value is JsonObject) {
-      final fields = value.fields.toList();
-      for (final field in fields) {
-        final result = _parseRecursiveDescent(value.getValue(field));
-        if (result is! Undefined) {
-          return _parseExpression(result);
-        }
+      final result = _parseRecursiveDescent(value.getValue(_parseFieldName()));
+      if (result is! Undefined) {
+        return _parseExpression(result);
       }
+
       return const Undefined();
     } else if (value is JsonArray) {
       final items = value.value;
@@ -192,7 +190,7 @@ class JsonPathParser {
   void log(String step, Object value) =>
       // ignore: avoid_print
       print('Step: $step. Path: '
-          '${_currentPath()}. '
+          '${_currentPath()} of $jsonPath '
           'Index: $_index Value: $value');
 
   String _currentPath() =>
