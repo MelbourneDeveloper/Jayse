@@ -347,9 +347,9 @@ void main() {
       expect(jsonObject.boolFromPath(r'$.isStudent'), false);
       expect(jsonObject.boolFromPath(r'$.graduated'), true);
 
-      // Test dateFromPath
+      // Test dateTimeFromPath
       expect(
-        jsonObject.dateFromPath(r'$.graduation'),
+        jsonObject.dateTimeFromPath(r'$.graduation'),
         DateTime.utc(2022, 6, 30, 10),
       );
 
@@ -707,6 +707,56 @@ void main() {
       expect(authorBooks.length, 2);
       expect(authorBooks[0]['title'].stringValue, 'Book 1');
       expect(authorBooks[1]['title'].stringValue, 'Book 3');
+
+      final jsonValue = jsonValueDecode('''
+  {
+    "name": "John Doe",
+    "age": 30,
+    "city": "New York"
+  }
+''');
+
+      final result = parseJsonPath(r'$.name', jsonValue);
+      expect(result.stringValue, 'John Doe');
+
+      final jsonValue2 = jsonValueDecode('''
+  {
+    "person": {
+      "name": "John",
+      "age": 30,
+      "address": {
+        "city": "New York",
+        "country": "USA"
+      }
+    }
+  }
+''');
+
+      final name = parseJsonPath(r'$.person.name', jsonValue2).stringValue;
+      expect(name, 'John');
+
+      final city =
+          parseJsonPath(r'$.person.address.city', jsonValue2).stringValue;
+      expect(city, 'New York');
+
+      final jsonObject3 = jsonValueDecode('''
+  {
+    "name": "John Doe",
+    "age": 30,
+    "isStudent": false,
+    "score": 85.5,
+    "graduation": "2022-06-30T10:00:00Z"
+  }
+''') as JsonObject;
+
+      expect(jsonObject3.stringFromPath(r'$.name'), 'John Doe');
+      expect(jsonObject3.integerFromPath(r'$.age'), 30);
+      expect(jsonObject3.boolFromPath(r'$.isStudent'), false);
+      expect(jsonObject3.doubleFromPath(r'$.score'), 85.5);
+      expect(
+        jsonObject3.dateTimeFromPath(r'$.graduation'),
+        DateTime.utc(2022, 06, 30, 10),
+      );
     });
   });
 

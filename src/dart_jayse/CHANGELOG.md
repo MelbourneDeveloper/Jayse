@@ -3,4 +3,5 @@
 ## 0.0.2-alpha
 - Cleanup
 ## 0.0.3-alpha
+- Massive addition of JSONPath traversal
 - Breaking change! `Asdfsdf` extension renamed to `MapExtensions`. Sowwy! 😢

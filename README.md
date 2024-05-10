@@ -165,7 +165,7 @@ print(isStudent); // Output: false
 final score = jsonObject.doubleFromPath(r'$.score');
 print(score); // Output: 85.5
 
-final graduation = jsonObject.dateFromPath(r'$.graduation');
+final graduation = jsonObject.dateTimeFromPath(r'$.graduation');
 print(graduation); // Output: 2022-06-30 10:00:00.000
 ```
 

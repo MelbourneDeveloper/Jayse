@@ -163,7 +163,7 @@ print(isStudent); // Output: false
 final score = jsonObject.doubleFromPath(r'$.score');
 print(score); // Output: 85.5
 
-final graduation = jsonObject.dateFromPath(r'$.graduation');
+final graduation = jsonObject.dateTimeFromPath(r'$.graduation');
 print(graduation); // Output: 2022-06-30 10:00:00.000
 ```
 
@@ -263,8 +263,6 @@ For more details and advanced usage, please see the comprehensive [tests](https:
 ## What Problem Does It Solve?
 
 Jayse attempts to solve the problem of data loss or corruption when serializing or deserializing JSON in Dart. Jayse facilitates safe and lossless conversion of JSON to and from statically-typed, immutable objects. When you receive data from a backend, you can modify it and send it back without destroying other data that arrived in the payload. This is in contrast with packages like `json_serializable` and `freezed`, which can corrupt data when converting JSON to Dart objects and back.
-
-See the overall goal [here](../../README.md).
 
 Let's take a look at an example problem with the most common Dart package for dealing with JSON serialization `json_serializable`. The same problem occurs with all popular packages like `freezed` and so on. Here is a very simple scenario. The JSON payload has three fields: `name`, `age` and `gender`, but the `User` class is missing the `gender` field. Watch what happens to the JSON when we convert to `User` and back to JSON text.
 
