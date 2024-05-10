@@ -57,8 +57,14 @@ class JsonPathParser {
     }
   }
 
-  JsonValue _parseDotNotation(JsonValue value) {
+ JsonValue _parseDotNotation(JsonValue value) {
     log('Parsing dot notation', value);
+    if (_index >= jsonPath.length) {
+      // We've reached the end of the JSON path, so return the value
+      log('Reached end of JSON path, returning value', value);
+      return value;
+    }
+
     if (value is! JsonObject) {
       //This is where the code goes wrong. There is no reason
       //we can't return the value if it's the end of the path
@@ -68,6 +74,7 @@ class JsonPathParser {
     }
 
     final fieldName = _parseFieldName();
+    _index += fieldName.length;
 
     return _parseExpression(value[fieldName]);
   }
@@ -164,7 +171,9 @@ class JsonPathParser {
       }
       return const Undefined();
     } else {
-      return _parseExpression(value);
+      // Return the scalar value itself
+      log('Returning scalar value', value);
+      return value;
     }
   }
 
