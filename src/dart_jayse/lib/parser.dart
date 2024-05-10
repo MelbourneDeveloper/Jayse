@@ -76,7 +76,6 @@ class JsonPathParser {
     }
 
     final fieldName = _parseFieldName();
-    _index += fieldName.length;
 
     return _parseExpression(value[fieldName]);
   }
