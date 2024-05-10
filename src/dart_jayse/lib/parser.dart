@@ -1,4 +1,4 @@
-// ignore_for_file: public_member_api_docs, parameter_assignments
+// ignore_for_file: parameter_assignments
 
 import 'package:jayse/jayse.dart';
 
@@ -19,6 +19,8 @@ JsonValue parseJsonPath(String jsonPath, JsonValue rootValue) {
   return result;
 }
 
+/// Parses a JSON path expression and returns the corresponding value from the
+/// JSON.
 JsonValue parseExpression(String jsonPath, int index, JsonValue value) {
   log('Parsing expression', jsonPath.substring(0, index), value);
   if (index >= jsonPath.length) {
@@ -54,6 +56,7 @@ JsonValue parseExpression(String jsonPath, int index, JsonValue value) {
   }
 }
 
+/// Parses a JSON path expression in dot notation and returns the corresponding
 JsonValue parseDotNotation(String jsonPath, int index, JsonValue value) {
   log('Parsing dot notation', jsonPath.substring(0, index), value);
   if (index >= jsonPath.length) {
@@ -96,6 +99,8 @@ JsonValue parseDotNotation(String jsonPath, int index, JsonValue value) {
   }
 }
 
+/// Parses a JSON path expression in bracket notation and returns the
+/// corresponding value.
 JsonValue parseBracketNotation(String jsonPath, int index, JsonValue value) {
   log('Parsing bracket notation', jsonPath.substring(0, index), value);
   if (jsonPath[index] == "'") {
@@ -139,6 +144,7 @@ JsonValue parseBracketNotation(String jsonPath, int index, JsonValue value) {
   }
 }
 
+/// Parses a JSON path expression with a wildcard and returns the corresponding
 JsonValue parseWildcard(String jsonPath, int index, JsonValue value) {
   log('Parsing wildcard', jsonPath.substring(0, index), value);
   if (value is JsonObject) {
@@ -168,6 +174,7 @@ JsonValue parseWildcard(String jsonPath, int index, JsonValue value) {
   }
 }
 
+/// Parses a field name from a JSON path expression.
 String parseFieldName(String jsonPath, int index) {
   final buffer = StringBuffer();
   while (index < jsonPath.length && isUnquotedFieldChar(jsonPath[index])) {
@@ -177,6 +184,7 @@ String parseFieldName(String jsonPath, int index) {
   return buffer.toString();
 }
 
+/// Parses a quoted field name from a JSON path expression.
 String parseQuotedFieldName(String jsonPath, int index) {
   final buffer = StringBuffer();
   while (index < jsonPath.length && jsonPath[index] != "'") {
@@ -187,6 +195,7 @@ String parseQuotedFieldName(String jsonPath, int index) {
   return buffer.toString();
 }
 
+/// Parses an index from a JSON path expression.
 int parseIndex(String jsonPath, int index) {
   final buffer = StringBuffer();
   while (index < jsonPath.length && isDigit(jsonPath[index])) {
@@ -196,6 +205,8 @@ int parseIndex(String jsonPath, int index) {
   return int.parse(buffer.toString());
 }
 
+/// Parses a JSON path expression with recursive descent and returns the
+/// corresponding value.
 JsonValue parseRecursiveDescent(String jsonPath, int index, JsonValue value) {
   log('Parsing recursive descent', jsonPath.substring(0, index), value);
 
@@ -227,31 +238,23 @@ JsonValue parseRecursiveDescent(String jsonPath, int index, JsonValue value) {
   }
 }
 
+/// Returns `true` if the character is a valid unquoted field character.
 bool isUnquotedFieldChar(String char) =>
     RegExp(r'^[a-zA-Z0-9_-]+$').hasMatch(char);
 
+/// Returns `true` if the character is a digit.
 bool isDigit(String char) => RegExp(r'^\d+$').hasMatch(char);
 
+/// Throws a [FormatException] if the character at the specified index in the
 void expectChar(String jsonPath, int index, String expected) {
   if (index >= jsonPath.length || jsonPath[index] != expected) {
     throw FormatException('Expected "$expected"');
   }
 }
 
+/// Logs a message with the current step, JSON path, and value.
 void log(String step, String currentPath, Object value) =>
     // ignore: avoid_print
     print(
       'Step: $step. Path: $currentPath Value: $value',
     );
-// print(
-//   'Step: $step. Path: $currentPath of $jsonPath Index: $index Value: $value',
-// );
-
-extension JsonObjectPathExtensions on JsonObject {
-  JsonValue fromPath(String path) => parseJsonPath(path, this);
-  String? stringFromPath(String path) => fromPath(path).stringValue;
-  int? integerFromPath(String path) => fromPath(path).integerValue;
-  double? doubleFromPath(String path) => fromPath(path).doubleValue;
-  bool? boolFromPath(String path) => fromPath(path).booleanValue;
-  DateTime? dateFromPath(String path) => fromPath(path).dateTimeValue;
-}

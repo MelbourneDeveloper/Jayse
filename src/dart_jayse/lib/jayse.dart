@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:jayse/parser.dart';
+
 /// Decodes a JSON string into a [JsonValue]
 JsonValue jsonValueDecode(String value) =>
     JsonValue.fromJson(jsonDecode(value) as Object);
@@ -334,4 +336,25 @@ extension MapExtensions on Map<String, dynamic> {
   /// Converts a [Map<String, dynamic>] to a [JsonObject]
   JsonObject toJsonValue() =>
       JsonObject(map((key, value) => MapEntry(key, _safeCast(value))));
+}
+
+/// Extension methods for [JsonObject] to extract values from a JSON path.
+extension JsonObjectPathExtensions on JsonObject {
+  /// Returns the value at the specified JSON path.
+  JsonValue fromPath(String path) => parseJsonPath(path, this);
+
+  /// Returns the string value or null at the specified JSON path.
+  String? stringFromPath(String path) => fromPath(path).stringValue;
+
+  /// Returns the integer value or null at the specified JSON path.
+  int? integerFromPath(String path) => fromPath(path).integerValue;
+
+  /// Returns the double value or null at the specified JSON path.
+  double? doubleFromPath(String path) => fromPath(path).doubleValue;
+
+  /// Returns the boolean value or null at the specified JSON path.
+  bool? boolFromPath(String path) => fromPath(path).booleanValue;
+
+  /// Returns the date value or null at the specified JSON path.
+  DateTime? dateFromPath(String path) => fromPath(path).dateTimeValue;
 }
