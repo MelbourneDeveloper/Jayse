@@ -8,6 +8,8 @@ Lossless conversion of JSON to and from statically-typed, immutable objects in D
 
 [C# Package](src/dotnet/readme.md)
 
+[Dart Package](src/dart_jayse/readme.md)
+
 ## Getting Started
 
 There is no code generation, and there are no external dependencies. Just add the package to your `pubspec.yaml` file.
