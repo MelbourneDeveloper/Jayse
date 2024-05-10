@@ -36,12 +36,12 @@ class JsonPathParser {
     }
 
     if (jsonPath[_index] == '.') {
-      _index++;
+      _incrementIndex();
       if (_index >= jsonPath.length) {
         throw const FormatException('Invalid JSON path syntax');
       }
       if (jsonPath[_index] == '.') {
-        _index++;
+        _incrementIndex();
         final result = _parseRecursiveDescent(value);
         log('Recursive descent result', result);
         return result;
@@ -49,10 +49,10 @@ class JsonPathParser {
         return _parseDotNotation(value);
       }
     } else if (jsonPath[_index] == '[') {
-      _index++;
+      _incrementIndex();
       return _parseBracketNotation(value);
     } else if (jsonPath[_index] == '*') {
-      _index++;
+      _incrementIndex();
       return _parseWildcard(value);
     } else {
       return _parseDotNotation(value);
@@ -84,13 +84,13 @@ class JsonPathParser {
   JsonValue _parseBracketNotation(JsonValue value) {
     log('Parsing bracket notation', value);
     if (jsonPath[_index] == "'") {
-      _index++;
+      _incrementIndex();
       final fieldName = _parseQuotedFieldName();
       log('Parsed quoted field name: $fieldName', value);
       _expectChar(']');
       return _parseExpression(value[fieldName]);
     } else if (jsonPath[_index] == '*') {
-      _index++;
+      _incrementIndex();
       _expectChar(']');
 
       return _parseWildcard(value);
@@ -127,7 +127,7 @@ class JsonPathParser {
     final buffer = StringBuffer();
     while (_index < jsonPath.length && _isUnquotedFieldChar(jsonPath[_index])) {
       buffer.write(jsonPath[_index]);
-      _index++;
+      _incrementIndex();
     }
     return buffer.toString();
   }
@@ -136,7 +136,7 @@ class JsonPathParser {
     final buffer = StringBuffer();
     while (_index < jsonPath.length && jsonPath[_index] != "'") {
       buffer.write(jsonPath[_index]);
-      _index++;
+      _incrementIndex();
     }
     _expectChar("'");
     return buffer.toString();
@@ -146,7 +146,7 @@ class JsonPathParser {
     final buffer = StringBuffer();
     while (_index < jsonPath.length && _isDigit(jsonPath[_index])) {
       buffer.write(jsonPath[_index]);
-      _index++;
+      _incrementIndex();
     }
     return int.parse(buffer.toString());
   }
@@ -188,12 +188,20 @@ class JsonPathParser {
     if (_index >= jsonPath.length || jsonPath[_index] != expected) {
       throw FormatException('Expected "$expected"');
     }
-    _index++;
+    _incrementIndex();
   }
 
   void log(String step, Object value) =>
       // ignore: avoid_print
       print('Step: $step. Path: '
-          '${jsonPath.substring(0, min(jsonPath.length - 1, _index))}. '
+          '${_currentPath()}. '
           'Index: $_index Value: $value');
+
+  String _currentPath() =>
+      jsonPath.substring(0, min(jsonPath.length - 1, _index));
+
+  bool _incrementIndex() {
+    _index++;
+    return _index < jsonPath.length;
+  }
 }
