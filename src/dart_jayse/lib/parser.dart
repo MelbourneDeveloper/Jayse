@@ -153,21 +153,24 @@ class JsonPathParser {
     log('Parsing recursive descent', value);
 
     if (value is JsonObject) {
-      final result = _parseRecursiveDescent(value.getValue(_parseFieldName()));
-      if (result is! Undefined) {
-        return _parseExpression(result);
-      }
-
-      return const Undefined();
-    } else if (value is JsonArray) {
-      final items = value.value;
-      for (final item in items) {
-        final result = _parseRecursiveDescent(item);
+      if (_index < jsonPath.length && jsonPath[_index] == '[') {
+        _incrementIndex();
+        return _parseBracketNotation(value);
+      } else {
+        final fieldName = _parseFieldName();
+        final result = _parseRecursiveDescent(value.getValue(fieldName));
         if (result is! Undefined) {
-          return _parseExpression(result);
+          return result;
         }
+        return const Undefined();
       }
-      return const Undefined();
+    } else if (value is JsonArray) {
+      if (_index < jsonPath.length && jsonPath[_index] == '[') {
+        _incrementIndex();
+        return _parseBracketNotation(value);
+      } else {
+        return const Undefined();
+      }
     } else {
       // Return the scalar value itself
       log('Returning scalar value', value);
