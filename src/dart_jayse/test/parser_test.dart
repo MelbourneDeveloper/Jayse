@@ -3,6 +3,12 @@ import 'package:jayse/parser.dart';
 import 'package:test/test.dart';
 
 void main() {
+  setUp(
+    () => log = (step, currentPath, value) =>
+        // ignore: avoid_print
+        print('Step: $step. Path: $currentPath Value: $value'),
+  );
+
   group('Implemented Syntax', () {
     test('Basic Property Access', () {
       final jsonValue = jsonValueDecode('''

@@ -6,7 +6,7 @@ import 'package:jayse/jayse.dart';
 /// JSON.
 JsonValue parseJsonPath(String jsonPath, JsonValue rootValue) {
   if (jsonPath.isEmpty) {
-    log('JSON path is empty, returning root value', 'N/A', rootValue);
+    _log('JSON path is empty, returning root value', 'N/A', rootValue);
     return rootValue;
   }
 
@@ -15,16 +15,16 @@ JsonValue parseJsonPath(String jsonPath, JsonValue rootValue) {
   }
 
   final result = parseExpression(jsonPath, 1, rootValue);
-  log('ParseExpression Result', '', result);
+  _log('ParseExpression Result', '', result);
   return result;
 }
 
 /// Parses a JSON path expression and returns the corresponding value from the
 /// JSON.
 JsonValue parseExpression(String jsonPath, int index, JsonValue value) {
-  log('Parsing expression', jsonPath.substring(0, index), value);
+  _log('Parsing expression', jsonPath.substring(0, index), value);
   if (index >= jsonPath.length) {
-    log(
+    _log(
       'Reached end of JSON path and returning value',
       jsonPath.substring(0, index),
       value,
@@ -40,7 +40,7 @@ JsonValue parseExpression(String jsonPath, int index, JsonValue value) {
     if (jsonPath[index] == '.') {
       index++;
       final result = parseRecursiveDescent(jsonPath, index, value);
-      log('Recursive descent result', jsonPath.substring(0, index), result);
+      _log('Recursive descent result', jsonPath.substring(0, index), result);
       return result;
     } else {
       return parseDotNotation(jsonPath, index, value);
@@ -58,10 +58,10 @@ JsonValue parseExpression(String jsonPath, int index, JsonValue value) {
 
 /// Parses a JSON path expression in dot notation and returns the corresponding
 JsonValue parseDotNotation(String jsonPath, int index, JsonValue value) {
-  log('Parsing dot notation', jsonPath.substring(0, index), value);
+  _log('Parsing dot notation', jsonPath.substring(0, index), value);
   if (index >= jsonPath.length) {
     // We've reached the end of the JSON path, so return the value
-    log(
+    _log(
       'Reached end of JSON path, returning value',
       jsonPath.substring(0, index),
       value,
@@ -70,7 +70,7 @@ JsonValue parseDotNotation(String jsonPath, int index, JsonValue value) {
   }
 
   if (value is! JsonObject) {
-    log(
+    _log(
       'Value is not a JsonObject, returning Undefined',
       jsonPath.substring(0, index),
       value,
@@ -90,7 +90,7 @@ JsonValue parseDotNotation(String jsonPath, int index, JsonValue value) {
   if (fieldValue != const Undefined()) {
     return parseExpression(jsonPath, index, fieldValue);
   } else {
-    log(
+    _log(
       'Field not found, returning Undefined',
       jsonPath.substring(0, index),
       value,
@@ -102,12 +102,12 @@ JsonValue parseDotNotation(String jsonPath, int index, JsonValue value) {
 /// Parses a JSON path expression in bracket notation and returns the
 /// corresponding value.
 JsonValue parseBracketNotation(String jsonPath, int index, JsonValue value) {
-  log('Parsing bracket notation', jsonPath.substring(0, index), value);
+  _log('Parsing bracket notation', jsonPath.substring(0, index), value);
   if (jsonPath[index] == "'") {
     index++;
     final fieldName = parseQuotedFieldName(jsonPath, index);
     index += fieldName.length + 1;
-    log(
+    _log(
       'Parsed quoted field name: $fieldName',
       jsonPath.substring(0, index),
       value,
@@ -123,18 +123,18 @@ JsonValue parseBracketNotation(String jsonPath, int index, JsonValue value) {
   } else {
     final indexValue = parseIndex(jsonPath, index);
     index += indexValue.toString().length;
-    log('Parsed index: $indexValue', jsonPath.substring(0, index), value);
+    _log('Parsed index: $indexValue', jsonPath.substring(0, index), value);
     expectChar(jsonPath, index, ']');
     index++;
     if (value is JsonArray) {
-      log(
+      _log(
         'Accessing array element at index: $indexValue',
         jsonPath.substring(0, index),
         value,
       );
       return parseExpression(jsonPath, index, value.value[indexValue]);
     } else {
-      log(
+      _log(
         'Value is not a JsonArray, returning Undefined',
         jsonPath.substring(0, index),
         value,
@@ -146,7 +146,7 @@ JsonValue parseBracketNotation(String jsonPath, int index, JsonValue value) {
 
 /// Parses a JSON path expression with a wildcard and returns the corresponding
 JsonValue parseWildcard(String jsonPath, int index, JsonValue value) {
-  log('Parsing wildcard', jsonPath.substring(0, index), value);
+  _log('Parsing wildcard', jsonPath.substring(0, index), value);
   if (value is JsonObject) {
     final values = value.fields
         .map((field) => parseExpression(jsonPath, index, value.getValue(field)))
@@ -158,14 +158,14 @@ JsonValue parseWildcard(String jsonPath, int index, JsonValue value) {
         .toList();
     return JsonArray(values);
   } else if (value is Undefined) {
-    log(
+    _log(
       'Value is Undefined, returning Undefined',
       jsonPath.substring(0, index),
       value,
     );
     return const Undefined();
   } else {
-    log(
+    _log(
       'Value is not an object or array, returning Undefined',
       jsonPath.substring(0, index),
       value,
@@ -208,7 +208,7 @@ int parseIndex(String jsonPath, int index) {
 /// Parses a JSON path expression with recursive descent and returns the
 /// corresponding value.
 JsonValue parseRecursiveDescent(String jsonPath, int index, JsonValue value) {
-  log('Parsing recursive descent', jsonPath.substring(0, index), value);
+  _log('Parsing recursive descent', jsonPath.substring(0, index), value);
 
   if (value is JsonObject) {
     if (index < jsonPath.length && jsonPath[index] == '[') {
@@ -233,7 +233,7 @@ JsonValue parseRecursiveDescent(String jsonPath, int index, JsonValue value) {
     }
   } else {
     // Return the scalar value itself
-    log('Returning scalar value', jsonPath.substring(0, index), value);
+    _log('Returning scalar value', jsonPath.substring(0, index), value);
     return value;
   }
 }
@@ -252,9 +252,12 @@ void expectChar(String jsonPath, int index, String expected) {
   }
 }
 
+/// A function that logs a message with the current step, JSON path, and value.
+typedef ParseLog = void Function(String step, String currentPath, Object value);
+
+/// Use this if you need to debug what the path parser is doing
+ParseLog log = (step, currentPath, value) {};
+
 /// Logs a message with the current step, JSON path, and value.
-void log(String step, String currentPath, Object value) =>
-    // ignore: avoid_print
-    print(
-      'Step: $step. Path: $currentPath Value: $value',
-    );
+void _log(String step, String currentPath, Object value) =>
+    log(step, currentPath, value);
