@@ -3,7 +3,81 @@ import 'package:jayse/parser.dart';
 
 import 'package:test/test.dart';
 
+
 void main() {
+  test('Basic Property Access', () {
+    final jsonValue = jsonValueDecode('''
+    {
+      "name": "Alice",
+      "age": 30
+    }
+    ''');
+
+    final parser = JsonPathParser(r'$.name');
+    final result = parser.parse(jsonValue);
+
+    expect(result.stringValue, 'Alice');
+  });
+
+  test('Array Index Access', () {
+    final jsonValue = jsonValueDecode('''
+    {
+      "users": ["Alice", "Bob", "Charlie"]
+    }
+    ''');
+
+    final parser = JsonPathParser(r'$.users[1]');
+    final result = parser.parse(jsonValue);
+
+    expect(result.stringValue, 'Bob');
+  });
+
+  test('Deep Property Access', () {
+    final jsonValue = jsonValueDecode('''
+    {
+      "organization": {
+        "name": "OpenAI",
+        "address": {
+          "city": "San Francisco",
+          "state": "CA"
+        }
+      }
+    }
+    ''');
+
+    final parser = JsonPathParser(r'$.organization.address.city');
+    final result = parser.parse(jsonValue);
+
+    expect(result.stringValue, 'San Francisco');
+  });
+
+  test('Access Non-Existent Property', () {
+    final jsonValue = jsonValueDecode('''
+    {
+      "name": "Alice",
+      "age": 30
+    }
+    ''');
+
+    final parser = JsonPathParser(r'$.salary');
+    final result = parser.parse(jsonValue);
+
+    expect(result, isNull);
+  });
+
+  test('Root Property Access', () {
+    final jsonValue = jsonValueDecode('''
+    {
+      "name": "Bob"
+    }
+    ''');
+
+    final parser = JsonPathParser(r'$');
+    final result = parser.parse(jsonValue);
+
+    expect(result['name'].stringValue, 'Bob');
+  });
+
   test('Path Test Basic', () async {
     final jsonValue = jsonValueDecode('''
   {
