@@ -6,9 +6,9 @@ Lossless conversion of JSON to and from statically-typed, immutable objects in D
 
 <small>**Note**: this repo has two separate libraries (Dart/.NET) for working with JSON with the same name. They are currently different, but the aim for the long term is to bring them together and make them converge.</small>
 
-[C# Package](src/dotnet/readme.md)
+[C# Package](src/dotnet)
 
-[Dart Package](src/dart_jayse/readme.md)
+[Dart Package](src/dart_jayse)
 
 ## Getting Started
 
