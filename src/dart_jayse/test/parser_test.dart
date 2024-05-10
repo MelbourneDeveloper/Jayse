@@ -1,6 +1,5 @@
 import 'package:jayse/jayse.dart';
 import 'package:jayse/parser.dart';
-
 import 'package:test/test.dart';
 
 void main() {
@@ -13,16 +12,16 @@ void main() {
     }
     ''');
 
-      final parser = JsonPathParser(r'$.name');
-      final result = parser.parse(jsonValue);
+      final result = parseJsonPath(r'$.name', jsonValue);
 
       expect(result.stringValue, 'Alice');
     });
 
     test('Array Index Access', () {
-      final parser = JsonPathParser(r'$.users[1]');
-      final result = parser
-          .parse(jsonValueDecode('''{"users": ["Alice", "Bob", "Charlie"]}'''));
+      final result = parseJsonPath(
+        r'$.users[1]',
+        jsonValueDecode('''{"users": ["Alice", "Bob", "Charlie"]}'''),
+      );
 
       expect(result.stringValue, 'Bob');
     });
@@ -40,8 +39,7 @@ void main() {
     }
     ''');
 
-      final parser = JsonPathParser(r'$.organization.address.city');
-      final result = parser.parse(jsonValue);
+      final result = parseJsonPath(r'$.organization.address.city', jsonValue);
 
       expect(result.stringValue, 'San Francisco');
     });
@@ -54,8 +52,7 @@ void main() {
     }
     ''');
 
-      final parser = JsonPathParser(r'$.salary');
-      final result = parser.parse(jsonValue);
+      final result = parseJsonPath(r'$.salary', jsonValue);
 
       expect(result, const Undefined());
     });
@@ -67,16 +64,14 @@ void main() {
     }
     ''');
 
-      final parser = JsonPathParser(r'$');
-      final result = parser.parse(jsonValue);
+      final result = parseJsonPath(r'$', jsonValue);
 
       expect(result['name'].stringValue, 'Bob');
     });
 
     test('Path Test Basic', () async {
       final jsonValue = jsonValueDecode('''{"author": "bob"}''');
-      final parser = JsonPathParser(r'$..author');
-      expect(parser.parse(jsonValue), const JsonString('bob'));
+      expect(parseJsonPath(r'$..author', jsonValue), const JsonString('bob'));
     });
 
     test('Path Test', () async {
@@ -99,8 +94,7 @@ void main() {
   }
   ''');
 
-      final parser = JsonPathParser(r'$..book[2].author');
-      final result = parser.parse(jsonValue);
+      final result = parseJsonPath(r'$..book[2].author', jsonValue);
 
       expect(result, const JsonString('Mark Johnson'));
     });
@@ -119,8 +113,7 @@ void main() {
     }
   ''');
 
-      final parser = JsonPathParser(r'$.person.*');
-      final result = parser.parse(jsonValue) as JsonArray;
+      final result = parseJsonPath(r'$.person.*', jsonValue) as JsonArray;
       expect(result.value.length, 3);
       expect(result.value[0], const JsonString('John'));
       expect(result.value[1], const JsonNumber(30));
@@ -143,8 +136,7 @@ void main() {
     }
   ''');
 
-      final parser = JsonPathParser(r'$.books[*]');
-      final result = parser.parse(jsonValue) as JsonArray;
+      final result = parseJsonPath(r'$.books[*]', jsonValue) as JsonArray;
       expect(result.value.length, 2);
       expect(result.value[0], isA<JsonObject>());
       expect(result.value[1], isA<JsonObject>());
@@ -176,8 +168,7 @@ void main() {
     }
     ''');
 
-      final parser = JsonPathParser(r'$.store.book[0].title');
-      final result = parser.parse(jsonValue);
+      final result = parseJsonPath(r'$.store.book[0].title', jsonValue);
       expect(result.stringValue, 'Sayings of the Century');
     });
 
@@ -196,9 +187,78 @@ void main() {
     }
     ''');
 
-      final parser = JsonPathParser(r'$.store.bicycle.color');
-      final result = parser.parse(jsonValue);
+      final result = parseJsonPath(r'$.store.bicycle.color', jsonValue);
       expect(result, const Undefined());
+    });
+
+    test('Complex Path with Wildcards and Indexes', () {
+      final jsonValue = jsonValueDecode('''
+    {
+      "store": {
+        "name": "My Store",
+        "books": [
+          {
+            "title": "Book 1",
+            "author": "Author 1",
+            "chapters": [
+              {
+                "title": "Chapter 1",
+                "pages": 30
+              },
+              {
+                "title": "Chapter 2",
+                "pages": 25
+              }
+            ]
+          },
+          {
+            "title": "Book 2",
+            "author": "Author 2",
+            "chapters": [
+              {
+                "title": "Chapter 3",
+                "pages": 35
+              },
+              {
+                "title": "Chapter 4",
+                "pages": 40
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ''');
+
+      final result =
+          parseJsonPath(r'$.store.books[*].chapters[1].title', jsonValue)
+              as JsonArray;
+      expect(result.value.length, 2);
+      expect(result.value[0].stringValue, 'Chapter 2');
+      expect(result.value[1].stringValue, 'Chapter 4');
+    });
+
+    test('Bracket Notation with Wildcard', () {
+      final jsonValue = jsonValueDecode('''
+    {
+      "books": [
+        {
+          "title": "Book 1",
+          "author": "Author 1"
+        },
+        {
+          "title": "Book 2",
+          "author": "Author 2"
+        }
+      ]
+    }
+  ''');
+
+      final result = parseJsonPath(r'$.books[*].title', jsonValue) as JsonArray;
+      expect(result, isA<JsonArray>());
+      expect(result.value.length, 2);
+      expect(result.value[0].stringValue, 'Book 1');
+      expect(result.value[1].stringValue, 'Book 2');
     });
   });
 
@@ -243,59 +303,13 @@ void main() {
     }
   ''');
 
-        final parser = JsonPathParser(r'$..reviews[*].rating');
-        final result = parser.parse(jsonValue) as JsonArray;
+        final result =
+            parseJsonPath(r'$..reviews[*].rating', jsonValue) as JsonArray;
         expect(result.value.length, 4);
         expect(result.value[0], const JsonNumber(4));
         expect(result.value[1], const JsonNumber(5));
         expect(result.value[2], const JsonNumber(3));
         expect(result.value[3], const JsonNumber(4));
-      });
-
-      test('Complex Path with Wildcards and Indexes', () {
-        final jsonValue = jsonValueDecode('''
-    {
-      "store": {
-        "name": "My Store",
-        "books": [
-          {
-            "title": "Book 1",
-            "author": "Author 1",
-            "chapters": [
-              {
-                "title": "Chapter 1",
-                "pages": 30
-              },
-              {
-                "title": "Chapter 2",
-                "pages": 25
-              }
-            ]
-          },
-          {
-            "title": "Book 2",
-            "author": "Author 2",
-            "chapters": [
-              {
-                "title": "Chapter 3",
-                "pages": 35
-              },
-              {
-                "title": "Chapter 4",
-                "pages": 40
-              }
-            ]
-          }
-        ]
-      }
-    }
-  ''');
-
-        final parser = JsonPathParser(r'$.store.books[*].chapters[1].title');
-        final result = parser.parse(jsonValue) as JsonArray;
-        expect(result.value.length, 2);
-        expect(result.value[0].stringValue, 'Chapter 2');
-        expect(result.value[1].stringValue, 'Chapter 4');
       });
 
       test('Bracket Notation with Quoted Field Name', () {
@@ -308,33 +322,8 @@ void main() {
     }
   ''');
 
-        final parser = JsonPathParser(r'$.name["first.name"]');
-        final result = parser.parse(jsonValue);
+        final result = parseJsonPath(r'$.name["first.name"]', jsonValue);
         expect(result.stringValue, 'John');
-      });
-
-      test('Bracket Notation with Wildcard', () {
-        final jsonValue = jsonValueDecode('''
-    {
-      "books": [
-        {
-          "title": "Book 1",
-          "author": "Author 1"
-        },
-        {
-          "title": "Book 2",
-          "author": "Author 2"
-        }
-      ]
-    }
-  ''');
-
-        final parser = JsonPathParser(r'$.books[*].title');
-        final result = parser.parse(jsonValue) as JsonArray;
-        expect(result, isA<JsonArray>());
-        expect(result.value.length, 2);
-        expect(result.value[0].stringValue, 'Book 1');
-        expect(result.value[1].stringValue, 'Book 2');
       });
 
       test('Recursive Descent with Array', () {
@@ -367,8 +356,7 @@ void main() {
     }
   ''');
 
-        final parser = JsonPathParser(r'$..chapters[0].title');
-        final result = parser.parse(jsonValue);
+        final result = parseJsonPath(r'$..chapters[0].title', jsonValue);
         expect(result, isA<JsonString>());
         expect(result.stringValue, 'Chapter 1');
       });
@@ -387,8 +375,7 @@ void main() {
     }
   ''');
 
-        final parser = JsonPathParser(r'$..city');
-        final result = parser.parse(jsonValue);
+        final result = parseJsonPath(r'$..city', jsonValue);
         expect(result, isA<JsonString>());
         expect(result.stringValue, 'New York');
       });
@@ -404,8 +391,8 @@ void main() {
     }
   ''');
 
-        final parser = JsonPathParser(r'$.person["name","age"]');
-        final result = parser.parse(jsonValue) as JsonArray;
+        final result =
+            parseJsonPath(r'$.person["name","age"]', jsonValue) as JsonArray;
         expect(result.value.length, 2);
         expect(result.value[0].stringValue, 'John');
         expect(result.value[1].numericValue, 30);
@@ -431,8 +418,9 @@ void main() {
     }
   ''');
 
-        final parser = JsonPathParser(r'$.books[?(@.price > 10)].title');
-        final result = parser.parse(jsonValue) as JsonArray;
+        final result =
+            parseJsonPath(r'$.books[?(@.price > 10)].title', jsonValue)
+                as JsonArray;
         expect(result.value.length, 2);
         expect(result.value[0].stringValue, 'Book 2');
         expect(result.value[1].stringValue, 'Book 3');
@@ -462,8 +450,7 @@ void main() {
     }
     ''');
 
-        final parser = JsonPathParser(r'$.store..price');
-        final result = parser.parse(jsonValue) as JsonArray;
+        final result = parseJsonPath(r'$.store..price', jsonValue) as JsonArray;
         expect(result.value.length, 3);
         expect(result.value, containsAll([8.95, 12.99, 19.95]));
       });
@@ -494,8 +481,9 @@ void main() {
     }
     ''');
 
-        final parser = JsonPathParser(r'$.store.book[?(@.price < 10)]');
-        final result = parser.parse(jsonValue) as JsonArray;
+        final result =
+            parseJsonPath(r'$.store.book[?(@.price < 10)]', jsonValue)
+                as JsonArray;
         expect(result.value.length, 2);
         expect(result.value[0]['title'].stringValue, 'Sayings of the Century');
         expect(result.value[1]['title'].stringValue, 'Moby Dick');

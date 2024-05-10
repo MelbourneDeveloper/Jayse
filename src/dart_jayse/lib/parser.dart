@@ -1,222 +1,248 @@
-// ignore_for_file: public_member_api_docs
-
-import 'dart:math';
+// ignore_for_file: public_member_api_docs, parameter_assignments
 
 import 'package:jayse/jayse.dart';
 
-/// A class that allows you to traverse JSON with a JSON path. An attempt at
-/// implementing the RFC 9535 specification.
-/// https://datatracker.ietf.org/doc/rfc9535/
-class JsonPathParser {
-  JsonPathParser(this.jsonPath);
-
-  final String jsonPath;
-
-  int _index = 0;
-
-  JsonValue parse(JsonValue rootValue) {
-    log('Parsing JSON path', rootValue);
-    if (jsonPath.isEmpty) {
-      log('JSON path is empty, returning root value', 'N/A');
-      return rootValue;
-    }
-
-    if (jsonPath[0] != r'$') {
-      throw const FormatException(r'JSON path must start with "$"');
-    }
-
-    _index = 1;
-    final result = _parseExpression(rootValue);
-    log('ParseExpression Result', result);
-    return result;
+/// Parses a JSON path expression and returns the corresponding value from the
+/// JSON.
+JsonValue parseJsonPath(String jsonPath, JsonValue rootValue) {
+  if (jsonPath.isEmpty) {
+    log('JSON path is empty, returning root value', 'N/A', rootValue);
+    return rootValue;
   }
 
-  JsonValue _parseExpression(JsonValue value) {
-    log('Parsing expression', value);
-    if (_index >= jsonPath.length) {
-      log('Reached end of JSON path and returning value', value);
-      return value;
-    }
+  if (jsonPath[0] != r'$') {
+    throw const FormatException(r'JSON path must start with "$"');
+  }
 
-    if (jsonPath[_index] == '.') {
-      _incrementIndex();
-      if (_index >= jsonPath.length) {
-        throw const FormatException('Invalid JSON path syntax');
-      }
-      if (jsonPath[_index] == '.') {
-        _incrementIndex();
-        final result = _parseRecursiveDescent(value);
-        log('Recursive descent result', result);
-        return result;
-      } else {
-        return _parseDotNotation(value);
-      }
-    } else if (jsonPath[_index] == '[') {
-      _incrementIndex();
-      return _parseBracketNotation(value);
-    } else if (jsonPath[_index] == '*') {
-      _incrementIndex();
-      return _parseWildcard(value);
+  final result = parseExpression(jsonPath, 1, rootValue);
+  log('ParseExpression Result', '', result);
+  return result;
+}
+
+JsonValue parseExpression(String jsonPath, int index, JsonValue value) {
+  log('Parsing expression', jsonPath.substring(0, index), value);
+  if (index >= jsonPath.length) {
+    log(
+      'Reached end of JSON path and returning value',
+      jsonPath.substring(0, index),
+      value,
+    );
+    return value;
+  }
+
+  if (jsonPath[index] == '.') {
+    index++;
+    if (index >= jsonPath.length) {
+      throw const FormatException('Invalid JSON path syntax');
+    }
+    if (jsonPath[index] == '.') {
+      index++;
+      final result = parseRecursiveDescent(jsonPath, index, value);
+      log('Recursive descent result', jsonPath.substring(0, index), result);
+      return result;
     } else {
-      return _parseDotNotation(value);
+      return parseDotNotation(jsonPath, index, value);
     }
-  }
-
-  JsonValue _parseDotNotation(JsonValue value) {
-    log('Parsing dot notation', value);
-    if (_index >= jsonPath.length) {
-      // We've reached the end of the JSON path, so return the value
-      log('Reached end of JSON path, returning value', value);
-      return value;
-    }
-
-    if (value is! JsonObject) {
-      log('Value is not a JsonObject, returning Undefined', value);
-      return const Undefined();
-    }
-
-    if (jsonPath[_index] == '*') {
-      _incrementIndex();
-      return _parseWildcard(value);
-    }
-
-    final fieldName = _parseFieldName();
-
-    final fieldValue = value[fieldName];
-    if (fieldValue != const Undefined()) {
-      return _parseExpression(fieldValue);
-    } else {
-      log('Field not found, returning Undefined', value);
-      return const Undefined();
-    }
-  }
-
-  JsonValue _parseBracketNotation(JsonValue value) {
-    log('Parsing bracket notation', value);
-    if (jsonPath[_index] == "'") {
-      _incrementIndex();
-      final fieldName = _parseQuotedFieldName();
-      log('Parsed quoted field name: $fieldName', value);
-      _expectChar(']');
-      return _parseExpression(value[fieldName]);
-    } else if (jsonPath[_index] == '*') {
-      _incrementIndex();
-      _expectChar(']');
-
-      return _parseWildcard(value);
-    } else {
-      final index = _parseIndex();
-      log('Parsed index: $index', value);
-      _expectChar(']');
-      if (value is JsonArray) {
-        log('Accessing array element at index: $index', value);
-        return _parseExpression(value.value[index]);
-      } else {
-        log('Value is not a JsonArray, returning Undefined', value);
-        return const Undefined();
-      }
-    }
-  }
-
-  JsonValue _parseWildcard(JsonValue value) {
-    log('Parsing wildcard', value);
-    if (value is JsonObject) {
-      final values = value.fields
-          .map((field) => _parseExpression(value.getValue(field)))
-          .toList();
-      return JsonArray(values);
-    } else if (value is JsonArray) {
-      final values = value.value.map(_parseExpression).toList();
-      return JsonArray(values);
-    } else if (value is Undefined) {
-      log('Value is Undefined, returning Undefined', value);
-      return const Undefined();
-    } else {
-      log('Value is not an object or array, returning Undefined', value);
-      return const Undefined();
-    }
-  }
-
-  String _parseFieldName() {
-    final buffer = StringBuffer();
-    while (_index < jsonPath.length && _isUnquotedFieldChar(jsonPath[_index])) {
-      buffer.write(jsonPath[_index]);
-      _incrementIndex();
-    }
-    return buffer.toString();
-  }
-
-  String _parseQuotedFieldName() {
-    final buffer = StringBuffer();
-    while (_index < jsonPath.length && jsonPath[_index] != "'") {
-      buffer.write(jsonPath[_index]);
-      _incrementIndex();
-    }
-    _expectChar("'");
-    return buffer.toString();
-  }
-
-  int _parseIndex() {
-    final buffer = StringBuffer();
-    while (_index < jsonPath.length && _isDigit(jsonPath[_index])) {
-      buffer.write(jsonPath[_index]);
-      _incrementIndex();
-    }
-    return int.parse(buffer.toString());
-  }
-
-  JsonValue _parseRecursiveDescent(JsonValue value) {
-    log('Parsing recursive descent', value);
-
-    if (value is JsonObject) {
-      if (_index < jsonPath.length && jsonPath[_index] == '[') {
-        _incrementIndex();
-        return _parseBracketNotation(value);
-      } else {
-        final fieldName = _parseFieldName();
-        final result = _parseRecursiveDescent(value.getValue(fieldName));
-        if (result is! Undefined) {
-          return result;
-        }
-        return const Undefined();
-      }
-    } else if (value is JsonArray) {
-      if (_index < jsonPath.length && jsonPath[_index] == '[') {
-        _incrementIndex();
-        return _parseBracketNotation(value);
-      } else {
-        return const Undefined();
-      }
-    } else {
-      // Return the scalar value itself
-      log('Returning scalar value', value);
-      return value;
-    }
-  }
-
-  bool _isUnquotedFieldChar(String char) =>
-      RegExp(r'^[a-zA-Z0-9_-]+$').hasMatch(char);
-
-  bool _isDigit(String char) => RegExp(r'^\d+$').hasMatch(char);
-
-  void _expectChar(String expected) {
-    if (_index >= jsonPath.length || jsonPath[_index] != expected) {
-      throw FormatException('Expected "$expected"');
-    }
-    _incrementIndex();
-  }
-
-  void log(String step, Object value) =>
-      // ignore: avoid_print
-      print('Step: $step. Path: '
-          '${_currentPath()} of $jsonPath '
-          'Index: $_index Value: $value');
-
-  String _currentPath() =>
-      jsonPath.substring(0, min(jsonPath.length - 1, _index));
-
-  bool _incrementIndex() {
-    _index++;
-    return _index < jsonPath.length;
+  } else if (jsonPath[index] == '[') {
+    index++;
+    return parseBracketNotation(jsonPath, index, value);
+  } else if (jsonPath[index] == '*') {
+    index++;
+    return parseWildcard(jsonPath, index, value);
+  } else {
+    return parseDotNotation(jsonPath, index, value);
   }
 }
+
+JsonValue parseDotNotation(String jsonPath, int index, JsonValue value) {
+  log('Parsing dot notation', jsonPath.substring(0, index), value);
+  if (index >= jsonPath.length) {
+    // We've reached the end of the JSON path, so return the value
+    log(
+      'Reached end of JSON path, returning value',
+      jsonPath.substring(0, index),
+      value,
+    );
+    return value;
+  }
+
+  if (value is! JsonObject) {
+    log(
+      'Value is not a JsonObject, returning Undefined',
+      jsonPath.substring(0, index),
+      value,
+    );
+    return const Undefined();
+  }
+
+  if (jsonPath[index] == '*') {
+    index++;
+    return parseWildcard(jsonPath, index, value);
+  }
+
+  final fieldName = parseFieldName(jsonPath, index);
+  index += fieldName.length;
+
+  final fieldValue = value[fieldName];
+  if (fieldValue != const Undefined()) {
+    return parseExpression(jsonPath, index, fieldValue);
+  } else {
+    log(
+      'Field not found, returning Undefined',
+      jsonPath.substring(0, index),
+      value,
+    );
+    return const Undefined();
+  }
+}
+
+JsonValue parseBracketNotation(String jsonPath, int index, JsonValue value) {
+  log('Parsing bracket notation', jsonPath.substring(0, index), value);
+  if (jsonPath[index] == "'") {
+    index++;
+    final fieldName = parseQuotedFieldName(jsonPath, index);
+    index += fieldName.length + 1;
+    log(
+      'Parsed quoted field name: $fieldName',
+      jsonPath.substring(0, index),
+      value,
+    );
+    expectChar(jsonPath, index, ']');
+    index++;
+    return parseExpression(jsonPath, index, value[fieldName]);
+  } else if (jsonPath[index] == '*') {
+    index++;
+    expectChar(jsonPath, index, ']');
+    index++;
+    return parseWildcard(jsonPath, index, value);
+  } else {
+    final indexValue = parseIndex(jsonPath, index);
+    index += indexValue.toString().length;
+    log('Parsed index: $indexValue', jsonPath.substring(0, index), value);
+    expectChar(jsonPath, index, ']');
+    index++;
+    if (value is JsonArray) {
+      log(
+        'Accessing array element at index: $indexValue',
+        jsonPath.substring(0, index),
+        value,
+      );
+      return parseExpression(jsonPath, index, value.value[indexValue]);
+    } else {
+      log(
+        'Value is not a JsonArray, returning Undefined',
+        jsonPath.substring(0, index),
+        value,
+      );
+      return const Undefined();
+    }
+  }
+}
+
+JsonValue parseWildcard(String jsonPath, int index, JsonValue value) {
+  log('Parsing wildcard', jsonPath.substring(0, index), value);
+  if (value is JsonObject) {
+    final values = value.fields
+        .map((field) => parseExpression(jsonPath, index, value.getValue(field)))
+        .toList();
+    return JsonArray(values);
+  } else if (value is JsonArray) {
+    final values = value.value
+        .map((item) => parseExpression(jsonPath, index, item))
+        .toList();
+    return JsonArray(values);
+  } else if (value is Undefined) {
+    log(
+      'Value is Undefined, returning Undefined',
+      jsonPath.substring(0, index),
+      value,
+    );
+    return const Undefined();
+  } else {
+    log(
+      'Value is not an object or array, returning Undefined',
+      jsonPath.substring(0, index),
+      value,
+    );
+    return const Undefined();
+  }
+}
+
+String parseFieldName(String jsonPath, int index) {
+  final buffer = StringBuffer();
+  while (index < jsonPath.length && isUnquotedFieldChar(jsonPath[index])) {
+    buffer.write(jsonPath[index]);
+    index++;
+  }
+  return buffer.toString();
+}
+
+String parseQuotedFieldName(String jsonPath, int index) {
+  final buffer = StringBuffer();
+  while (index < jsonPath.length && jsonPath[index] != "'") {
+    buffer.write(jsonPath[index]);
+    index++;
+  }
+  expectChar(jsonPath, index, "'");
+  return buffer.toString();
+}
+
+int parseIndex(String jsonPath, int index) {
+  final buffer = StringBuffer();
+  while (index < jsonPath.length && isDigit(jsonPath[index])) {
+    buffer.write(jsonPath[index]);
+    index++;
+  }
+  return int.parse(buffer.toString());
+}
+
+JsonValue parseRecursiveDescent(String jsonPath, int index, JsonValue value) {
+  log('Parsing recursive descent', jsonPath.substring(0, index), value);
+
+  if (value is JsonObject) {
+    if (index < jsonPath.length && jsonPath[index] == '[') {
+      index++;
+      return parseBracketNotation(jsonPath, index, value);
+    } else {
+      final fieldName = parseFieldName(jsonPath, index);
+      index += fieldName.length;
+      final result =
+          parseRecursiveDescent(jsonPath, index, value.getValue(fieldName));
+      if (result is! Undefined) {
+        return result;
+      }
+      return const Undefined();
+    }
+  } else if (value is JsonArray) {
+    if (index < jsonPath.length && jsonPath[index] == '[') {
+      index++;
+      return parseBracketNotation(jsonPath, index, value);
+    } else {
+      return const Undefined();
+    }
+  } else {
+    // Return the scalar value itself
+    log('Returning scalar value', jsonPath.substring(0, index), value);
+    return value;
+  }
+}
+
+bool isUnquotedFieldChar(String char) =>
+    RegExp(r'^[a-zA-Z0-9_-]+$').hasMatch(char);
+
+bool isDigit(String char) => RegExp(r'^\d+$').hasMatch(char);
+
+void expectChar(String jsonPath, int index, String expected) {
+  if (index >= jsonPath.length || jsonPath[index] != expected) {
+    throw FormatException('Expected "$expected"');
+  }
+}
+
+void log(String step, String currentPath, Object value) =>
+    // ignore: avoid_print
+    print(
+      'Step: $step. Path: $currentPath Value: $value',
+    );
+// print(
+//   'Step: $step. Path: $currentPath of $jsonPath Index: $index Value: $value',
+// );
