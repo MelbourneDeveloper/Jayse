@@ -52,7 +52,7 @@ You can also handle values with a [switch expression](https://www.christianfindl
 
 ## Features
 
-- **Power Path Parsing and Filtering** - allows you to access deeply nested values without casting and without throwing exceptions.
+- **Powerful Path Parsing and Filtering** - allows you to access deeply nested values without casting and without throwing exceptions.
 - **Lossless Conversion**: convert to strongly typed Dart objects and back to JSON without any information loss. See below for more information.
 - **Strong Typing**: all values are strongly typed. No accessing `dynamic` values.
 - **Immutable**: All objects are immutable. There are no setters. Use non-destructive mutation to create new `JsonObject`s.
