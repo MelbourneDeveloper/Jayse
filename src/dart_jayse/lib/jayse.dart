@@ -257,6 +257,14 @@ final class JsonObject extends JsonValue {
           ));
 }
 
+/// An extension on [JsonObject]
+extension JsonObjectExtensions on JsonObject {
+
+  /// Returns the value of the field if it is defined. For performance reasons,
+  /// it's better to grab the value directly from the accessor and use the value
+  bool containsKey(String fieldName) => this[fieldName] != const Undefined();
+}
+
 /// An extension on [JsonValue]
 extension JsonValueExtensions on JsonValue {
   /// Returns the value of the field if this is a JSON object
@@ -298,7 +306,7 @@ extension StringExtensions on String? {
 }
 
 /// An extension on [Map<String, dynamic>] for [JsonObject]
-extension Asdfsdf on Map<String, dynamic> {
+extension MapExtensions on Map<String, dynamic> {
   /// Converts a [Map<String, dynamic>] to a [JsonObject]
   JsonObject toJsonValue() =>
       JsonObject(map((key, value) => MapEntry(key, _safeCast(value))));

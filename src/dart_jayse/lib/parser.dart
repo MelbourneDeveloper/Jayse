@@ -71,15 +71,24 @@ class JsonPathParser {
     }
 
     if (value is! JsonObject) {
-      //Is the code going wrong here?
-
       log('Value is not a JsonObject, returning Undefined', value);
       return const Undefined();
     }
 
+    if (jsonPath[_index] == '*') {
+      _incrementIndex();
+      return _parseWildcard(value);
+    }
+
     final fieldName = _parseFieldName();
 
-    return _parseExpression(value[fieldName]);
+    final fieldValue = value[fieldName];
+    if (fieldValue != const Undefined()) {
+      return _parseExpression(fieldValue);
+    } else {
+      log('Field not found, returning Undefined', value);
+      return const Undefined();
+    }
   }
 
   JsonValue _parseBracketNotation(JsonValue value) {
@@ -119,7 +128,11 @@ class JsonPathParser {
     } else if (value is JsonArray) {
       final values = value.value.map(_parseExpression).toList();
       return JsonArray(values);
+    } else if (value is Undefined) {
+      log('Value is Undefined, returning Undefined', value);
+      return const Undefined();
     } else {
+      log('Value is not an object or array, returning Undefined', value);
       return const Undefined();
     }
   }

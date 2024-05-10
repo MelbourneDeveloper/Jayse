@@ -2,3 +2,5 @@
 - Basic library structure
 ## 0.0.2-alpha
 - Cleanup
+## 0.0.3-alpha
+- Breaking change! `Asdfsdf` extension renamed to `MapExtensions`. Sowwy! 😢

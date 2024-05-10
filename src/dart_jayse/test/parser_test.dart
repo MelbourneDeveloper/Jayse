@@ -104,6 +104,144 @@ void main() {
 
       expect(result, const JsonString('Mark Johnson'));
     });
+
+    test('Wildcard with Object', () {
+      final jsonValue = jsonValueDecode('''
+    {
+      "person": {
+        "name": "John",
+        "age": 30,
+        "address": {
+          "city": "New York",
+          "country": "USA"
+        }
+      }
+    }
+  ''');
+
+      final parser = JsonPathParser(r'$.person.*');
+      final result = parser.parse(jsonValue) as JsonArray;
+      expect(result.value.length, 3);
+      expect(result.value[0], const JsonString('John'));
+      expect(result.value[1], const JsonNumber(30));
+      expect(result.value[2], isA<JsonObject>());
+    });
+
+    test('Wildcard with Array', () {
+      final jsonValue = jsonValueDecode('''
+    {
+      "books": [
+        {
+          "title": "Book 1",
+          "author": "Author 1"
+        },
+        {
+          "title": "Book 2",
+          "author": "Author 2"
+        }
+      ]
+    }
+  ''');
+
+      final parser = JsonPathParser(r'$.books[*]');
+      final result = parser.parse(jsonValue) as JsonArray;
+      expect(result.value.length, 2);
+      expect(result.value[0], isA<JsonObject>());
+      expect(result.value[1], isA<JsonObject>());
+    });
+
+    test('Recursive Descent with Wildcard', () {
+      final jsonValue = jsonValueDecode('''
+    {
+      "store": {
+        "books": [
+          {
+            "title": "Book 1",
+            "author": "Author 1",
+            "reviews": [
+              {
+                "rating": 4,
+                "comment": "Great book!"
+              },
+              {
+                "rating": 5,
+                "comment": "Excellent read!"
+              }
+            ]
+          },
+          {
+            "title": "Book 2",
+            "author": "Author 2",
+            "reviews": [
+              {
+                "rating": 3,
+                "comment": "Average book."
+              },
+              {
+                "rating": 4,
+                "comment": "Good read."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ''');
+
+      final parser = JsonPathParser(r'$..reviews[*].rating');
+      final result = parser.parse(jsonValue) as JsonArray;
+      expect(result.value.length, 4);
+      expect(result.value[0].numericValue, 4);
+      expect(result.value[1].numericValue, 5);
+      expect(result.value[2].numericValue, 3);
+      expect(result.value[3].numericValue, 4);
+    });
+
+    test('Complex Path with Wildcards and Indexes', () {
+      final jsonValue = jsonValueDecode('''
+    {
+      "store": {
+        "name": "My Store",
+        "books": [
+          {
+            "title": "Book 1",
+            "author": "Author 1",
+            "chapters": [
+              {
+                "title": "Chapter 1",
+                "pages": 30
+              },
+              {
+                "title": "Chapter 2",
+                "pages": 25
+              }
+            ]
+          },
+          {
+            "title": "Book 2",
+            "author": "Author 2",
+            "chapters": [
+              {
+                "title": "Chapter 3",
+                "pages": 35
+              },
+              {
+                "title": "Chapter 4",
+                "pages": 40
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ''');
+
+      final parser = JsonPathParser(r'$.store.books[*].chapters[1].title');
+      final result = parser.parse(jsonValue) as JsonArray;
+      expect(result.value.length, 2);
+      expect(result.value[0].stringValue, 'Chapter 2');
+      expect(result.value[1].stringValue, 'Chapter 4');
+    });
   });
 
   group(
