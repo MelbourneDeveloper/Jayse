@@ -79,7 +79,7 @@ void main() {
   });
 
   test('Path Test', () async {
-    const jsonString = '''
+    final jsonValue = jsonValueDecode('''
   {
     "book": [
       {
@@ -96,17 +96,11 @@ void main() {
       }
     ]
   }
-  ''';
+  ''');
 
-    // ignore: unused_local_variable
-    final jsonValue = jsonValueDecode(jsonString);
-    // ignore: unused_local_variable
-    const jsonPath = r'$..book[2].author';
-
-    // ignore: unused_local_variable
-    final parser = JsonPathParser(jsonPath);
+    final parser = JsonPathParser(r'$..book[2].author');
     final result = parser.parse(jsonValue);
 
-    expect(result.stringValue, 'Mark Johnson');
+    expect(result, const JsonString('Mark Johnson'));
   });
 }
