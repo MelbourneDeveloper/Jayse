@@ -191,10 +191,10 @@ void main() {
       final parser = JsonPathParser(r'$..reviews[*].rating');
       final result = parser.parse(jsonValue) as JsonArray;
       expect(result.value.length, 4);
-      expect(result.value[0].numericValue, 4);
-      expect(result.value[1].numericValue, 5);
-      expect(result.value[2].numericValue, 3);
-      expect(result.value[3].numericValue, 4);
+      expect(result.value[0], const JsonNumber(4));
+      expect(result.value[1], const JsonNumber(5));
+      expect(result.value[2], const JsonNumber(3));
+      expect(result.value[3], const JsonNumber(4));
     });
 
     test('Complex Path with Wildcards and Indexes', () {

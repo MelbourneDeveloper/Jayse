@@ -282,9 +282,24 @@ extension JsonValueExtensions on JsonValue {
   num? get numericValue =>
       this is JsonNumber ? (this as JsonNumber).value : null;
 
-  /// Same as []
-  // T? call<T>(String field) =>
-  //     switch (this[field]) { (final T? value) => value, _ => null };
+  /// Returns the value or null
+  JsonObject? get objectValue => this is JsonObject ? this as JsonObject : null;
+
+  /// Returns the value or null
+  bool? get booleanValue =>
+      this is JsonBoolean ? (this as JsonBoolean).value : null;
+
+  /// Returns the value or null
+  int? get integerValue => switch (this) {
+        (final JsonNumber jn) when jn.value is int => jn.value as int,
+        _ => null,
+      };
+
+  /// Returns the value or null
+  DateTime? get dateTimeValue => switch (this) {
+        (final JsonString js) => DateTime.tryParse(js.value),
+        _ => null,
+      };
 
   /// Returns the value of the field if it is defined and has the correct type
   JsonValue getValue(String field) =>
