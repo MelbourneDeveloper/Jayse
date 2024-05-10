@@ -1,4 +1,4 @@
-// ignore_for_file: public_member_api_docs, avoid_print
+// ignore_for_file: public_member_api_docs
 
 import 'package:jayse/jayse.dart';
 
@@ -10,9 +10,9 @@ class JsonPathParser {
   int _index = 0;
 
   JsonValue parse(JsonValue rootValue) {
-    print('Parsing JSON path: $jsonPath');
+    log('Parsing JSON path', rootValue);
     if (jsonPath.isEmpty) {
-      print('JSON path is empty, returning root value');
+      log('JSON path is empty, returning root value', 'N/A');
       return rootValue;
     }
 
@@ -21,16 +21,15 @@ class JsonPathParser {
     }
 
     _index = 1;
-    print('Starting parsing at index: $_index');
     final result = _parseExpression(rootValue);
-    print('Parsing completed, result: $result');
+    log('ParseExpression Result', result);
     return result;
   }
 
   JsonValue _parseExpression(JsonValue value) {
-    print('Parsing expression for value $value at index: $_index');
+    log('Parsing expression', value);
     if (_index >= jsonPath.length) {
-      print('Reached end of JSON path, returning value: $value');
+      log('Reached end of JSON path and returning value', value);
       return value;
     }
 
@@ -41,69 +40,67 @@ class JsonPathParser {
       }
       if (jsonPath[_index] == '.') {
         _index++;
-        print('Parsing recursive descent at index: $_index');
         final result = _parseRecursiveDescent(value);
-        print('Recursive descent result: $result');
+        log('Recursive descent result', result);
         return result;
       } else {
-        print('Parsing dot notation at index: $_index');
         return _parseDotNotation(value);
       }
     } else if (jsonPath[_index] == '[') {
       _index++;
-      print('Parsing bracket notation at index: $_index');
       return _parseBracketNotation(value);
     } else if (jsonPath[_index] == '*') {
       _index++;
-      print('Parsing wildcard at index: $_index');
       return _parseWildcard(value);
     } else {
-      print('Parsing field name at index: $_index');
       return _parseDotNotation(value);
     }
   }
 
   JsonValue _parseDotNotation(JsonValue value) {
-    print('Parsing dot notation for value: $value');
+    log('Parsing dot notation', value);
     if (value is! JsonObject) {
-      print('Value is not a JsonObject, returning Undefined');
+      //This is where the code goes wrong. There is no reason
+      //we can't return the value if it's the end of the path
+
+      log('Value is not a JsonObject, returning Undefined', value);
       return const Undefined();
     }
 
     final fieldName = _parseFieldName();
-    print('Parsed field name: $fieldName');
+
     return _parseExpression(value[fieldName]);
   }
 
   JsonValue _parseBracketNotation(JsonValue value) {
-    print('Parsing bracket notation for value: $value');
+    log('Parsing bracket notation', value);
     if (jsonPath[_index] == "'") {
       _index++;
       final fieldName = _parseQuotedFieldName();
-      print('Parsed quoted field name: $fieldName');
+      log('Parsed quoted field name: $fieldName', value);
       _expectChar(']');
       return _parseExpression(value[fieldName]);
     } else if (jsonPath[_index] == '*') {
       _index++;
       _expectChar(']');
-      print('Parsing wildcard in bracket notation');
+
       return _parseWildcard(value);
     } else {
       final index = _parseIndex();
-      print('Parsed index: $index');
+      log('Parsed index: $index', value);
       _expectChar(']');
       if (value is JsonArray) {
-        print('Accessing array element at index: $index');
+        log('Accessing array element at index: $index', value);
         return _parseExpression(value.value[index]);
       } else {
-        print('Value is not a JsonArray, returning Undefined');
+        log('Value is not a JsonArray, returning Undefined', value);
         return const Undefined();
       }
     }
   }
 
   JsonValue _parseWildcard(JsonValue value) {
-    print('Parsing wildcard for value: $value');
+    log('Parsing wildcard', value);
     if (value is JsonObject) {
       final values = value.fields
           .map((field) => _parseExpression(value.getValue(field)))
@@ -146,7 +143,7 @@ class JsonPathParser {
   }
 
   JsonValue _parseRecursiveDescent(JsonValue value) {
-    print('Parsing recursive descent for value $value at index: $_index');
+    log('Parsing recursive descent', value);
 
     if (value is JsonObject) {
       final fields = value.fields.toList();
@@ -182,4 +179,9 @@ class JsonPathParser {
     }
     _index++;
   }
+
+  void log(String step, Object value) =>
+      // ignore: avoid_print
+      print('Step: $step. Path: ${jsonPath.substring(0, _index)}. '
+          'Index: $_index Value: $value');
 }
