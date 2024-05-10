@@ -259,7 +259,6 @@ final class JsonObject extends JsonValue {
 
 /// An extension on [JsonObject]
 extension JsonObjectExtensions on JsonObject {
-
   /// Returns the value of the field if it is defined. For performance reasons,
   /// it's better to grab the value directly from the accessor and use the value
   bool containsKey(String fieldName) => this[fieldName] != const Undefined();
@@ -296,6 +295,12 @@ extension JsonValueExtensions on JsonValue {
       };
 
   /// Returns the value or null
+  double? get doubleValue => switch (this) {
+        (final JsonNumber jn) when jn.value is double => jn.value as double,
+        _ => null,
+      };
+
+  /// Returns the value or null
   DateTime? get dateTimeValue => switch (this) {
         (final JsonString js) => DateTime.tryParse(js.value),
         _ => null,
@@ -304,6 +309,10 @@ extension JsonValueExtensions on JsonValue {
   /// Returns the value of the field if it is defined and has the correct type
   JsonValue getValue(String field) =>
       this is JsonObject ? (this as JsonObject)[field] : const Undefined();
+
+  /// Returns the value or null
+  List<JsonValue>? get arrayValue =>
+      this is JsonArray ? (this as JsonArray).value : null;
 }
 
 /// An extension on [bool] for [JsonValue]

@@ -262,6 +262,118 @@ void main() {
     });
   });
 
+  group('Path Extensions', () {
+    test('JSON Path Extensions', () {
+      final jsonObject = jsonValueDecode('''
+      {
+        "name": "John Doe",
+        "age": 30,
+        "isStudent": false,
+        "score": 85.5,
+        "graduation": "2022-06-30T10:00:00Z",
+        "address": {
+          "street": "123 Main St",
+          "city": "New York",
+          "country": "USA"
+        },
+        "phoneNumbers": [
+          {
+            "type": "home",
+            "number": "212-555-1234"
+          },
+          {
+            "type": "work",
+            "number": "646-555-5678"
+          }
+        ],
+        "courses": [
+          "Math",
+          "Science",
+          "English"
+        ],
+        "grades": [
+          90,
+          85,
+          92
+        ],
+        "gpa": 3.8,
+        "graduated": true
+      }
+    ''') as JsonObject;
+
+      // Test fromPath
+      expect(jsonObject.fromPath(r'$.name'), const JsonString('John Doe'));
+      expect(jsonObject.fromPath(r'$.age'), const JsonNumber(30));
+      expect(jsonObject.fromPath(r'$.isStudent'), const JsonBoolean(false));
+      expect(jsonObject.fromPath(r'$.score'), const JsonNumber(85.5));
+      expect(
+        jsonObject.fromPath(r'$.graduation'),
+        const JsonString('2022-06-30T10:00:00Z'),
+      );
+      expect(
+        jsonObject.fromPath(r'$.address.city'),
+        const JsonString('New York'),
+      );
+      expect(
+        jsonObject.fromPath(r'$.phoneNumbers[0].number'),
+        const JsonString('212-555-1234'),
+      );
+      expect(jsonObject.fromPath(r'$.courses[1]'), const JsonString('Science'));
+      expect(jsonObject.fromPath(r'$.grades[2]'), const JsonNumber(92));
+      expect(jsonObject.fromPath(r'$.gpa'), const JsonNumber(3.8));
+      expect(jsonObject.fromPath(r'$.graduated'), const JsonBoolean(true));
+
+      // Test stringFromPath
+      expect(jsonObject.stringFromPath(r'$.name'), 'John Doe');
+      expect(jsonObject.stringFromPath(r'$.address.street'), '123 Main St');
+      expect(jsonObject.stringFromPath(r'$.phoneNumbers[1].type'), 'work');
+      expect(jsonObject.stringFromPath(r'$.courses[0]'), 'Math');
+
+      // Test integerFromPath
+      expect(jsonObject.integerFromPath(r'$.age'), 30);
+      expect(jsonObject.integerFromPath(r'$.grades[0]'), 90);
+
+      // Test doubleFromPath
+      expect(jsonObject.doubleFromPath(r'$.score'), 85.5);
+      expect(jsonObject.doubleFromPath(r'$.gpa'), 3.8);
+
+      // Test boolFromPath
+      expect(jsonObject.boolFromPath(r'$.isStudent'), false);
+      expect(jsonObject.boolFromPath(r'$.graduated'), true);
+
+      // Test dateFromPath
+      expect(
+        jsonObject.dateFromPath(r'$.graduation'),
+        DateTime.utc(2022, 6, 30, 10),
+      );
+
+      // Additional tests
+      expect(jsonObject.fromPath(r'$.address'), isA<JsonObject>());
+      expect(jsonObject.fromPath(r'$.phoneNumbers'), isA<JsonArray>());
+      expect(
+        jsonObject.fromPath(r'$.phoneNumbers[*].number'),
+        isA<JsonArray>(),
+      );
+      expect(
+        jsonObject
+            .fromPath(r'$.phoneNumbers[*].number')
+            .arrayValue
+            ?.map((e) => e.stringValue),
+        equals(['212-555-1234', '646-555-5678']),
+      );
+
+      //TODO: not implemented
+      // expect(jsonObject.fromPath(r'$.courses[0,2]'), isA<JsonArray>());
+      // expect(
+      //   jsonObject
+      //       .fromPath(r'$.courses[0,2]')
+      //       .arrayValue
+      //       ?.map((e) => e.stringValue),
+      //   equals(['Math', 'English']),
+      // );
+    });
+  });
+
   group(
     'Not implemented syntax',
     () {

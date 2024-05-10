@@ -246,3 +246,12 @@ void log(String step, String currentPath, Object value) =>
 // print(
 //   'Step: $step. Path: $currentPath of $jsonPath Index: $index Value: $value',
 // );
+
+extension JsonObjectPathExtensions on JsonObject {
+  JsonValue fromPath(String path) => parseJsonPath(path, this);
+  String? stringFromPath(String path) => fromPath(path).stringValue;
+  int? integerFromPath(String path) => fromPath(path).integerValue;
+  double? doubleFromPath(String path) => fromPath(path).doubleValue;
+  bool? boolFromPath(String path) => fromPath(path).booleanValue;
+  DateTime? dateFromPath(String path) => fromPath(path).dateTimeValue;
+}
