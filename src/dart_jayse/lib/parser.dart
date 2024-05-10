@@ -1,5 +1,7 @@
 // ignore_for_file: public_member_api_docs
 
+import 'dart:math';
+
 import 'package:jayse/jayse.dart';
 
 class JsonPathParser {
@@ -57,7 +59,7 @@ class JsonPathParser {
     }
   }
 
- JsonValue _parseDotNotation(JsonValue value) {
+  JsonValue _parseDotNotation(JsonValue value) {
     log('Parsing dot notation', value);
     if (_index >= jsonPath.length) {
       // We've reached the end of the JSON path, so return the value
@@ -191,6 +193,7 @@ class JsonPathParser {
 
   void log(String step, Object value) =>
       // ignore: avoid_print
-      print('Step: $step. Path: ${jsonPath.substring(0, _index)}. '
+      print('Step: $step. Path: '
+          '${jsonPath.substring(0, min(jsonPath.length - 1, _index))}. '
           'Index: $_index Value: $value');
 }

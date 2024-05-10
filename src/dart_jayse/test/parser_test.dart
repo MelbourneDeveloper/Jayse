@@ -62,7 +62,7 @@ void main() {
     final parser = JsonPathParser(r'$.salary');
     final result = parser.parse(jsonValue);
 
-    expect(result, isNull);
+    expect(result, const Undefined());
   });
 
   test('Root Property Access', () {
