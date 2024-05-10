@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:jayse/parser.dart';
+
 /// Decodes a JSON string into a [JsonValue]
 JsonValue jsonValueDecode(String value) =>
     JsonValue.fromJson(jsonDecode(value) as Object);
@@ -257,6 +259,13 @@ final class JsonObject extends JsonValue {
           ));
 }
 
+/// An extension on [JsonObject]
+extension JsonObjectExtensions on JsonObject {
+  /// Returns the value of the field if it is defined. For performance reasons,
+  /// it's better to grab the value directly from the accessor and use the value
+  bool containsKey(String fieldName) => this[fieldName] != const Undefined();
+}
+
 /// An extension on [JsonValue]
 extension JsonValueExtensions on JsonValue {
   /// Returns the value of the field if this is a JSON object
@@ -274,13 +283,38 @@ extension JsonValueExtensions on JsonValue {
   num? get numericValue =>
       this is JsonNumber ? (this as JsonNumber).value : null;
 
-  /// Same as []
-  // T? call<T>(String field) =>
-  //     switch (this[field]) { (final T? value) => value, _ => null };
+  /// Returns the value or null
+  JsonObject? get objectValue => this is JsonObject ? this as JsonObject : null;
+
+  /// Returns the value or null
+  bool? get booleanValue =>
+      this is JsonBoolean ? (this as JsonBoolean).value : null;
+
+  /// Returns the value or null
+  int? get integerValue => switch (this) {
+        (final JsonNumber jn) when jn.value is int => jn.value as int,
+        _ => null,
+      };
+
+  /// Returns the value or null
+  double? get doubleValue => switch (this) {
+        (final JsonNumber jn) when jn.value is double => jn.value as double,
+        _ => null,
+      };
+
+  /// Returns the value or null
+  DateTime? get dateTimeValue => switch (this) {
+        (final JsonString js) => DateTime.tryParse(js.value),
+        _ => null,
+      };
 
   /// Returns the value of the field if it is defined and has the correct type
   JsonValue getValue(String field) =>
       this is JsonObject ? (this as JsonObject)[field] : const Undefined();
+
+  /// Returns the value or null
+  List<JsonValue>? get arrayValue =>
+      this is JsonArray ? (this as JsonArray).value : null;
 }
 
 /// An extension on [bool] for [JsonValue]
@@ -298,8 +332,36 @@ extension StringExtensions on String? {
 }
 
 /// An extension on [Map<String, dynamic>] for [JsonObject]
-extension Asdfsdf on Map<String, dynamic> {
+extension MapExtensions on Map<String, dynamic> {
   /// Converts a [Map<String, dynamic>] to a [JsonObject]
   JsonObject toJsonValue() =>
       JsonObject(map((key, value) => MapEntry(key, _safeCast(value))));
+}
+
+/// Extension methods for [JsonObject] to extract values from a JSON path.
+extension JsonObjectPathExtensions on JsonObject {
+  /// Returns the value at the specified JSON path.
+  JsonValue fromPath(String path) => parseJsonPath(path, this);
+
+  /// Returns the string value or null at the specified JSON path.
+  String? stringFromPath(String path) => fromPath(path).stringValue;
+
+  /// Returns the integer value or null at the specified JSON path.
+  int? integerFromPath(String path) => fromPath(path).integerValue;
+
+  /// Returns the double value or null at the specified JSON path.
+  double? doubleFromPath(String path) => fromPath(path).doubleValue;
+
+  /// Returns the boolean value or null at the specified JSON path.
+  bool? boolFromPath(String path) => fromPath(path).booleanValue;
+
+  /// Returns the date value or null at the specified JSON path.
+  DateTime? dateFromPath(String path) => fromPath(path).dateTimeValue;
+
+  /// Returns the JSON object value or null at the specified JSON path.
+  List<JsonValue> whereFromPath(String path, bool Function(JsonValue) test) =>
+      switch (fromPath(path)) {
+        (final JsonArray jsonArray) => jsonArray.value.where(test).toList(),
+        _ => [],
+      };
 }
