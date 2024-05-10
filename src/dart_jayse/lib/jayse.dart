@@ -315,31 +315,7 @@ extension JsonValueExtensions on JsonValue {
   /// Returns the value or null
   List<JsonValue>? get arrayValue =>
       this is JsonArray ? (this as JsonArray).value : null;
-}
 
-/// An extension on [bool] for [JsonValue]
-extension BoolExtensions on bool? {
-  /// Converts a [bool] to a [JsonValue]
-  JsonValue toJsonValue() =>
-      this == null ? const JsonNull() : JsonBoolean(this!);
-}
-
-/// An extension on [String] for [JsonValue]
-extension StringExtensions on String? {
-  /// Converts a [String] to a [JsonValue]
-  JsonValue toJsonValue() =>
-      this == null ? const JsonNull() : JsonString(this!);
-}
-
-/// An extension on [Map<String, dynamic>] for [JsonObject]
-extension MapExtensions on Map<String, dynamic> {
-  /// Converts a [Map<String, dynamic>] to a [JsonObject]
-  JsonObject toJsonValue() =>
-      JsonObject(map((key, value) => MapEntry(key, _safeCast(value))));
-}
-
-/// Extension methods for [JsonObject] to extract values from a JSON path.
-extension JsonObjectPathExtensions on JsonObject {
   /// Returns the value at the specified JSON path.
   JsonValue fromPath(String path) => parseJsonPath(path, this);
 
@@ -364,4 +340,25 @@ extension JsonObjectPathExtensions on JsonObject {
         (final JsonArray jsonArray) => jsonArray.value.where(test).toList(),
         _ => [],
       };
+}
+
+/// An extension on [bool] for [JsonValue]
+extension BoolExtensions on bool? {
+  /// Converts a [bool] to a [JsonValue]
+  JsonValue toJsonValue() =>
+      this == null ? const JsonNull() : JsonBoolean(this!);
+}
+
+/// An extension on [String] for [JsonValue]
+extension StringExtensions on String? {
+  /// Converts a [String] to a [JsonValue]
+  JsonValue toJsonValue() =>
+      this == null ? const JsonNull() : JsonString(this!);
+}
+
+/// An extension on [Map<String, dynamic>] for [JsonObject]
+extension MapExtensions on Map<String, dynamic> {
+  /// Converts a [Map<String, dynamic>] to a [JsonObject]
+  JsonObject toJsonValue() =>
+      JsonObject(map((key, value) => MapEntry(key, _safeCast(value))));
 }
