@@ -52,13 +52,13 @@ You can also handle values with a [switch expression](https://www.christianfindl
 
 ## Features
 
+- **Power Path Parsing and Filtering** - allows you to access deeply nested values without casting and without throwing exceptions.
 - **Lossless Conversion**: convert to strongly typed Dart objects and back to JSON without any information loss. See below for more information.
 - **Strong Typing**: all values are strongly typed. No accessing `dynamic` values.
 - **Immutable**: All objects are immutable. There are no setters. Use non-destructive mutation to create new `JsonObject`s.
-- **Simpler data classes and less code generation**: data classes are simpler and code generation with tools like `json_serializable` is often not necessary.
 - **Simple, tight code**: the library is small and easy to understand. It's a single file with no dependencies, and currently under 200 LOC.
+- **Simpler data classes and less code generation**: data classes are simpler and code generation with tools like `json_serializable` is often not necessary.
 
-Example:
 ```dart
 class Message {
   Message(this._jsonObject);
@@ -86,6 +86,179 @@ class Message {
 }
 ```
 
+## JSON Path Parsing and Filtering
+
+Jayse provides powerful capabilities for parsing and filtering JSON data using JSON paths. Easily navigate through complex JSON structures, extract specific values, and filter arrays based on custom criteria.
+
+### Parsing JSON Paths
+
+Jayse allows you to parse JSON paths and retrieve the corresponding values from a JSON object. The `parseJsonPath` function takes a JSON path string and a `JsonValue` object as input and returns the value at the specified path.
+
+```dart
+final jsonValue = jsonValueDecode('''
+  {
+    "name": "John Doe",
+    "age": 30,
+    "city": "New York"
+  }
+''');
+
+final result = parseJsonPath(r'$.name', jsonValue);
+print(result.stringValue); // Output: John Doe
+```
+
+Jayse uses the simple and intuitive [JSONPath syntax](https://datatracker.ietf.org/doc/rfc9535/), documented as RFC 9535 to navigate through the JSON structure. Here are some examples:
+
+- `$`: Represents the root object.
+- `.`: Accesses a property of an object.
+- `[]`: Accesses an element of an array by its index.
+- `*`: Wildcard that matches all properties or elements.
+- `..`: Recursive descent to access all matching properties at any depth.
+
+```dart
+final jsonValue = jsonValueDecode('''
+  {
+    "person": {
+      "name": "John",
+      "age": 30,
+      "address": {
+        "city": "New York",
+        "country": "USA"
+      }
+    }
+  }
+''');
+
+final name = parseJsonPath(r'$.person.name', jsonValue).stringValue;
+print(name); // Output: John
+
+final city = parseJsonPath(r'$.person.address.city', jsonValue).stringValue;
+print(city); // Output: New York
+```
+
+## Path Extensions
+
+Jayse provides convenient extension methods on the `JsonObject` class to simplify accessing values using JSON paths. These extensions allow you to retrieve values of specific types directly from a JSON object.
+
+```dart
+final jsonObject = jsonValueDecode('''
+  {
+    "name": "John Doe",
+    "age": 30,
+    "isStudent": false,
+    "score": 85.5,
+    "graduation": "2022-06-30T10:00:00Z"
+  }
+''') as JsonObject;
+
+final name = jsonObject.stringFromPath(r'$.name');
+print(name); // Output: John Doe
+
+final age = jsonObject.integerFromPath(r'$.age');
+print(age); // Output: 30
+
+final isStudent = jsonObject.boolFromPath(r'$.isStudent');
+print(isStudent); // Output: false
+
+final score = jsonObject.doubleFromPath(r'$.score');
+print(score); // Output: 85.5
+
+final graduation = jsonObject.dateFromPath(r'$.graduation');
+print(graduation); // Output: 2022-06-30 10:00:00.000
+```
+
+These extensions provide a convenient way to extract values of specific types from a JSON object without the need for explicit casting.
+
+## Filtering Arrays with whereFromPath
+
+Jayse offers a powerful `whereFromPath` extension method on `JsonValue` that allows you to filter arrays based on custom criteria. It takes a JSON path and a predicate function as input and returns a list of `JsonValue` objects that satisfy the predicate.
+
+```dart
+final jsonObject = jsonValueDecode('''
+  {
+    "books": [
+      {
+        "title": "Book 1",
+        "author": "Author 1",
+        "price": 10.99
+      },
+      {
+        "title": "Book 2",
+        "author": "Author 2",
+        "price": 15.99
+      },
+      {
+        "title": "Book 3",
+        "author": "Author 1",
+        "price": 12.99
+      }
+    ]
+  }
+''') as JsonObject;
+
+final expensiveBooks = jsonObject.whereFromPath(
+  r'$.books',
+  (book) => (book['price'].doubleValue ?? 0) > 12,
+);
+print(expensiveBooks); // Output: [Book 2]
+
+final authorBooks = jsonObject.whereFromPath(
+  r'$.books',
+  (book) => book['author'].stringValue == 'Author 1',
+);
+print(authorBooks); // Output: [Book 1, Book 3]
+```
+
+The `whereFromPath` method allows you to filter arrays based on any custom criteria. You can access nested properties, perform comparisons, and combine multiple conditions using logical operators.
+
+Here are a few more examples of using `whereFromPath` in real-life scenarios:
+
+1. Filtering products based on price range:
+```dart
+final products = jsonObject.whereFromPath(
+  r'$.products',
+  (product) {
+    final price = product['price'].doubleValue ?? 0;
+    return price >= 50 && price <= 100;
+  },
+);
+```
+
+1. Filtering users based on age and location:
+```dart
+final eligibleUsers = jsonObject.whereFromPath(
+  r'$.users',
+  (user) {
+    final age = user['age'].integerValue ?? 0;
+    final country = user['address']['country'].stringValue;
+    return age >= 18 && country == 'USA';
+  },
+);
+```
+
+1. Filtering blog posts based on tags:
+```dart
+final taggedPosts = jsonObject.whereFromPath(
+  r'$.posts',
+  (post) => post['tags'].arrayValue?.contains(const JsonString('technology')) ?? false,
+);
+```
+
+1. Filtering movies based on ratings and genre:
+```dart
+final topActionMovies = jsonObject.whereFromPath(
+  r'$.movies',
+  (movie) {
+    final rating = movie['rating'].doubleValue ?? 0;
+    final genres = movie['genres'].arrayValue?.map((genre) => genre.stringValue);
+    return rating >= 8.0 && genres?.contains('Action') ?? false;
+  },
+);
+```
+
+Whether you're working with APIs, processing large datasets, or manipulating JSON data in your Dart applications, Jayse simplifies the process and provides a clean and intuitive API for handling JSON paths and filtering.
+
+For more details and advanced usage, please see the comprehensive tests.
 
 ## What Problem Does It Solve?
 
