@@ -149,6 +149,57 @@ void main() {
       expect(result.value[0], isA<JsonObject>());
       expect(result.value[1], isA<JsonObject>());
     });
+
+    test('Chain of Array Indexes', () {
+      final jsonValue = jsonValueDecode('''
+    {
+      "store": {
+        "book": [
+          { "category": "reference",
+            "author": "Nigel Rees",
+            "title": "Sayings of the Century",
+            "price": 8.95
+          },
+          { "category": "fiction",
+            "author": "Evelyn Waugh",
+            "title": "Sword of Honour",
+            "price": 12.99
+          },
+          { "category": "fiction",
+            "author": "Herman Melville",
+            "title": "Moby Dick",
+            "isbn": "0-553-21311-3",
+            "price": 8.99
+          }
+        ]
+      }
+    }
+    ''');
+
+      final parser = JsonPathParser(r'$.store.book[0].title');
+      final result = parser.parse(jsonValue);
+      expect(result.stringValue, 'Sayings of the Century');
+    });
+
+    test('Non-Existent Deep Property', () {
+      final jsonValue = jsonValueDecode('''
+    {
+      "store": {
+        "book": [
+          { "category": "reference",
+            "author": "Nigel Rees",
+            "title": "Sayings of the Century",
+            "price": 8.95
+          }
+        ]
+      }
+    }
+    ''');
+
+      final parser = JsonPathParser(r'$.store.bicycle.color');
+      final result = parser.parse(jsonValue);
+      expect(result, const Undefined());
+    });
   });
 
   group(
@@ -385,6 +436,69 @@ void main() {
         expect(result.value.length, 2);
         expect(result.value[0].stringValue, 'Book 2');
         expect(result.value[1].stringValue, 'Book 3');
+      });
+
+      test('Recursive Descent', () {
+        final jsonValue = jsonValueDecode('''
+    {
+      "store": {
+        "book": [
+          { "category": "reference",
+            "author": "Nigel Rees",
+            "title": "Sayings of the Century",
+            "price": 8.95
+          },
+          { "category": "fiction",
+            "author": "Evelyn Waugh",
+            "title": "Sword of Honour",
+            "price": 12.99
+          }
+        ],
+        "bicycle": {
+          "color": "red",
+          "price": 19.95
+        }
+      }
+    }
+    ''');
+
+        final parser = JsonPathParser(r'$.store..price');
+        final result = parser.parse(jsonValue) as JsonArray;
+        expect(result.value.length, 3);
+        expect(result.value, containsAll([8.95, 12.99, 19.95]));
+      });
+
+      test('Filter Expression with Predicate', () {
+        final jsonValue = jsonValueDecode('''
+    {
+      "store": {
+        "book": [
+          { "category": "reference",
+            "author": "Nigel Rees",
+            "title": "Sayings of the Century",
+            "price": 8.95
+          },
+          { "category": "fiction",
+            "author": "Evelyn Waugh",
+            "title": "Sword of Honour",
+            "price": 12.99
+          },
+          { "category": "fiction",
+            "author": "Herman Melville",
+            "title": "Moby Dick",
+            "isbn": "0-553-21311-3",
+            "price": 8.99
+          }
+        ]
+      }
+    }
+    ''');
+
+        final parser = JsonPathParser(r'$.store.book[?(@.price < 10)]');
+        final result = parser.parse(jsonValue) as JsonArray;
+        expect(result.value.length, 2);
+        expect(result.value[0]['title'].stringValue, 'Sayings of the Century');
+        expect(result.value[1]['title'].stringValue, 'Moby Dick');
       });
     },
     skip: true,
