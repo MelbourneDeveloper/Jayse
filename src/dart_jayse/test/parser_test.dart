@@ -378,6 +378,85 @@ void main() {
       //   equals(['Math', 'English']),
       // );
     });
+
+    test('whereFromPath Extension', () {
+      final jsonObject = jsonValueDecode('''
+      {
+        "numbers": [1, 2, 3, 4, 5],
+        "strings": ["apple", "banana", "cherry", "date"],
+        "booleans": [true, false, true, false],
+        "mixed": [1, "apple", true, 3.14, false, "banana", 2, "cherry", true, 4]
+      }
+    ''') as JsonObject;
+
+      // Test filtering numbers greater than 3
+      expect(
+        jsonObject.whereFromPath(
+          r'$.numbers',
+          (value) => (value.integerValue ?? 0) > 3,
+        ),
+        equals([const JsonNumber(4), const JsonNumber(5)]),
+      );
+
+      // Test filtering strings starting with 'b'
+      expect(
+        jsonObject.whereFromPath(
+          r'$.strings',
+          (value) => value.stringValue?.startsWith('b') ?? false,
+        ),
+        equals([const JsonString('banana')]),
+      );
+
+      // Test filtering true booleans
+      expect(
+        jsonObject.whereFromPath(
+          r'$.booleans',
+          (value) => value.booleanValue ?? false,
+        ),
+        equals([const JsonBoolean(true), const JsonBoolean(true)]),
+      );
+
+      // Test filtering mixed array
+      expect(
+        jsonObject.whereFromPath(r'$.mixed', (value) => value is JsonNumber),
+        equals([
+          const JsonNumber(1),
+          const JsonNumber(3.14),
+          const JsonNumber(2),
+          const JsonNumber(4),
+        ]),
+      );
+
+      expect(
+        jsonObject.whereFromPath(r'$.mixed', (value) => value is JsonString),
+        equals([
+          const JsonString('apple'),
+          const JsonString('banana'),
+          const JsonString('cherry'),
+        ]),
+      );
+
+      expect(
+        jsonObject.whereFromPath(r'$.mixed', (value) => value is JsonBoolean),
+        equals([
+          const JsonBoolean(true),
+          const JsonBoolean(false),
+          const JsonBoolean(true),
+        ]),
+      );
+
+      // Test filtering with a path that doesn't exist
+      expect(
+        jsonObject.whereFromPath(r'$.nonExistent', (value) => true),
+        equals([]),
+      );
+
+      // Test filtering with a path that doesn't point to an array
+      expect(
+        jsonObject.whereFromPath(r'$.strings[0]', (value) => true),
+        equals([]),
+      );
+    });
   });
 
   group(

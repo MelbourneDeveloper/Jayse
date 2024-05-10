@@ -357,4 +357,11 @@ extension JsonObjectPathExtensions on JsonObject {
 
   /// Returns the date value or null at the specified JSON path.
   DateTime? dateFromPath(String path) => fromPath(path).dateTimeValue;
+
+  /// Returns the JSON object value or null at the specified JSON path.
+  List<JsonValue> whereFromPath(String path, bool Function(JsonValue) test) =>
+      switch (fromPath(path)) {
+        (final JsonArray jsonArray) => jsonArray.value.where(test).toList(),
+        _ => [],
+      };
 }
