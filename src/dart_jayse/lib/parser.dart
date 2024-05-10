@@ -68,8 +68,7 @@ class JsonPathParser {
     }
 
     if (value is! JsonObject) {
-      //This is where the code goes wrong. There is no reason
-      //we can't return the value if it's the end of the path
+      //Is the code going wrong here?
 
       log('Value is not a JsonObject, returning Undefined', value);
       return const Undefined();

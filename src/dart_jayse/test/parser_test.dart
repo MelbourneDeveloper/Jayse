@@ -73,16 +73,9 @@ void main() {
   });
 
   test('Path Test Basic', () async {
-    final jsonValue = jsonValueDecode('''
-  {
-    "author": "bob"
-  }
-  ''');
-
+    final jsonValue = jsonValueDecode('''{"author": "bob"}''');
     final parser = JsonPathParser(r'$..author');
-    final result = parser.parse(jsonValue);
-
-    expect(result.stringValue, 'bob');
+    expect(parser.parse(jsonValue), const JsonString('bob'));
   });
 
   test('Path Test', () async {
