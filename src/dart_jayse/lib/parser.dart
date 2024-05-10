@@ -4,6 +4,9 @@ import 'dart:math';
 
 import 'package:jayse/jayse.dart';
 
+/// A class that allows you to traverse JSON with a JSON path. An attempt at
+/// implementing the RFC 9535 specification.
+/// https://datatracker.ietf.org/doc/rfc9535/
 class JsonPathParser {
   JsonPathParser(this.jsonPath);
 

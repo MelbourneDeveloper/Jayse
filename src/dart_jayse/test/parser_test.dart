@@ -4,30 +4,31 @@ import 'package:jayse/parser.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test('Basic Property Access', () {
-    final jsonValue = jsonValueDecode('''
+  group('Implemented Syntax', () {
+    test('Basic Property Access', () {
+      final jsonValue = jsonValueDecode('''
     {
       "name": "Alice",
       "age": 30
     }
     ''');
 
-    final parser = JsonPathParser(r'$.name');
-    final result = parser.parse(jsonValue);
+      final parser = JsonPathParser(r'$.name');
+      final result = parser.parse(jsonValue);
 
-    expect(result.stringValue, 'Alice');
-  });
+      expect(result.stringValue, 'Alice');
+    });
 
-  test('Array Index Access', () {
-    final parser = JsonPathParser(r'$.users[1]');
-    final result = parser
-        .parse(jsonValueDecode('''{"users": ["Alice", "Bob", "Charlie"]}'''));
+    test('Array Index Access', () {
+      final parser = JsonPathParser(r'$.users[1]');
+      final result = parser
+          .parse(jsonValueDecode('''{"users": ["Alice", "Bob", "Charlie"]}'''));
 
-    expect(result.stringValue, 'Bob');
-  });
+      expect(result.stringValue, 'Bob');
+    });
 
-  test('Deep Property Access', () {
-    final jsonValue = jsonValueDecode('''
+    test('Deep Property Access', () {
+      final jsonValue = jsonValueDecode('''
     {
       "organization": {
         "name": "OpenAI",
@@ -39,47 +40,47 @@ void main() {
     }
     ''');
 
-    final parser = JsonPathParser(r'$.organization.address.city');
-    final result = parser.parse(jsonValue);
+      final parser = JsonPathParser(r'$.organization.address.city');
+      final result = parser.parse(jsonValue);
 
-    expect(result.stringValue, 'San Francisco');
-  });
+      expect(result.stringValue, 'San Francisco');
+    });
 
-  test('Access Non-Existent Property', () {
-    final jsonValue = jsonValueDecode('''
+    test('Access Non-Existent Property', () {
+      final jsonValue = jsonValueDecode('''
     {
       "name": "Alice",
       "age": 30
     }
     ''');
 
-    final parser = JsonPathParser(r'$.salary');
-    final result = parser.parse(jsonValue);
+      final parser = JsonPathParser(r'$.salary');
+      final result = parser.parse(jsonValue);
 
-    expect(result, const Undefined());
-  });
+      expect(result, const Undefined());
+    });
 
-  test('Root Property Access', () {
-    final jsonValue = jsonValueDecode('''
+    test('Root Property Access', () {
+      final jsonValue = jsonValueDecode('''
     {
       "name": "Bob"
     }
     ''');
 
-    final parser = JsonPathParser(r'$');
-    final result = parser.parse(jsonValue);
+      final parser = JsonPathParser(r'$');
+      final result = parser.parse(jsonValue);
 
-    expect(result['name'].stringValue, 'Bob');
-  });
+      expect(result['name'].stringValue, 'Bob');
+    });
 
-  test('Path Test Basic', () async {
-    final jsonValue = jsonValueDecode('''{"author": "bob"}''');
-    final parser = JsonPathParser(r'$..author');
-    expect(parser.parse(jsonValue), const JsonString('bob'));
-  });
+    test('Path Test Basic', () async {
+      final jsonValue = jsonValueDecode('''{"author": "bob"}''');
+      final parser = JsonPathParser(r'$..author');
+      expect(parser.parse(jsonValue), const JsonString('bob'));
+    });
 
-  test('Path Test', () async {
-    final jsonValue = jsonValueDecode('''
+    test('Path Test', () async {
+      final jsonValue = jsonValueDecode('''
   {
     "book": [
       {
@@ -98,9 +99,156 @@ void main() {
   }
   ''');
 
-    final parser = JsonPathParser(r'$..book[2].author');
-    final result = parser.parse(jsonValue);
+      final parser = JsonPathParser(r'$..book[2].author');
+      final result = parser.parse(jsonValue);
 
-    expect(result, const JsonString('Mark Johnson'));
+      expect(result, const JsonString('Mark Johnson'));
+    });
   });
+
+  group(
+    'Not implemented syntax',
+    () {
+      test('Bracket Notation with Quoted Field Name', () {
+        final jsonValue = jsonValueDecode('''
+    {
+      "name": {
+        "first.name": "John",
+        "last.name": "Doe"
+      }
+    }
+  ''');
+
+        final parser = JsonPathParser(r'$.name["first.name"]');
+        final result = parser.parse(jsonValue);
+        expect(result.stringValue, 'John');
+      });
+
+      test('Bracket Notation with Wildcard', () {
+        final jsonValue = jsonValueDecode('''
+    {
+      "books": [
+        {
+          "title": "Book 1",
+          "author": "Author 1"
+        },
+        {
+          "title": "Book 2",
+          "author": "Author 2"
+        }
+      ]
+    }
+  ''');
+
+        final parser = JsonPathParser(r'$.books[*].title');
+        final result = parser.parse(jsonValue) as JsonArray;
+        expect(result, isA<JsonArray>());
+        expect(result.value.length, 2);
+        expect(result.value[0].stringValue, 'Book 1');
+        expect(result.value[1].stringValue, 'Book 2');
+      });
+
+      test('Recursive Descent with Array', () {
+        final jsonValue = jsonValueDecode('''
+    {
+      "books": [
+        {
+          "title": "Book 1",
+          "chapters": [
+            {
+              "title": "Chapter 1"
+            },
+            {
+              "title": "Chapter 2"
+            }
+          ]
+        },
+        {
+          "title": "Book 2",
+          "chapters": [
+            {
+              "title": "Chapter 3"
+            },
+            {
+              "title": "Chapter 4"
+            }
+          ]
+        }
+      ]
+    }
+  ''');
+
+        final parser = JsonPathParser(r'$..chapters[0].title');
+        final result = parser.parse(jsonValue);
+        expect(result, isA<JsonString>());
+        expect(result.stringValue, 'Chapter 1');
+      });
+
+      test('Recursive Descent with Object', () {
+        final jsonValue = jsonValueDecode('''
+    {
+      "person": {
+        "name": "John",
+        "age": 30,
+        "address": {
+          "city": "New York",
+          "country": "USA"
+        }
+      }
+    }
+  ''');
+
+        final parser = JsonPathParser(r'$..city');
+        final result = parser.parse(jsonValue);
+        expect(result, isA<JsonString>());
+        expect(result.stringValue, 'New York');
+      });
+
+      test('Union Operator', () {
+        final jsonValue = jsonValueDecode('''
+    {
+      "person": {
+        "name": "John",
+        "age": 30,
+        "city": "New York"
+      }
+    }
+  ''');
+
+        final parser = JsonPathParser(r'$.person["name","age"]');
+        final result = parser.parse(jsonValue) as JsonArray;
+        expect(result.value.length, 2);
+        expect(result.value[0].stringValue, 'John');
+        expect(result.value[1].numericValue, 30);
+      });
+
+      test('Filter Expression', () {
+        final jsonValue = jsonValueDecode('''
+    {
+      "books": [
+        {
+          "title": "Book 1",
+          "price": 10
+        },
+        {
+          "title": "Book 2",
+          "price": 20
+        },
+        {
+          "title": "Book 3",
+          "price": 15
+        }
+      ]
+    }
+  ''');
+
+        final parser = JsonPathParser(r'$.books[?(@.price > 10)].title');
+        final result = parser.parse(jsonValue) as JsonArray;
+        expect(result.value.length, 2);
+        expect(result.value[0].stringValue, 'Book 2');
+        expect(result.value[1].stringValue, 'Book 3');
+      });
+    },
+    skip: true,
+  );
 }
