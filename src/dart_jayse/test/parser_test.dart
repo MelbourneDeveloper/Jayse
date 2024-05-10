@@ -149,9 +149,13 @@ void main() {
       expect(result.value[0], isA<JsonObject>());
       expect(result.value[1], isA<JsonObject>());
     });
+  });
 
-    test('Recursive Descent with Wildcard', () {
-      final jsonValue = jsonValueDecode('''
+  group(
+    'Not implemented syntax',
+    () {
+      test('Recursive Descent with Wildcard', () {
+        final jsonValue = jsonValueDecode('''
     {
       "store": {
         "books": [
@@ -188,17 +192,17 @@ void main() {
     }
   ''');
 
-      final parser = JsonPathParser(r'$..reviews[*].rating');
-      final result = parser.parse(jsonValue) as JsonArray;
-      expect(result.value.length, 4);
-      expect(result.value[0], const JsonNumber(4));
-      expect(result.value[1], const JsonNumber(5));
-      expect(result.value[2], const JsonNumber(3));
-      expect(result.value[3], const JsonNumber(4));
-    });
+        final parser = JsonPathParser(r'$..reviews[*].rating');
+        final result = parser.parse(jsonValue) as JsonArray;
+        expect(result.value.length, 4);
+        expect(result.value[0], const JsonNumber(4));
+        expect(result.value[1], const JsonNumber(5));
+        expect(result.value[2], const JsonNumber(3));
+        expect(result.value[3], const JsonNumber(4));
+      });
 
-    test('Complex Path with Wildcards and Indexes', () {
-      final jsonValue = jsonValueDecode('''
+      test('Complex Path with Wildcards and Indexes', () {
+        final jsonValue = jsonValueDecode('''
     {
       "store": {
         "name": "My Store",
@@ -236,17 +240,13 @@ void main() {
     }
   ''');
 
-      final parser = JsonPathParser(r'$.store.books[*].chapters[1].title');
-      final result = parser.parse(jsonValue) as JsonArray;
-      expect(result.value.length, 2);
-      expect(result.value[0].stringValue, 'Chapter 2');
-      expect(result.value[1].stringValue, 'Chapter 4');
-    });
-  });
+        final parser = JsonPathParser(r'$.store.books[*].chapters[1].title');
+        final result = parser.parse(jsonValue) as JsonArray;
+        expect(result.value.length, 2);
+        expect(result.value[0].stringValue, 'Chapter 2');
+        expect(result.value[1].stringValue, 'Chapter 4');
+      });
 
-  group(
-    'Not implemented syntax',
-    () {
       test('Bracket Notation with Quoted Field Name', () {
         final jsonValue = jsonValueDecode('''
     {
