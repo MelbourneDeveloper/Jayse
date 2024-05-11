@@ -17,6 +17,7 @@ void main() {
       },
       "tags": ["developer", "engineer"],
       "preferences": [true, false, true],
+      "mixedArray": [true, 1, "true", [1,2,3], ["a",1,2, true]],
       "status": null
     }
   ''';
@@ -27,5 +28,11 @@ void main() {
     expect(one, equals(two));
     expect(one.toString(), equals(two.toString()));
     expect(one.hashCode, equals(two.hashCode));
+
+    final mixedArray = one['mixedArray'] as JsonArray;
+    final fourthElement = mixedArray[4] as JsonArray;
+    expect(fourthElement.first, const JsonString('a'));
+    expect(fourthElement[3], const JsonBoolean(true));
+    expect(fourthElement.length, 4);
   });
 }

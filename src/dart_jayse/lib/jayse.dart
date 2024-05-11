@@ -107,6 +107,16 @@ final class JsonArray extends JsonValue {
   /// TODO: Make this compile time immutable
   final List<JsonValue> value;
 
+  /// Get the JSON Value by index in the array
+  JsonValue operator [](int index) =>
+      value.length > index ? value[index] : const Undefined();
+
+  /// Get the first JSON Value in the array
+  JsonValue get first => value.isNotEmpty ? value.first : const Undefined();
+
+  /// Get the length of the array
+  int get length => value.length;
+
   @override
   int get hashCode => Object.hashAll(value);
 
@@ -220,9 +230,6 @@ final class JsonObject extends JsonValue {
         (null) => null,
         _ => null,
       };
-
-  /// Get the JSON Value
-  //JsonValue operator [](String field) => _value[field] ?? const Undefined();
 
   /// Available fields
   Iterable<String> get fields => _value.keys;
