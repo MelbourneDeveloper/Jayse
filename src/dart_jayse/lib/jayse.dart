@@ -245,7 +245,7 @@ final class JsonObject extends JsonValue {
       };
 
   @override
-  int get hashCode => Object.hashAll(_value.entries);
+  int get hashCode => Object.hashAll(_value.entries.map((jv) => jv.value));
 
   @override
   bool operator ==(Object other) =>
