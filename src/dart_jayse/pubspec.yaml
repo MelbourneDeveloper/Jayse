@@ -1,6 +1,6 @@
 name: jayse
 description: Lossless conversion of JSON to and from statically-typed, immutable objects in Dart
-version: 0.0.3-alpha
+version: 0.0.4-beta
 repository: https://github.com/MelbourneDeveloper/Jayse
 
 environment:
