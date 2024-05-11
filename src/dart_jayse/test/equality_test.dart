@@ -32,7 +32,9 @@ void main() {
     final mixedArray = one['mixedArray'] as JsonArray;
     final fourthElement = mixedArray[4] as JsonArray;
     expect(fourthElement.first, const JsonString('a'));
+    expect(fourthElement.first.hashCode, const JsonString('a').hashCode);
     expect(fourthElement[3], const JsonBoolean(true));
+    expect(fourthElement[3].hashCode, const JsonBoolean(true).hashCode);
     expect(fourthElement.length, 4);
   });
 }
