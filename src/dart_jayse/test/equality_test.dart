@@ -28,6 +28,7 @@ void main() {
     expect(one, equals(two));
     expect(one.toString(), equals(two.toString()));
     expect(one.hashCode, equals(two.hashCode));
+    expect(one['mixedArray'].hashCode, equals(two['mixedArray'].hashCode));
 
     final mixedArray = one['mixedArray'] as JsonArray;
     final fourthElement = mixedArray[4] as JsonArray;
