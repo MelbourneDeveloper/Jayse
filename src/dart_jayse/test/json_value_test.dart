@@ -6,48 +6,48 @@ import 'package:jayse/jayse.dart';
 import 'package:test/test.dart';
 
 void main() {
-group('Basic Examples', () {
-  test('Basic JSON to object', () {
-    const bookJson =
-        '{"title": "The Great Gatsby", "author": "F. Scott Fitzgerald"}';
+  group('Basic Examples', () {
+    test('Basic JSON to object', () {
+      const bookJson =
+          '{"title": "The Great Gatsby", "author": "F. Scott Fitzgerald"}';
 
-    final book = jsonValueDecode(bookJson) as JsonObject;
-    final titleValue = book['title'] as JsonString;
-    expect(titleValue.value, 'The Great Gatsby');
-    expect(book['title'], const JsonString('The Great Gatsby'));
-    expect(book['author'], const JsonString('F. Scott Fitzgerald'));
-  });
-
-  test('Nested Object Test', () {
-    final person = JsonValue.fromJson(<String, dynamic>{
-      'name': 'John Doe',
-      'age': 30,
-      'isEmployed': true,
-      'address': {
-        'street': '123 Main St',
-        'city': 'New York',
-        'country': 'USA',
-      },
+      final book = jsonValueDecode(bookJson) as JsonObject;
+      final titleValue = book['title'] as JsonString;
+      expect(titleValue.value, 'The Great Gatsby');
+      expect(book['title'], const JsonString('The Great Gatsby'));
+      expect(book['author'], const JsonString('F. Scott Fitzgerald'));
     });
 
-    expect(
-      person['address']['street'].stringValue,
-      '123 Main St',
-    );
-    expect(
-      person['age'].numericValue,
-      30,
-    );
-  });
+    test('Nested Object Test', () {
+      final person = JsonValue.fromJson(<String, dynamic>{
+        'name': 'John Doe',
+        'age': 30,
+        'isEmployed': true,
+        'address': {
+          'street': '123 Main St',
+          'city': 'New York',
+          'country': 'USA',
+        },
+      });
 
-  test('Missing Value Test', () {
-    const bookJson = '{"title": "The Great Gatsby"}';
+      expect(
+        person['address']['street'].stringValue,
+        '123 Main St',
+      );
+      expect(
+        person['age'].numericValue,
+        30,
+      );
+    });
 
-    final book = jsonValueDecode(bookJson) as JsonObject;
-    final nameValue = book['author']['name'];
-    expect(nameValue, const Undefined());
+    test('Missing Value Test', () {
+      const bookJson = '{"title": "The Great Gatsby"}';
+
+      final book = jsonValueDecode(bookJson) as JsonObject;
+      final nameValue = book['author']['name'];
+      expect(nameValue, const Undefined());
+    });
   });
-});
 
   group('Serialization and Deserialization Tests', () {
     test('encode and decode with primitive values', () {
@@ -473,6 +473,31 @@ group('Basic Examples', () {
   });
 
   group('Unit Tests', () {
+    test('Some/None', () {
+      expect(const JsonString('').isSome, true);
+      expect(const JsonString('').isNone, false);
+      expect(const JsonString('a').isSome, true);
+      expect(const JsonString('a').isNone, false);
+      expect(const JsonNumber(0).isSome, true);
+      expect(const JsonNumber(0).isNone, false);
+      expect(const JsonNumber(1).isSome, true);
+      expect(const JsonNumber(1).isNone, false);
+      expect(const JsonBoolean(false).isSome, true);
+      expect(const JsonBoolean(false).isNone, false);
+      expect(const JsonBoolean(true).isSome, true);
+      expect(const JsonBoolean(true).isNone, false);
+      expect(const JsonArray([]).isSome, true);
+      expect(const JsonArray([]).isNone, false);
+      expect(const JsonObject({}).isSome, true);
+      expect(const JsonObject({}).isNone, false);
+      expect(const JsonNull().isSome, false);
+      expect(const JsonNull().isNone, true);
+      expect(const Undefined().isSome, false);
+      expect(const Undefined().isNone, true);
+      expect(WrongType(wrongTypeValue: 'a').isSome, true);
+      expect(WrongType(wrongTypeValue: 'a').isNone, false);
+    });
+
     group('JsonValue', () {
       test('fromJson creates JsonString for string value', () {
         const json = 'hello';

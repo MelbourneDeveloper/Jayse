@@ -26,6 +26,12 @@ sealed class JsonValue {
           throw ArgumentError('Unknown JSON value type: ${json.runtimeType}'),
       };
 
+  /// Whether or not there is a value
+  bool get isSome;
+
+  /// Whether or not there is no value
+  bool get isNone => !isSome;
+
   @override
   String toString() => switch (this) {
         (final JsonString jsonString) => "'${jsonString.value}'",
@@ -53,6 +59,9 @@ final class JsonString extends JsonValue {
   final String value;
 
   @override
+  bool get isSome => true;
+
+  @override
   int get hashCode => value.hashCode;
 
   @override
@@ -68,6 +77,9 @@ final class JsonNumber extends JsonValue {
   final num value;
 
   @override
+  bool get isSome => true;
+
+  @override
   int get hashCode => value.hashCode;
 
   @override
@@ -81,6 +93,9 @@ final class JsonBoolean extends JsonValue {
 
   /// The JSON boolean value
   final bool value;
+
+  @override
+  bool get isSome => true;
 
   @override
   int get hashCode => value.hashCode;
@@ -118,6 +133,9 @@ final class JsonArray extends JsonValue {
   int get length => value.length;
 
   @override
+  bool get isSome => true;
+
+  @override
   int get hashCode => Object.hashAll(value);
 
   @override
@@ -136,6 +154,9 @@ final class JsonNull extends JsonValue {
   const JsonNull() : super._internal();
 
   @override
+  bool get isSome => false;
+
+  @override
   int get hashCode => 0;
 
   @override
@@ -148,9 +169,11 @@ final class Undefined extends JsonValue {
   const Undefined() : super._internal();
 
   @override
+  bool get isSome => false;
+
+  @override
   //Note: We don't specify a type argument here because they may not
   //match. But, regardless of type, undefined is undefined
-
   bool operator ==(Object other) => other is Undefined;
 
   //TODO: is there a different option here?
@@ -166,6 +189,9 @@ final class WrongType extends JsonValue {
 
   /// The value that is of the wrong type
   final Object wrongTypeValue;
+
+  @override
+  bool get isSome => true;
 }
 
 /// A class that represents a JSON object
@@ -250,6 +276,9 @@ final class JsonObject extends JsonValue {
         Undefined() => null,
         (final WrongType wrongType) => wrongType.wrongTypeValue,
       };
+
+  @override
+  bool get isSome => true;
 
   @override
   int get hashCode => Object.hashAll(_value.entries.map((jv) => jv.value));
