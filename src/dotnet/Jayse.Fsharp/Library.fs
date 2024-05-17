@@ -93,6 +93,17 @@ module JsonValue =
             | JsonArray value -> Some value
             | _ -> None
 
+        member this.ToJson() =
+            match this with
+            | JsonString jsonString -> jsonString :> obj
+            | JsonNumber jsonNumber -> jsonNumber :> obj
+            | JsonBoolean jsonBoolean -> jsonBoolean :> obj
+            | JsonArray jsonArray -> jsonArray |> List.map (fun v -> v.ToJson()) :> obj
+            | JsonObject jsonObject -> jsonObject.Value |> Map.map (fun _ v -> v.ToJson()) :> obj
+            | JsonNull -> null
+            | Undefined -> null
+            | WrongType wrongType -> wrongType
+
     and JsonObject(value: Map<string, JsonValue>) =
         member _.Value = value
 
@@ -130,10 +141,6 @@ module JsonValue =
 
         member this.Fields = Map.keys value
 
-        member this.ToJson() =
-            value
-            |> Map.map (fun _ jsonValue -> jsonValueToJson jsonValue)
-
         member this.ContainsKey(key: string) = value.ContainsKey key
 
     and JsonArray(value: JsonValue list) =
@@ -151,17 +158,6 @@ module JsonValue =
 
         member this.Length = List.length value
 
-    let rec jsonValueToJson (jsonValue: JsonValue) =
-        match jsonValue with
-        | JsonString jsonString -> jsonString :> obj
-        | JsonNumber jsonNumber -> jsonNumber :> obj
-        | JsonBoolean jsonBoolean -> jsonBoolean :> obj
-        | JsonArray jsonArray -> jsonArray |> List.map jsonValueToJson :> obj
-        | JsonObject jsonObject -> jsonObject.Value |> Map.map (fun _ v -> jsonValueToJson v) :> obj
-        | JsonNull -> null
-        | Undefined -> null
-        | WrongType wrongType -> wrongType
-
     let JsonValueEncode (value: JsonObject) =
         System.Text.Json.JsonSerializer.Serialize(value.ToJson())
 
@@ -175,12 +171,3 @@ module JsonValue =
 module JsonValueExtensions =
     let inline toJsonValue (value: ^T) =
         (^T : (static member ToJsonValue: ^T -> JsonValue.JsonValue) value)
-
-module StringExtensions =
-    open JsonValue
-
-    type string option with
-        member this.ToJsonValue() =
-            match this with
-            | None -> JsonNull
-            | Some value -> JsonString value
