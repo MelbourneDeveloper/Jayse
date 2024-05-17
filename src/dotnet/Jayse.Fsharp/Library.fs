@@ -167,7 +167,7 @@ module JsonValue =
         | WrongType wrongType -> wrongType
 
     let JsonValueEncode (value: JsonObject) =
-        raise (NotImplementedException("JsonValueEncode is not implemented")) // Removed: System.Text.Json.JsonSerializer.Serialize(value.ToJson()) due to compilation error
+        raise (NotImplementedException("JsonValueEncode is not implemented")) 
 
     let JsonValueDecode (value: string) =
         JsonValue.FromJson (System.Text.Json.JsonSerializer.Deserialize<obj>(value))
@@ -177,8 +177,8 @@ module JsonValueExtensions =
         (^T : (static member ToJsonValue: ^T -> JsonValue) value)
 
 module StringExtensions =
-    type System.Nullable<string> with
+    type string option with
         member this.ToJsonValue() =
             match this with
-            | null -> JsonNull
-            | value -> JsonString value
+            | None -> JsonValue.JsonNull
+            | Some value -> JsonValue.JsonString value
