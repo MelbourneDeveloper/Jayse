@@ -38,7 +38,7 @@ module JsonValue =
             | JsonNumber value -> value.ToString()
             | JsonBoolean value -> value.ToString()
             | JsonArray value -> String.Join(", ", value |> List.map (fun e -> e.ToString()))
-            | JsonObject value -> JsonValueEncode value
+            | JsonObject value -> JsonValue.JsonObjectToString value
             | JsonNull -> "JsonNull"
             | Undefined -> "Undefined"
             | WrongType value -> $"WrongType({value})"
@@ -123,8 +123,7 @@ module JsonValue =
             | Some (JsonString jsonString) when typeof<'T> = typeof<string> -> Some (jsonString :> obj :?> 'T)
             | Some (JsonNumber jsonNumber) when typeof<'T> = typeof<float> || typeof<'T> = typeof<int> && jsonNumber % 1.0 = 0.0 || typeof<'T> = typeof<float> -> Some (jsonNumber :> obj :?> 'T)
             | Some (JsonBoolean jsonBoolean) when typeof<'T> = typeof<bool> -> Some (jsonBoolean :> obj :?> 'T)
-            | Some (JsonArray jsonArray) when typeof<'T> = typeof<JsonArray> -> Some (jsonArray :> obj :?> 'T)
-            | Some (JsonArray jsonArray) when typeof<'T> = typeof<JsonValue list> -> Some (jsonArray.Value :> obj :?> 'T)
+            | Some (JsonArray jsonArray) when typeof<'T> = typeof<JsonValue list> -> Some (jsonArray :> obj :?> 'T)
             | Some (JsonObject jsonObject) when typeof<'T> = typeof<JsonObject> -> Some (jsonObject :> obj :?> 'T)
             | None -> None
             | _ -> None
@@ -157,7 +156,7 @@ module JsonValue =
         | JsonString jsonString -> jsonString :> obj
         | JsonNumber jsonNumber -> jsonNumber :> obj
         | JsonBoolean jsonBoolean -> jsonBoolean :> obj
-        | JsonArray jsonArray -> jsonArray.Value |> List.map jsonValueToJson :> obj
+        | JsonArray jsonArray -> jsonArray |> List.map jsonValueToJson :> obj
         | JsonObject jsonObject -> jsonObject.ToJson() :> obj
         | JsonNull -> null
         | Undefined -> null
@@ -168,6 +167,10 @@ module JsonValue =
 
     let JsonValueDecode (value: string) =
         JsonValue.FromJson (System.Text.Json.JsonSerializer.Deserialize<obj>(value))
+
+    let JsonObjectToString (value: Map<string, JsonValue>) =
+        let entries = value |> Map.toList |> List.map (fun (k, v) -> $"{k}: {v}")
+        "{" + (String.Join(", ", entries)) + "}"
 
 module JsonValueExtensions =
     let inline toJsonValue (value: ^T) =
