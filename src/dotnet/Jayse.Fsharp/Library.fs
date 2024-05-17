@@ -38,7 +38,7 @@ module JsonValue =
             | JsonNumber value -> value.ToString()
             | JsonBoolean value -> value.ToString()
             | JsonArray value -> String.Join(", ", value |> List.map (fun e -> e.ToString()))
-            | JsonObject value -> JsonObjectToString value
+            | JsonObject value -> value.ToString()
             | JsonNull -> "JsonNull"
             | Undefined -> "Undefined"
             | WrongType value -> $"WrongType({value})"
@@ -114,7 +114,7 @@ module JsonValue =
             jo
 
         member this.WithUpdate(key: string, value: JsonValue) =
-            let entries = Map.toList value
+            let entries = Map.toList this.Value
             let mutable replaced = false
             let mutable newEntries = []
             for (k, v) in entries do
@@ -143,6 +143,10 @@ module JsonValue =
 
         member this.ContainsKey(key: string) = value.ContainsKey key
 
+        override this.ToString() =
+            let entries = value |> Map.toList |> List.map (fun (k, v) -> $"{k}: {v}")
+            "{" + (String.Join(", ", entries)) + "}"
+
     and JsonArray(value: JsonValue list) =
         member _.Value = value
 
@@ -163,10 +167,6 @@ module JsonValue =
 
     let JsonValueDecode (value: string) =
         JsonValue.FromJson (System.Text.Json.JsonSerializer.Deserialize<obj>(value))
-
-    let JsonObjectToString (value: Map<string, JsonValue>) =
-        let entries = value |> Map.toList |> List.map (fun (k, v) -> $"{k}: {v}")
-        "{" + (String.Join(", ", entries)) + "}"
 
 module JsonValueExtensions =
     let inline toJsonValue (value: ^T) =
