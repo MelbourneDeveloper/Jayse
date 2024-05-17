@@ -92,8 +92,6 @@ type JsonValue =
         | _ -> None
 
 and JsonObject(value: Map<string, JsonValue>) =
-    inherit JsonValue()
-
     member _.Value = value
 
     member this.WithUpdates(updates: Map<string, JsonValue>) =
@@ -138,27 +136,9 @@ and JsonObject(value: Map<string, JsonValue>) =
         value
         |> Map.map (fun _ jsonValue -> jsonValueToJson jsonValue)
 
-    override this.IsSome = true
-
-    override this.GetHashCode() =
-        value
-        |> Map.toList
-        |> List.map (fun (_, jv) -> jv)
-        |> List.fold (fun acc jv -> acc ^^^ jv.GetHashCode()) 0
-
-    override this.Equals(other) =
-        match other with
-        | :? JsonObject as other ->
-            value.Count = other.Value.Count &&
-            value
-            |> Map.forall (fun key value ->
-                other.Value.ContainsKey(key) &&
-                value.Equals(other.Value.[key]))
-        | _ -> false
+    member this.ContainsKey(key: string) = value.ContainsKey key
 
 and JsonArray(value: JsonValue list) =
-    inherit JsonValue()
-
     member _.Value = value
 
     static member Unmodifiable(values: JsonValue seq) =
@@ -173,18 +153,22 @@ and JsonArray(value: JsonValue list) =
 
     member this.Length = value.Length
 
-    override this.IsSome = true
+let rec jsonValueToJson (jsonValue: JsonValue) =
+    match jsonValue with
+    | JsonString jsonString -> jsonString :> obj
+    | JsonNumber jsonNumber -> jsonNumber :> obj
+    | JsonBoolean jsonBoolean -> jsonBoolean :> obj
+    | JsonArray jsonArray -> jsonArray.Value |> List.map jsonValueToJson :> obj
+    | JsonObject jsonObject -> jsonObject.ToJson() :> obj
+    | JsonNull -> null
+    | Undefined -> null
+    | WrongType wrongType -> wrongType :> obj
 
-    override this.GetHashCode() =
-        value
-        |> List.fold (fun acc jv -> acc ^^^ jv.GetHashCode()) 0
+let JsonValueEncode (value: JsonObject) =
+    System.Text.Json.JsonSerializer.Serialize(value.ToJson())
 
-    override this.Equals(other) =
-        match other with
-        | :? JsonArray as other ->
-            value.Length = other.Value.Length &&
-            Seq.forall2 (=) value other.Value
-        | _ -> false
+let JsonValueDecode (value: string) =
+    JsonValue.FromJson (System.Text.Json.JsonSerializer.Deserialize<obj>(value))
 
 module JsonValueExtensions =
     let inline toJsonValue (value: ^T) =
@@ -203,20 +187,3 @@ module MapExtensions =
             this
             |> Map.map (fun _ value -> JsonValue.FromJson value)
             |> JsonObject
-
-let inline private jsonValueToJson (jsonValue: JsonValue) =
-    match jsonValue with
-    | JsonString jsonString -> jsonString :> obj
-    | JsonNumber jsonNumber -> jsonNumber :> obj
-    | JsonBoolean jsonBoolean -> jsonBoolean :> obj
-    | JsonArray jsonArray -> jsonArray.Value |> List.map jsonValueToJson :> obj
-    | JsonObject jsonObject -> jsonObject.ToJson() :> obj
-    | JsonNull -> null
-    | Undefined -> null
-    | WrongType wrongType -> wrongType :> obj
-
-let JsonValueDecode (value: string) =
-    JsonValue.FromJson (System.Text.Json.JsonSerializer.Deserialize<obj>(value))
-
-let JsonValueEncode (value: JsonObject) =
-    System.Text.Json.JsonSerializer.Serialize(value.ToJson())
