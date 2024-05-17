@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Jayse", "Jayse\Jayse.csproj
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Jayse.UnitTests", "Jayse.UnitTests\Jayse.UnitTests.csproj", "{1AA65B1A-A2FD-404A-AD0B-344681CF199F}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Jayse.Fsharp", "Jayse.Fsharp\Jayse.Fsharp.fsproj", "{30B02DA4-41DB-44B8-B931-E7BDE04D566C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{1AA65B1A-A2FD-404A-AD0B-344681CF199F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1AA65B1A-A2FD-404A-AD0B-344681CF199F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1AA65B1A-A2FD-404A-AD0B-344681CF199F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{30B02DA4-41DB-44B8-B931-E7BDE04D566C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{30B02DA4-41DB-44B8-B931-E7BDE04D566C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{30B02DA4-41DB-44B8-B931-E7BDE04D566C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{30B02DA4-41DB-44B8-B931-E7BDE04D566C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
