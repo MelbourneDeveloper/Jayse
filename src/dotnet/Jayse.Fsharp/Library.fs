@@ -38,7 +38,7 @@ module JsonValue =
             | JsonNumber value -> value.ToString()
             | JsonBoolean value -> value.ToString()
             | JsonArray value -> String.Join(", ", value |> List.map (fun e -> e.ToString()))
-            | JsonObject value -> JsonValue.JsonObjectToString value
+            | JsonObject value -> JsonObjectToString value
             | JsonNull -> "JsonNull"
             | Undefined -> "Undefined"
             | WrongType value -> $"WrongType({value})"
@@ -121,7 +121,7 @@ module JsonValue =
         member this.TryGetValue<'T>(field: string) =
             match value.TryFind field with
             | Some (JsonString jsonString) when typeof<'T> = typeof<string> -> Some (jsonString :> obj :?> 'T)
-            | Some (JsonNumber jsonNumber) when typeof<'T> = typeof<float> || typeof<'T> = typeof<int> && jsonNumber % 1.0 = 0.0 || typeof<'T> = typeof<float> -> Some (jsonNumber :> obj :?> 'T)
+            | Some (JsonNumber jsonNumber) when typeof<'T> = typeof<float> || (typeof<'T> = typeof<int> && jsonNumber % 1.0 = 0.0) -> Some (jsonNumber :> obj :?> 'T)
             | Some (JsonBoolean jsonBoolean) when typeof<'T> = typeof<bool> -> Some (jsonBoolean :> obj :?> 'T)
             | Some (JsonArray jsonArray) when typeof<'T> = typeof<JsonValue list> -> Some (jsonArray :> obj :?> 'T)
             | Some (JsonObject jsonObject) when typeof<'T> = typeof<JsonObject> -> Some (jsonObject :> obj :?> 'T)
@@ -157,7 +157,7 @@ module JsonValue =
         | JsonNumber jsonNumber -> jsonNumber :> obj
         | JsonBoolean jsonBoolean -> jsonBoolean :> obj
         | JsonArray jsonArray -> jsonArray |> List.map jsonValueToJson :> obj
-        | JsonObject jsonObject -> jsonObject.ToJson() :> obj
+        | JsonObject jsonObject -> jsonObject.Value |> Map.map (fun _ v -> jsonValueToJson v) :> obj
         | JsonNull -> null
         | Undefined -> null
         | WrongType wrongType -> wrongType
