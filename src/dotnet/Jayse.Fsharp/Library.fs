@@ -105,30 +105,27 @@ module JsonValue =
         member this.WithUpdate(key: string, value: JsonValue) =
             let entries = Map.toList value
             let mutable replaced = false
-            let mutable i = entries.Length - 1
-            while i >= 0 do
-                let key', value' = entries.[i]
-                if key' = key then
-                    entries.RemoveAt(i)
-                    entries.Insert(i, (key, value))
+            let mutable newEntries = []
+            for (k, v) in entries do
+                if k = key then
+                    newEntries <- (key, value) :: newEntries
                     replaced <- true
-                    i <- -1
                 else
-                    i <- i - 1
+                    newEntries <- (k, v) :: newEntries
 
             if not replaced then
-                entries.Add((key, value))
+                newEntries <- (key, value) :: newEntries
 
-            JsonObject(Map.ofList entries)
+            JsonObject(Map.ofList newEntries)
 
-        member this.Value<'T>(field: string) =
+        member this.TryGetValue<'T>(field: string) =
             match value.TryFind field with
-            | Some (JsonString jsonString) when typeof<'T> = typeof<string> -> Some (jsonString :?> 'T)
-            | Some (JsonNumber jsonNumber) when typeof<'T> = typeof<float> || typeof<'T> = typeof<int> && jsonNumber % 1.0 = 0.0 || typeof<'T> = typeof<float> -> Some (jsonNumber :?> 'T)
-            | Some (JsonBoolean jsonBoolean) when typeof<'T> = typeof<bool> -> Some (jsonBoolean :?> 'T)
-            | Some (JsonArray jsonArray) when typeof<'T> = typeof<JsonArray> -> Some (jsonArray :?> 'T)
-            | Some (JsonArray jsonArray) when typeof<'T> = typeof<JsonValue list> -> Some (jsonArray.Value :> 'T)
-            | Some (JsonObject jsonObject) when typeof<'T> = typeof<JsonObject> -> Some (jsonObject :?> 'T)
+            | Some (JsonString jsonString) when typeof<'T> = typeof<string> -> Some (jsonString :> obj :?> 'T)
+            | Some (JsonNumber jsonNumber) when typeof<'T> = typeof<float> || typeof<'T> = typeof<int> && jsonNumber % 1.0 = 0.0 || typeof<'T> = typeof<float> -> Some (jsonNumber :> obj :?> 'T)
+            | Some (JsonBoolean jsonBoolean) when typeof<'T> = typeof<bool> -> Some (jsonBoolean :> obj :?> 'T)
+            | Some (JsonArray jsonArray) when typeof<'T> = typeof<JsonArray> -> Some (jsonArray :> obj :?> 'T)
+            | Some (JsonArray jsonArray) when typeof<'T> = typeof<JsonValue list> -> Some (jsonArray.Value :> obj :?> 'T)
+            | Some (JsonObject jsonObject) when typeof<'T> = typeof<JsonObject> -> Some (jsonObject :> obj :?> 'T)
             | None -> None
             | _ -> None
 
