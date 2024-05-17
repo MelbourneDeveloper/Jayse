@@ -99,7 +99,7 @@ module JsonValue =
             | JsonNumber jsonNumber -> jsonNumber :> obj
             | JsonBoolean jsonBoolean -> jsonBoolean :> obj
             | JsonArray jsonArray -> jsonArray |> List.map (fun v -> v.ToJson()) :> obj
-            | JsonObject jsonObject -> jsonObject.Value |> Map.map (fun _ v -> v.ToJson()) :> obj
+            | JsonObject jsonObject -> jsonObject |> Map.map (fun _ v -> v.ToJson()) :> obj
             | JsonNull -> null
             | Undefined -> null
             | WrongType wrongType -> wrongType
