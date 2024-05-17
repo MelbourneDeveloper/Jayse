@@ -159,7 +159,7 @@ module JsonValue =
         member this.Length = List.length value
 
     let JsonValueEncode (value: JsonObject) =
-        System.Text.Json.JsonSerializer.Serialize(value.ToJson())
+        System.Text.Json.JsonSerializer.Serialize(value.Value |> Map.map (fun _ v -> v.ToJson()))
 
     let JsonValueDecode (value: string) =
         JsonValue.FromJson (System.Text.Json.JsonSerializer.Deserialize<obj>(value))
