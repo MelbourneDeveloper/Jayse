@@ -103,7 +103,7 @@ module JsonValue =
             jo
 
         member this.WithUpdate(key: string, value: JsonValue) =
-            let entries = value |> Map.toList
+            let entries = Map.toList value
             let mutable replaced = false
             let mutable i = entries.Length - 1
             while i >= 0 do
@@ -119,7 +119,7 @@ module JsonValue =
             if not replaced then
                 entries.Add((key, value))
 
-            JsonObject(entries |> Map.ofList)
+            JsonObject(Map.ofList entries)
 
         member this.Value<'T>(field: string) =
             match value.TryFind field with
@@ -127,12 +127,12 @@ module JsonValue =
             | Some (JsonNumber jsonNumber) when typeof<'T> = typeof<float> || typeof<'T> = typeof<int> && jsonNumber % 1.0 = 0.0 || typeof<'T> = typeof<float> -> Some (jsonNumber :?> 'T)
             | Some (JsonBoolean jsonBoolean) when typeof<'T> = typeof<bool> -> Some (jsonBoolean :?> 'T)
             | Some (JsonArray jsonArray) when typeof<'T> = typeof<JsonArray> -> Some (jsonArray :?> 'T)
-            | Some (JsonArray jsonArray) when typeof<'T> = typeof<JsonValue list> -> Some (jsonArray :> 'T) // Fixed: Changed :?> to :>
+            | Some (JsonArray jsonArray) when typeof<'T> = typeof<JsonValue list> -> Some (jsonArray.Value :> 'T)
             | Some (JsonObject jsonObject) when typeof<'T> = typeof<JsonObject> -> Some (jsonObject :?> 'T)
             | None -> None
             | _ -> None
 
-        member this.Fields = value |> Map.keys
+        member this.Fields = Map.keys value
 
         member this.ToJson() =
             value
@@ -144,41 +144,43 @@ module JsonValue =
         member _.Value = value
 
         static member Unmodifiable(values: JsonValue seq) =
-            JsonArray(values |> List.ofSeq)
+            JsonArray(List.ofSeq values)
 
         member this.Item
             with get(index) =
-                if index < value.Length then value.[index] else Undefined
+                if index < List.length value then value.[index] else Undefined
 
         member this.First =
-            if not value.IsEmpty then value.Head else Undefined
+            if not (List.isEmpty value) then List.head value else Undefined
 
-        member this.Length = value.Length
+        member this.Length = List.length value
 
     let rec jsonValueToJson (jsonValue: JsonValue) =
         match jsonValue with
         | JsonString jsonString -> jsonString :> obj
         | JsonNumber jsonNumber -> jsonNumber :> obj
         | JsonBoolean jsonBoolean -> jsonBoolean :> obj
-        | JsonArray jsonArray -> jsonArray.Value |> List.map jsonValueToJson :> obj // Fixed: Changed jsonArray to jsonArray.Value
-        | JsonObject jsonObject -> raise (NotImplementedException("JsonObject.ToJson() is not implemented")) // Removed: jsonObject.ToJson() due to compilation error
+        | JsonArray jsonArray -> jsonArray.Value |> List.map jsonValueToJson :> obj
+        | JsonObject jsonObject -> jsonObject.ToJson() :> obj
         | JsonNull -> null
         | Undefined -> null
         | WrongType wrongType -> wrongType
 
     let JsonValueEncode (value: JsonObject) =
-        raise (NotImplementedException("JsonValueEncode is not implemented")) 
+        System.Text.Json.JsonSerializer.Serialize(value.ToJson())
 
     let JsonValueDecode (value: string) =
         JsonValue.FromJson (System.Text.Json.JsonSerializer.Deserialize<obj>(value))
 
 module JsonValueExtensions =
     let inline toJsonValue (value: ^T) =
-        (^T : (static member ToJsonValue: ^T -> JsonValue) value)
+        (^T : (static member ToJsonValue: ^T -> JsonValue.JsonValue) value)
 
 module StringExtensions =
+    open JsonValue
+
     type string option with
         member this.ToJsonValue() =
             match this with
-            | None -> JsonValue.JsonNull
-            | Some value -> JsonValue.JsonString value
+            | None -> JsonNull
+            | Some value -> JsonString value
