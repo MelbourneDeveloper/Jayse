@@ -147,6 +147,14 @@ module JsonValue =
             let entries = value |> Map.toList |> List.map (fun (k, v) -> $"{k}: {v}")
             "{" + (String.Join(", ", entries)) + "}"
 
+        override this.Equals(other) =
+            match other with
+            | :? JsonObject as otherObject -> this.Value = otherObject.Value
+            | _ -> false
+
+        override this.GetHashCode() =
+            hash this.Value
+
     and JsonArray(value: JsonValue list) =
         member _.Value = value
 
