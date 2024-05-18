@@ -27,8 +27,8 @@ module JsonValue =
 
         member this.IsSome =
             match this with
-            | JsonString _ | JsonNumber _ | JsonBoolean _ | JsonArray _ | JsonObject _ -> true
-            | JsonNull | Undefined | WrongType _ -> false
+            | JsonString _ | JsonNumber _ | JsonBoolean _ | JsonArray _ | JsonObject _ | WrongType _ -> true
+            | JsonNull | Undefined -> false
 
         member this.IsNone = not this.IsSome
 
